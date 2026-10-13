@@ -2,13 +2,13 @@ import axios from "axios";
 
 const configuredBackendUrl = process.env.REACT_APP_BACKEND_URL?.trim();
 
-if (!configuredBackendUrl) {
-  throw new Error(
-    "REACT_APP_BACKEND_URL is required to run Auto-AI."
-  );
+// Do not crash the entire React app when a preview is missing backend configuration.
+// Requests will fail gracefully until REACT_APP_BACKEND_URL is configured.
+if (!configuredBackendUrl && process.env.NODE_ENV !== "test") {
+  console.error("REACT_APP_BACKEND_URL is missing; API requests will be unavailable.");
 }
 
-export const BACKEND_URL = configuredBackendUrl.replace(/\/$/, "");
+export const BACKEND_URL = (configuredBackendUrl || "").replace(/\/$/, "");
 export const API = `${BACKEND_URL}/api`;
 
 export const api = axios.create({
