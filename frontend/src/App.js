@@ -30,7 +30,7 @@ import AppErrorBoundary from "./components/AppErrorBoundary";
 
 function AppLayout() {
   const { pathname } = useLocation();
-  const isCinematicHome = pathname === "/";
+  const isCinematicHome = pathname === "/" || pathname === "/cars";
   return (
     <div className="App bg-[#050505] text-white">
             {!isCinematicHome && <Navbar />}
