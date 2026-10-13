@@ -32,7 +32,6 @@ function AppLayout() {
   const { pathname } = useLocation();
   const isCinematicHome = pathname === "/";
   return (
-  return (
     <div className="App bg-[#050505] text-white">
             {!isCinematicHome && <Navbar />}
             <main>
