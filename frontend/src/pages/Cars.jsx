@@ -6,18 +6,31 @@ import CarVisual from "../components/CarVisual";
 import { CinematicHeader } from "./Home";
 import "../styles/home-cinematic.css";
 
+const BODY_STYLES = ["All", "SUV", "Hatchback", "Sedan", "MPV", "Pickup", "Coupe", "Convertible", "Other"];
+function bodyStyle(segment) {
+ const value = String(segment || "").toLowerCase();
+ if (/suv|crossover/.test(value)) return "SUV";
+ if (/hatch/.test(value)) return "Hatchback";
+ if (/sedan|saloon/.test(value)) return "Sedan";
+ if (/mpv|muv|people mover|van/.test(value)) return "MPV";
+ if (/pickup|pick-up|truck/.test(value)) return "Pickup";
+ if (/coupe|coupé/.test(value)) return "Coupe";
+ if (/convertible|cabriolet|roadster/.test(value)) return "Convertible";
+ return "Other";
+}
+
 export default function Cars() {
  const [cars,setCars]=useState([]);
  const [status,setStatus]=useState("loading");
  const [retry,setRetry]=useState(0);
  const [params]=useSearchParams();
  const [q,setQ]=useState("");
- const [segment,setSegment]=useState(params.get("segment")||"All");
+ const [segment,setSegment]=useState(()=>{const requested=params.get("segment")||"All";return BODY_STYLES.includes(requested)?requested:bodyStyle(requested);});
  const [fuel,setFuel]=useState("All");
  useEffect(()=>{let active=true;api.get("/cars",{timeout:15000}).then(({data})=>{if(!active)return;if(!Array.isArray(data)){setStatus("error");return;}setCars(data);setStatus("ready");}).catch(()=>{if(active)setStatus("error");});return()=>{active=false;};},[retry]);
- const segments=useMemo(()=>["All",...new Set(cars.map(c=>c.segment).filter(Boolean))],[cars]);
+ const segments=BODY_STYLES.filter(style=>style==="All"||cars.some(car=>bodyStyle(car.segment)===style));
  const fuels=useMemo(()=>["All",...new Set(cars.map(c=>c.fuel).filter(Boolean))],[cars]);
- const filtered=cars.filter(c=>(segment==="All"||String(c.segment).toLowerCase()===segment.toLowerCase())&&(fuel==="All"||c.fuel===fuel)&&(!q||(`${c.brand} ${c.model}`).toLowerCase().includes(q.toLowerCase())));
+ const filtered=cars.filter(c=>(segment==="All"||bodyStyle(c.segment)===segment)&&(fuel==="All"||c.fuel===fuel)&&(!q||(`${c.brand} ${c.model}`).toLowerCase().includes(q.toLowerCase())));
  return <div className="cin-home cin-catalogue" data-testid="cars-page">
   <CinematicHeader/>
   <main className="cin-container cin-section">
