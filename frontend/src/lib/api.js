@@ -8,7 +8,10 @@ if (!configuredBackendUrl && process.env.NODE_ENV !== "test") {
   console.error("REACT_APP_BACKEND_URL is missing; API requests will be unavailable.");
 }
 
-export const BACKEND_URL = (configuredBackendUrl || "").replace(/\/$/, "");
+// Vercel preview requests are same-origin through the /api reverse proxy.
+// This avoids cross-origin restrictions while leaving non-preview clients unchanged.
+const isVercelPreview = typeof window !== "undefined" && window.location.hostname.endsWith(".vercel.app");
+export const BACKEND_URL = isVercelPreview ? "" : (configuredBackendUrl || "").replace(/\/$/, "");
 export const API = `${BACKEND_URL}/api`;
 
 export const api = axios.create({
