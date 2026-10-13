@@ -129,3 +129,45 @@
 .cin-catalogue-count{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#b8c8ca;margin:22px 0 27px}
 .cin-reset{margin-left:10px;color:#fff;text-decoration:underline;cursor:pointer}
 @media(max-width:700px){.cin-filter-grid{grid-template-columns:1fr}.cin-catalogue-heading{margin-bottom:30px}}
+
+/* Recorded design reference: restrained editorial AutoAI India identity */
+.cin-home{background:#090c0f;color:#f8f8f8;font-family:Manrope,sans-serif}
+.cin-header{background:rgba(15,17,19,.9);border-bottom:1px solid rgba(255,255,255,.16)}
+.cin-header-inner{min-height:72px}
+.cin-brand{gap:0}
+.cin-brand-name{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;letter-spacing:-.065em;white-space:nowrap}
+.cin-brand-name small{display:inline;margin-left:6px;font-size:8px;font-weight:600;letter-spacing:.18em;color:#d1d5d6}
+.cin-main-nav{gap:34px}
+.cin-main-nav a{font-size:10px;letter-spacing:.07em}
+.cin-header-cta{background:transparent;color:#f4f4f4;border:1px solid rgba(255,255,255,.48);font-size:10px;font-weight:600;letter-spacing:.03em}
+.cin-header-cta:hover{background:rgba(255,255,255,.12);color:#fff}
+.cin-hero{min-height:690px;align-items:center}
+.cin-hero-content{padding-block:70px 85px}
+.cin-hero h1{font:400 clamp(3.6rem,6.15vw,6.8rem)/1.04 Outfit,Manrope,sans-serif;letter-spacing:-.055em;max-width:760px;margin:27px 0 22px;text-transform:none}
+.cin-hero h1 strong{font-weight:650}
+.cin-hero p{font-size:15px;line-height:1.8;max-width:510px;color:#e2e4e5}
+.cin-hero .cin-eyebrow{font-size:10px;color:#e1e3e3;letter-spacing:.22em}
+.cin-hero-shade{background:linear-gradient(90deg,rgba(3,5,7,.84),rgba(3,5,7,.32) 50%,rgba(3,5,7,.04) 85%),linear-gradient(0deg,rgba(0,0,0,.35),transparent 35%)}
+.cin-hero-image{background-position:center 54%}
+.cin-btn{font-size:11px;font-weight:650;letter-spacing:.01em;text-transform:none;min-height:48px}
+.cin-service-band{background:#10161a}
+.cin-section{padding-block:95px}
+.cin-section-heading h2,.cin-editorial-content h2,.cin-advisor h2{letter-spacing:-.05em}
+.cin-editorial{background:#f0f0ee;color:#111416}
+.cin-editorial-content .cin-eyebrow{color:#555e61}
+.cin-editorial-content h2{color:#101316}
+.cin-editorial-content p{color:#4c5558}
+.cin-editorial-content .cin-btn-light{background:#111719;color:#fff}
+.cin-editorial-content .cin-btn-light:hover{background:#333d41}
+.cin-editorial-grid{min-height:580px}
+.cin-editorial-photo{background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1400&q=85')}
+.cin-advisor{background:#10161a url('https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1800&q=80') right center/auto 100% no-repeat}
+.cin-advisor:before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#10161a 0%,rgba(16,22,26,.96) 34%,rgba(16,22,26,.56) 75%,rgba(16,22,26,.12))}
+.cin-advisor-inner{z-index:1}
+.cin-advisor h2 span{color:#f7f8f8}
+.cin-footer{background:#080b0e}
+.cin-footer strong{font-size:19px;letter-spacing:-.04em}
+.cin-footer strong small{font-size:8px;letter-spacing:.12em}
+@media(min-width:961px){.cin-hero h1{font-size:clamp(3.6rem,6.15vw,6.8rem);max-width:760px}.cin-hero-content{padding-block:70px 85px}.cin-hero-shade{background:linear-gradient(90deg,rgba(3,5,7,.84),rgba(3,5,7,.32) 50%,rgba(3,5,7,.04) 85%),linear-gradient(0deg,rgba(0,0,0,.35),transparent 35%)}}
+@media(max-width:960px){.cin-advisor{background-size:cover;background-position:65% center}.cin-advisor:before{background:rgba(10,15,18,.78)}}
+@media(max-width:600px){.cin-hero h1{font-size:clamp(2.8rem,11vw,4.6rem)}.cin-brand-name{font-size:19px}.cin-hero{min-height:670px}.cin-hero p{font-size:14px}}
