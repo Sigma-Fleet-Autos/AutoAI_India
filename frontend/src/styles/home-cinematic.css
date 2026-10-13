@@ -113,3 +113,19 @@
 .cin-state-actions a:hover{background:#28363a}
 @media(max-width:960px){.cin-state-recovery{flex-direction:column;align-items:flex-start}}
 @media(max-width:600px){.cin-state-recovery{padding:23px}.cin-state-actions{width:100%}.cin-state-actions button,.cin-state-actions a{flex:1}.cin-hero h1{letter-spacing:-.055em}}
+
+/* Shared catalogue design */
+.cin-catalogue{min-height:100vh}
+.cin-catalogue-heading{margin:20px 0 40px}
+.cin-catalogue-heading h1{font:400 clamp(3rem,6vw,6rem)/1.04 Outfit,sans-serif;letter-spacing:-.045em}
+.cin-catalogue-heading h1 span{color:#c1d4d6}
+.cin-catalogue-heading p{max-width:620px;margin-top:18px;color:#aebdc0;line-height:1.8}
+.cin-filter-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
+.cin-filter-grid select,.cin-search-field{height:56px;background:#151e22;border:1px solid #36444a;color:#f3f5f4;padding:0 18px;width:100%;outline:none}
+.cin-filter-grid select:focus,.cin-search-field:focus-within{border-color:#d3e1e3}
+.cin-search-field{display:flex;align-items:center;gap:13px}
+.cin-search-field input{width:100%;background:transparent;color:white;border:0;outline:none;font-size:14px}
+.cin-search-field input::placeholder{color:#9aabad}
+.cin-catalogue-count{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#b8c8ca;margin:22px 0 27px}
+.cin-reset{margin-left:10px;color:#fff;text-decoration:underline;cursor:pointer}
+@media(max-width:700px){.cin-filter-grid{grid-template-columns:1fr}.cin-catalogue-heading{margin-bottom:30px}}
