@@ -1,0 +1,185 @@
+/* AutoAI India — scoped cinematic homepage; no global overrides */
+.cin-home{background:#080b0e;color:#f7f7f5;font-family:Manrope,sans-serif;overflow:hidden}
+.cin-home *{box-sizing:border-box}
+.cin-container{width:min(100% - 48px,1240px);margin-inline:auto}
+.cin-eyebrow{font-size:11px;font-weight:700;letter-spacing:.19em;text-transform:uppercase;color:#c1d4d6}
+.cin-hero{min-height:min(780px,90svh);position:relative;display:flex;align-items:center;background:#10171c}
+.cin-hero-image{position:absolute;inset:0;background-position:center 52%;background-size:cover;filter:saturate(.75)}
+.cin-hero-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,7,10,.91),rgba(3,7,10,.55) 53%,rgba(3,7,10,.08)),linear-gradient(0deg,#080b0e,transparent 34%)}
+.cin-hero-content{position:relative;z-index:1;padding-block:90px 130px}
+.cin-hero h1{font:500 clamp(3.2rem,7.2vw,7.6rem)/.96 Outfit,sans-serif;letter-spacing:-.045em;max-width:950px;margin:26px 0}
+.cin-hero h1 span{color:#dce4e5}
+.cin-hero p{font-size:clamp(15px,1.35vw,19px);line-height:1.75;max-width:570px;color:#d5dcde}
+.cin-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:35px}
+.cin-btn{min-height:52px;display:inline-flex;align-items:center;justify-content:space-between;gap:24px;padding:14px 23px;text-transform:uppercase;font-size:12px;font-weight:800;letter-spacing:.09em;text-decoration:none;transition:background .2s,border-color .2s,transform .2s}
+.cin-btn:hover{transform:translateY(-2px)}
+.cin-btn-light{background:#f6f7f5;color:#101517}
+.cin-btn-light:hover{background:#d5e0e1}
+.cin-btn-outline{color:white;border:1px solid rgba(255,255,255,.65);background:rgba(10,15,17,.2)}
+.cin-btn-outline:hover{border-color:white;background:rgba(255,255,255,.12)}
+.cin-hero-index{position:absolute;bottom:32px;right:6%;font-size:11px;letter-spacing:.2em;color:#d5dcde}
+.cin-service-band{background:#141b20;border-block:1px solid #30383e}
+.cin-service-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.cin-service-grid>a{display:flex;align-items:center;gap:12px;padding:28px 14px;color:#e5e9e9;text-decoration:none;border-right:1px solid #30383e;font-size:11px;font-weight:800;letter-spacing:.08em}
+.cin-service-grid>a:first-child{padding-left:0}.cin-service-grid>a:last-child{border:0}
+.cin-service-grid>a svg:last-child{margin-left:auto;color:#a9c8ca}
+.cin-service-grid>a:hover{color:#a9c8ca}
+.cin-section{padding-block:110px}
+.cin-section-heading{max-width:800px;margin-bottom:42px}
+.cin-section-heading h2,.cin-editorial-content h2,.cin-advisor h2{font:400 clamp(2.4rem,5vw,4.8rem)/1.05 Outfit,sans-serif;letter-spacing:-.035em;margin:18px 0}
+.cin-section-heading p,.cin-editorial-content p,.cin-advisor p{color:#b7c0c3;line-height:1.75;font-size:15px}
+.cin-category-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.cin-category{position:relative;aspect-ratio:4/5;overflow:hidden;background:#192126;color:white;text-decoration:none}
+.cin-category:after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.83),transparent 65%)}
+.cin-category img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
+.cin-category:hover img{transform:scale(1.07)}
+.cin-category span,.cin-category svg{position:absolute;bottom:22px;z-index:1}
+.cin-category span{left:20px;font:500 24px Outfit,sans-serif}
+.cin-category svg{right:20px}
+.cin-section-action{display:flex;justify-content:flex-end;margin-top:25px}
+.cin-section-action a{color:#f7f7f5;display:flex;align-items:center;gap:12px;text-transform:uppercase;letter-spacing:.12em;font-size:12px}
+.cin-editorial{background:#151e22}
+.cin-editorial-grid{display:grid;grid-template-columns:1.1fr 1fr;min-height:570px;align-items:stretch}
+.cin-editorial-photo{background:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1300&q=85') center/cover;min-height:440px}
+.cin-editorial-content{display:flex;flex-direction:column;justify-content:center;padding:65px 7%}
+.cin-editorial-content p{max-width:450px}
+.cin-editorial-content .cin-btn{align-self:flex-start;margin-top:25px}
+.cin-cars-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.cin-state{padding:40px;border:1px solid #30383e;color:#b7c0c3}
+.cin-state a{color:#e3f1f2;text-decoration:underline}
+.cin-advisor{background:linear-gradient(120deg,#162126,#0a0f12);padding:110px 0;position:relative}
+.cin-advisor-inner{position:relative}
+.cin-advisor h2 span{color:#b8d2d3}
+.cin-advisor p{max-width:600px}
+.cin-advisor .cin-btn{margin-top:25px}
+.cin-advisor-mark{position:absolute;right:6%;top:0;opacity:.14;color:#d3f4f4;pointer-events:none}
+.cin-promise{display:flex;align-items:center;gap:18px;padding-block:32px;color:#b7c0c3;font-size:12px;line-height:1.7}
+.cin-promise svg{flex-shrink:0}
+@media(max-width:960px){.cin-service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cin-service-grid>a{border-bottom:1px solid #30383e}.cin-category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cin-cars-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cin-editorial-grid{grid-template-columns:1fr}.cin-editorial-content{padding:65px 24px}}
+@media(max-width:600px){.cin-container{width:min(100% - 36px,1240px)}.cin-hero{min-height:690px;align-items:flex-end}.cin-hero-image{background-position:60% center}.cin-hero-shade{background:linear-gradient(0deg,#080b0e 3%,rgba(3,7,10,.72) 57%,rgba(3,7,10,.18))}.cin-hero-content{padding:90px 0 110px}.cin-hero h1{font-size:clamp(3rem,12vw,4.5rem)}.cin-actions{flex-direction:column}.cin-btn{justify-content:center}.cin-hero-index{left:18px;right:auto;bottom:22px}.cin-service-grid>a{font-size:10px;padding:22px 9px}.cin-service-grid>a svg:first-child{width:18px}.cin-service-grid>a svg:last-child{display:none}.cin-section{padding-block:70px}.cin-category-grid{gap:10px}.cin-category{aspect-ratio:4/5}.cin-category span{font-size:19px;left:12px;bottom:12px}.cin-category svg{right:12px;bottom:12px;width:17px}.cin-cars-grid{grid-template-columns:1fr}.cin-advisor{padding:80px 0}.cin-advisor-mark{display:none}.cin-promise{align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){.cin-home *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Dedicated cinematic shell — no inherited amber application chrome */
+.cin-home{--primary:#dce4e5;--primary-hover:#fff;--copper:#dce4e5;--border:#2b3439;--text:#f7f7f5}
+.cin-header{position:relative;z-index:40;background:#0b1013;border-bottom:1px solid #2b3338}
+.cin-header-inner{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:28px}
+.cin-brand{display:flex;align-items:center;gap:13px;color:#f7f7f5;text-decoration:none;flex-shrink:0}
+.cin-brand-mark{width:49px;height:49px;border:1px solid #bfc9cb;display:flex;align-items:center;justify-content:center;font:600 17px Outfit,sans-serif;letter-spacing:-.08em}
+.cin-brand-mark span{color:#91b0b3}
+.cin-brand-name{font:700 15px Manrope,sans-serif;letter-spacing:.16em}
+.cin-brand-name small{display:block;color:#9aabb0;font-size:9px;letter-spacing:.3em;margin-top:3px}
+.cin-main-nav{display:flex;align-items:center;gap:27px}
+.cin-main-nav a,.cin-header-login{font:700 11px Manrope,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#d5dcde;text-decoration:none;white-space:nowrap}
+.cin-main-nav a:hover,.cin-header-login:hover{color:white}
+.cin-header-actions{display:flex;align-items:center;gap:23px}
+.cin-header-cta{background:#edf1ef;color:#0a1114;text-decoration:none;display:flex;align-items:center;gap:20px;padding:14px 18px;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.cin-header-cta:hover{background:#c5d4d5}
+.cin-mobile-toggle{display:none;background:transparent;border:1px solid #536068;color:white;padding:9px;cursor:pointer}
+.cin-vehicle{border:1px solid #29343a;background:#12191d;overflow:hidden}
+.cin-vehicle-photo{aspect-ratio:16/10;background:#182126;overflow:hidden}
+.cin-vehicle-photo img{width:100%;height:100%;object-fit:cover}
+.cin-vehicle-details{padding:24px}
+.cin-vehicle-details h3{font:500 27px Outfit,sans-serif;letter-spacing:-.025em;margin:9px 0 3px}
+.cin-vehicle-details p{font-size:13px;color:#9caaae}
+.cin-vehicle-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid #334047;margin-top:23px;padding-top:17px;font-size:18px;font-weight:700}
+.cin-vehicle-bottom small{display:block;color:#9caaae;font-size:10px;font-weight:500;margin-top:4px}
+.cin-vehicle-bottom a{width:42px;height:42px;border:1px solid #64757b;color:#fff;display:grid;place-items:center}
+.cin-vehicle-bottom a:hover{background:#dce4e5;color:#101517}
+.cin-footer{background:#0d1316;border-top:1px solid #273239;padding:45px 0}
+.cin-footer-inner{display:flex;align-items:center;justify-content:space-between;gap:25px}
+.cin-footer strong{font-size:14px;letter-spacing:.15em}
+.cin-footer p,.cin-footer-inner>span{color:#93a2a7;font-size:12px;margin-top:7px}
+.cin-footer nav{display:flex;flex-wrap:wrap;gap:20px}
+.cin-footer nav a{color:#cbd4d6;text-decoration:none;font-size:12px}
+@media(max-width:1180px){.cin-main-nav{gap:15px}.cin-header-actions{gap:13px}.cin-header-cta{padding:13px}.cin-brand-name{font-size:12px}}
+@media(max-width:960px){.cin-header-inner{min-height:72px}.cin-mobile-toggle{display:block}.cin-main-nav{display:none;position:absolute;top:100%;left:0;right:0;background:#0c1216;border-bottom:1px solid #3a484d;padding:22px 24px;flex-direction:column;align-items:stretch;gap:0}.cin-main-nav-open{display:flex}.cin-main-nav a{padding:15px 0;border-bottom:1px solid #263239}.cin-header-actions{margin-left:auto}.cin-footer-inner{flex-wrap:wrap}}
+@media(max-width:600px){.cin-header-inner{gap:12px}.cin-brand-mark{width:39px;height:39px;font-size:14px}.cin-brand-name{font-size:11px}.cin-header-login,.cin-header-cta{display:none}.cin-footer-inner{flex-direction:column;align-items:flex-start}}
+
+/* QA refinements: preserve automotive photography and improve failure recovery */
+@media(min-width:961px){
+  .cin-hero h1{font-size:clamp(3.4rem,6.1vw,6.4rem);max-width:850px}
+  .cin-hero-content{padding-block:92px 120px}
+  .cin-hero-image{background-position:center 55%}
+  .cin-hero-shade{background:linear-gradient(90deg,rgba(3,7,10,.91),rgba(3,7,10,.66) 40%,rgba(3,7,10,.07) 82%),linear-gradient(0deg,#080b0e,transparent 27%)}
+}
+.cin-editorial-photo{background-position:center 50%}
+.cin-state-recovery{display:flex;align-items:center;justify-content:space-between;gap:25px;background:#11191c}
+.cin-state-recovery strong{display:block;color:#f1f5f3;font:500 21px Outfit,sans-serif}
+.cin-state-recovery p{margin-top:9px;font-size:13px;line-height:1.7;max-width:560px}
+.cin-state-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;flex-shrink:0}
+.cin-state-actions button,.cin-state-actions a{min-height:43px;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 16px;border:1px solid #9babad;background:transparent;color:#f1f5f3;text-decoration:none;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.cin-state-actions button{background:#e8eeee;color:#11191c}
+.cin-state-actions button:hover{background:white}
+.cin-state-actions a:hover{background:#28363a}
+@media(max-width:960px){.cin-state-recovery{flex-direction:column;align-items:flex-start}}
+@media(max-width:600px){.cin-state-recovery{padding:23px}.cin-state-actions{width:100%}.cin-state-actions button,.cin-state-actions a{flex:1}.cin-hero h1{letter-spacing:-.055em}}
+
+/* Shared catalogue design */
+.cin-catalogue{min-height:100vh}
+.cin-catalogue-heading{margin:20px 0 40px}
+.cin-catalogue-heading h1{font:400 clamp(3rem,6vw,6rem)/1.04 Outfit,sans-serif;letter-spacing:-.045em}
+.cin-catalogue-heading h1 span{color:#c1d4d6}
+.cin-catalogue-heading p{max-width:620px;margin-top:18px;color:#aebdc0;line-height:1.8}
+.cin-filter-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
+.cin-filter-grid select,.cin-search-field{height:56px;background:#151e22;border:1px solid #36444a;color:#f3f5f4;padding:0 18px;width:100%;outline:none}
+.cin-filter-grid select:focus,.cin-search-field:focus-within{border-color:#d3e1e3}
+.cin-search-field{display:flex;align-items:center;gap:13px}
+.cin-search-field input{width:100%;background:transparent;color:white;border:0;outline:none;font-size:14px}
+.cin-search-field input::placeholder{color:#9aabad}
+.cin-catalogue-count{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:#b8c8ca;margin:22px 0 27px}
+.cin-reset{margin-left:10px;color:#fff;text-decoration:underline;cursor:pointer}
+@media(max-width:700px){.cin-filter-grid{grid-template-columns:1fr}.cin-catalogue-heading{margin-bottom:30px}}
+
+/* Recorded design reference: restrained editorial AutoAI India identity */
+.cin-home{background:#090c0f;color:#f8f8f8;font-family:Manrope,sans-serif}
+.cin-header{background:rgba(15,17,19,.9);border-bottom:1px solid rgba(255,255,255,.16)}
+.cin-header-inner{min-height:72px}
+.cin-brand{gap:0}
+.cin-brand-name{font-family:Manrope,sans-serif;font-size:22px;font-weight:800;letter-spacing:-.065em;white-space:nowrap}
+.cin-brand-name small{display:inline;margin-left:6px;font-size:8px;font-weight:600;letter-spacing:.18em;color:#d1d5d6}
+.cin-main-nav{gap:34px}
+.cin-main-nav a{font-size:10px;letter-spacing:.07em}
+.cin-header-cta{background:transparent;color:#f4f4f4;border:1px solid rgba(255,255,255,.48);font-size:10px;font-weight:600;letter-spacing:.03em}
+.cin-header-cta:hover{background:rgba(255,255,255,.12);color:#fff}
+.cin-hero{min-height:690px;align-items:center}
+.cin-hero-content{padding-block:70px 85px}
+.cin-hero h1{font:400 clamp(3.6rem,6.15vw,6.8rem)/1.04 Outfit,Manrope,sans-serif;letter-spacing:-.055em;max-width:760px;margin:27px 0 22px;text-transform:none}
+.cin-hero h1 strong{font-weight:650}
+.cin-hero p{font-size:15px;line-height:1.8;max-width:510px;color:#e2e4e5}
+.cin-hero .cin-eyebrow{font-size:10px;color:#e1e3e3;letter-spacing:.22em}
+.cin-hero-shade{background:linear-gradient(90deg,rgba(3,5,7,.84),rgba(3,5,7,.32) 50%,rgba(3,5,7,.04) 85%),linear-gradient(0deg,rgba(0,0,0,.35),transparent 35%)}
+.cin-hero-image{background-position:center 54%}
+.cin-btn{font-size:11px;font-weight:650;letter-spacing:.01em;text-transform:none;min-height:48px}
+.cin-service-band{background:#10161a}
+.cin-section{padding-block:95px}
+.cin-section-heading h2,.cin-editorial-content h2,.cin-advisor h2{letter-spacing:-.05em}
+.cin-editorial{background:#f0f0ee;color:#111416}
+.cin-editorial-content .cin-eyebrow{color:#555e61}
+.cin-editorial-content h2{color:#101316}
+.cin-editorial-content p{color:#4c5558}
+.cin-editorial-content .cin-btn-light{background:#111719;color:#fff}
+.cin-editorial-content .cin-btn-light:hover{background:#333d41}
+.cin-editorial-grid{min-height:580px}
+.cin-editorial-photo{background-image:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1400&q=85')}
+.cin-advisor{background:#10161a url('https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1800&q=80') right center/auto 100% no-repeat}
+.cin-advisor:before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#10161a 0%,rgba(16,22,26,.96) 34%,rgba(16,22,26,.56) 75%,rgba(16,22,26,.12))}
+.cin-advisor-inner{z-index:1}
+.cin-advisor h2 span{color:#f7f8f8}
+.cin-footer{background:#080b0e}
+.cin-footer strong{font-size:19px;letter-spacing:-.04em}
+.cin-footer strong small{font-size:8px;letter-spacing:.12em}
+@media(min-width:961px){.cin-hero h1{font-size:clamp(3.6rem,6.15vw,6.8rem);max-width:760px}.cin-hero-content{padding-block:70px 85px}.cin-hero-shade{background:linear-gradient(90deg,rgba(3,5,7,.84),rgba(3,5,7,.32) 50%,rgba(3,5,7,.04) 85%),linear-gradient(0deg,rgba(0,0,0,.35),transparent 35%)}}
+@media(max-width:960px){.cin-advisor{background-size:cover;background-position:65% center}.cin-advisor:before{background:rgba(10,15,18,.78)}}
+@media(max-width:600px){.cin-hero h1{font-size:clamp(2.8rem,11vw,4.6rem)}.cin-brand-name{font-size:19px}.cin-hero{min-height:670px}.cin-hero p{font-size:14px}}
+
+/* Public-route migration: scoped legacy form and card normalization */
+.cin-route-shell{background:#090d10;min-height:calc(100vh - 72px);color:#f5f7f6}
+.cin-public-page{background:#090d10!important;color:#f5f7f6;font-family:Manrope,sans-serif}
+.cin-public-page h1{font-family:Outfit,Manrope,sans-serif;letter-spacing:-.055em;line-height:1.08}
+.cin-public-page .ai-input{background:#151e22!important;color:#f3f5f4!important;border:1px solid #36444a!important;border-radius:0!important;min-height:48px}
+.cin-public-page .ai-input:focus{border-color:#b8cdd0!important;outline:2px solid transparent}
+.cin-public-page input::placeholder{color:#93a4a8}
+.cin-public-page button[type=submit]{background:#e8efed!important;color:#101719!important;letter-spacing:.035em;text-transform:none}
+.cin-public-page button[type=submit]:hover{background:#cbdcda!important}
+.cin-public-page button:disabled{cursor:wait}
+@media(max-width:600px){.cin-public-page h1{font-size:clamp(2.4rem,10vw,4rem)}}

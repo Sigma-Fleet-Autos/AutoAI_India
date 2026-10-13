@@ -35,18 +35,18 @@ export default function EMI() {
   }, [result]);
 
   return (
-    <div className="bg-[#050505] min-h-screen" data-testid="emi-page">
+    <div className="cin-public-page min-h-screen" data-testid="emi-page">
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-px bg-[#F59E0B]" />
-          <span className="text-[10px] uppercase tracking-[0.35em] text-[#F59E0B] font-bold font-mono">/// emi studio</span>
+          <div className="w-10 h-px bg-[#c1d4d6]" />
+          <span className="text-[10px] uppercase tracking-[0.35em] text-[#c1d4d6] font-bold font-mono">OWNERSHIP / EMI CALCULATOR</span>
         </div>
-        <h1 className="font-display text-5xl lg:text-6xl tracking-tighter font-light uppercase">
-          Loan math, <span className="text-[#F59E0B]">demystified.</span>
+        <h1 className="font-display text-5xl lg:text-6xl tracking-tighter font-light">
+          Loan math, <span className="text-[#c1d4d6]">demystified.</span>
         </h1>
 
         <div className="mt-12 grid lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-7 border border-[#262626] bg-[#0A0A0A] p-8 space-y-10">
+          <div className="lg:col-span-7 border border-[#354247] bg-[#12191d] p-8 space-y-10">
             <Field label="Loan Amount" value={formatINR(principal[0])}>
               <Slider
                 value={principal}
@@ -55,7 +55,7 @@ export default function EMI() {
                 max={5000000}
                 step={10000}
                 data-testid="emi-principal-slider"
-                className="[&>span:first-child]:bg-[#141414] [&_[role=slider]]:bg-[#F59E0B] [&_[role=slider]]:border-[#F59E0B]"
+                className="[&>span:first-child]:bg-[#283338] [&_[role=slider]]:bg-[#c1d4d6] [&_[role=slider]]:border-[#c1d4d6]"
               />
             </Field>
             <Field label="Interest Rate" value={`${rate[0].toFixed(2)}% p.a.`}>
@@ -66,7 +66,7 @@ export default function EMI() {
                 max={16}
                 step={0.05}
                 data-testid="emi-rate-slider"
-                className="[&>span:first-child]:bg-[#141414] [&_[role=slider]]:bg-[#F59E0B] [&_[role=slider]]:border-[#F59E0B]"
+                className="[&>span:first-child]:bg-[#283338] [&_[role=slider]]:bg-[#c1d4d6] [&_[role=slider]]:border-[#c1d4d6]"
               />
             </Field>
             <Field label="Tenure" value={`${tenure[0]} months · ${(tenure[0]/12).toFixed(1)} yrs`}>
@@ -77,22 +77,22 @@ export default function EMI() {
                 max={84}
                 step={1}
                 data-testid="emi-tenure-slider"
-                className="[&>span:first-child]:bg-[#141414] [&_[role=slider]]:bg-[#F59E0B] [&_[role=slider]]:border-[#F59E0B]"
+                className="[&>span:first-child]:bg-[#283338] [&_[role=slider]]:bg-[#c1d4d6] [&_[role=slider]]:border-[#c1d4d6]"
               />
             </Field>
           </div>
 
-          <div className="lg:col-span-5 border border-[#F59E0B] bg-[#0A0A0A] p-8 relative">
+          <div className="lg:col-span-5 border border-[#c1d4d6] bg-[#12191d] p-8 relative">
             <div className="flex items-center gap-2 mb-4">
-              <Calculator size={16} className="text-[#F59E0B]" />
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#F59E0B] font-bold font-mono">Monthly EMI</span>
+              <Calculator size={16} className="text-[#c1d4d6]" />
+              <span className="text-[10px] uppercase tracking-[0.3em] text-[#c1d4d6] font-bold font-mono">Monthly EMI</span>
             </div>
             <div className="font-display text-6xl font-light text-white tabular-nums" data-testid="emi-result">
               {result ? formatINR(Math.round(result.emi)) : "—"}
             </div>
             <div className="text-sm text-slate-400 mt-2">per month</div>
 
-            <div className="mt-8 grid grid-cols-2 gap-4 pt-6 border-t border-[#262626]">
+            <div className="mt-8 grid grid-cols-2 gap-4 pt-6 border-t border-[#354247]">
               <div>
                 <div className="text-[10px] uppercase tracking-[0.25em] text-slate-500">Total Interest</div>
                 <div className="font-display text-2xl text-[#EF4444] mt-1">{result ? formatINR(Math.round(result.total_interest)) : "—"}</div>
@@ -106,7 +106,7 @@ export default function EMI() {
             <div className="mt-6">
               <div className="text-[10px] uppercase tracking-[0.25em] text-slate-500 mb-2">Principal vs Interest</div>
               <div className="flex h-3">
-                <div className="bg-[#F59E0B]" style={{ width: `${pie.p}%` }} />
+                <div className="bg-[#c1d4d6]" style={{ width: `${pie.p}%` }} />
                 <div className="bg-[#EF4444]" style={{ width: `${pie.i}%` }} />
               </div>
               <div className="flex justify-between mt-2 text-[10px] text-slate-400 font-mono">
@@ -126,7 +126,7 @@ function Field({ label, value, children }) {
     <div>
       <div className="flex justify-between items-baseline mb-4">
         <label className="text-[10px] uppercase tracking-[0.3em] text-slate-400 font-bold">{label}</label>
-        <span className="font-display text-xl text-[#F59E0B] tabular-nums">{value}</span>
+        <span className="font-display text-xl text-[#c1d4d6] tabular-nums">{value}</span>
       </div>
       {children}
     </div>

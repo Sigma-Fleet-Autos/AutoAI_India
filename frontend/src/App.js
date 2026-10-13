@@ -1,9 +1,10 @@
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ChatDrawer from "./components/ChatDrawerFixed";
-import Home from "./pages/Home";
+import Home, { CinematicHeader } from "./pages/Home";
+import "./styles/home-cinematic.css";
 import Compare from "./pages/Compare";
 import Recommend from "./pages/Recommend";
 import Cars from "./pages/Cars";
@@ -28,14 +29,15 @@ import { Toaster } from "./components/ui/sonner";
 import { I18nProvider } from "./lib/i18n";
 import AppErrorBoundary from "./components/AppErrorBoundary";
 
-function App() {
+function AppLayout() {
+  const { pathname } = useLocation();
+  const isCinematicHome = pathname === "/" || pathname === "/cars";
+  const isPublicCinematicRoute = ["/compare", "/recommend", "/emi", "/news", "/about", "/premium", "/login", "/my-bookings"].includes(pathname) || pathname === "/dealers/apply" || pathname.startsWith("/book/") || pathname.startsWith("/showroom/");
   return (
-    <AppErrorBoundary>
-      <div className="App bg-[#050505] text-white">
-        <I18nProvider>
-          <BrowserRouter>
-            <Navbar />
-            <main>
+    <div className="App bg-[#050505] text-white">
+            {!isCinematicHome && !isPublicCinematicRoute && <Navbar />}
+            {isPublicCinematicRoute && <CinematicHeader />}
+            <main className={isPublicCinematicRoute ? "cin-route-shell" : ""}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/compare" element={<Compare />} />
@@ -59,15 +61,16 @@ function App() {
                 <Route path="/my-bookings" element={<MyBookings />} />
               </Routes>
             </main>
-            <Footer />
-            <ChatDrawer />
+            {!isCinematicHome && !isPublicCinematicRoute && <Footer />}
+            {!isCinematicHome && !isPublicCinematicRoute && <ChatDrawer />}
             <InstallPWA />
             <Toaster />
-          </BrowserRouter>
-        </I18nProvider>
-      </div>
-    </AppErrorBoundary>
+    </div>
   );
+}
+
+function App() {
+  return <AppErrorBoundary><I18nProvider><BrowserRouter><AppLayout /></BrowserRouter></I18nProvider></AppErrorBoundary>;
 }
 
 export default App;

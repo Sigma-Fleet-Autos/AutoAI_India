@@ -2,13 +2,16 @@ import axios from "axios";
 
 const configuredBackendUrl = process.env.REACT_APP_BACKEND_URL?.trim();
 
-if (!configuredBackendUrl) {
-  throw new Error(
-    "REACT_APP_BACKEND_URL is required to run Auto-AI."
-  );
+// Do not crash the entire React app when a preview is missing backend configuration.
+// Requests will fail gracefully until REACT_APP_BACKEND_URL is configured.
+if (!configuredBackendUrl && process.env.NODE_ENV !== "test") {
+  console.error("REACT_APP_BACKEND_URL is missing; API requests will be unavailable.");
 }
 
-export const BACKEND_URL = configuredBackendUrl.replace(/\/$/, "");
+// Vercel preview requests are same-origin through the /api reverse proxy.
+// This avoids cross-origin restrictions while leaving non-preview clients unchanged.
+const isVercelPreview = typeof window !== "undefined" && window.location.hostname.endsWith(".vercel.app");
+export const BACKEND_URL = isVercelPreview ? "" : (configuredBackendUrl || "").replace(/\/$/, "");
 export const API = `${BACKEND_URL}/api`;
 
 export const api = axios.create({
@@ -19,12 +22,20 @@ export const api = axios.create({
 export const USER_TOKEN_KEY = "autoai_token";
 export const ADMIN_TOKEN_KEY = "autoai_admin_token";
 
+function isPublicCatalogueCall(config) {
+  const path = (config.url || "").split("?")[0];
+  return (config.method || "get").toLowerCase() === "get" && ["/cars", "/news"].includes(path);
+}
+
 function isAdminApiCall(url = "") {
   return url.startsWith("/admin") || url.startsWith("admin") || url.startsWith("/v1/admin") || url.startsWith("v1/admin");
 }
 
 // Admin routes carry the admin session token; everything else uses the user token.
 api.interceptors.request.use((config) => {
+  // Public catalogue requests must not carry stale session credentials or trigger
+  // unnecessary CORS preflight requests on the separate Render API origin.
+  if (isPublicCatalogueCall(config)) return config;
   const key = isAdminApiCall(config.url || "") ? ADMIN_TOKEN_KEY : USER_TOKEN_KEY;
   const token = localStorage.getItem(key);
   if (token) {
