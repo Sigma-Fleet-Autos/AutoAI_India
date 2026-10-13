@@ -40,7 +40,7 @@
 .cin-section-action a{color:#f7f7f5;display:flex;align-items:center;gap:12px;text-transform:uppercase;letter-spacing:.12em;font-size:12px}
 .cin-editorial{background:#151e22}
 .cin-editorial-grid{display:grid;grid-template-columns:1.1fr 1fr;min-height:570px;align-items:stretch}
-.cin-editorial-photo{background:url('https://images.unsplash.com/photo-1494905998402-395d579af36f?auto=format&fit=crop&w=1300&q=85') center/cover;min-height:440px}
+.cin-editorial-photo{background:url('https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1300&q=85') center/cover;min-height:440px}
 .cin-editorial-content{display:flex;flex-direction:column;justify-content:center;padding:65px 7%}
 .cin-editorial-content p{max-width:450px}
 .cin-editorial-content .cin-btn{align-self:flex-start;margin-top:25px}
@@ -94,3 +94,22 @@
 @media(max-width:1180px){.cin-main-nav{gap:15px}.cin-header-actions{gap:13px}.cin-header-cta{padding:13px}.cin-brand-name{font-size:12px}}
 @media(max-width:960px){.cin-header-inner{min-height:72px}.cin-mobile-toggle{display:block}.cin-main-nav{display:none;position:absolute;top:100%;left:0;right:0;background:#0c1216;border-bottom:1px solid #3a484d;padding:22px 24px;flex-direction:column;align-items:stretch;gap:0}.cin-main-nav-open{display:flex}.cin-main-nav a{padding:15px 0;border-bottom:1px solid #263239}.cin-header-actions{margin-left:auto}.cin-footer-inner{flex-wrap:wrap}}
 @media(max-width:600px){.cin-header-inner{gap:12px}.cin-brand-mark{width:39px;height:39px;font-size:14px}.cin-brand-name{font-size:11px}.cin-header-login,.cin-header-cta{display:none}.cin-footer-inner{flex-direction:column;align-items:flex-start}}
+
+/* QA refinements: preserve automotive photography and improve failure recovery */
+@media(min-width:961px){
+  .cin-hero h1{font-size:clamp(3.4rem,6.1vw,6.4rem);max-width:850px}
+  .cin-hero-content{padding-block:92px 120px}
+  .cin-hero-image{background-position:center 55%}
+  .cin-hero-shade{background:linear-gradient(90deg,rgba(3,7,10,.91),rgba(3,7,10,.66) 40%,rgba(3,7,10,.07) 82%),linear-gradient(0deg,#080b0e,transparent 27%)}
+}
+.cin-editorial-photo{background-position:center 50%}
+.cin-state-recovery{display:flex;align-items:center;justify-content:space-between;gap:25px;background:#11191c}
+.cin-state-recovery strong{display:block;color:#f1f5f3;font:500 21px Outfit,sans-serif}
+.cin-state-recovery p{margin-top:9px;font-size:13px;line-height:1.7;max-width:560px}
+.cin-state-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;flex-shrink:0}
+.cin-state-actions button,.cin-state-actions a{min-height:43px;display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:12px 16px;border:1px solid #9babad;background:transparent;color:#f1f5f3;text-decoration:none;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.cin-state-actions button{background:#e8eeee;color:#11191c}
+.cin-state-actions button:hover{background:white}
+.cin-state-actions a:hover{background:#28363a}
+@media(max-width:960px){.cin-state-recovery{flex-direction:column;align-items:flex-start}}
+@media(max-width:600px){.cin-state-recovery{padding:23px}.cin-state-actions{width:100%}.cin-state-actions button,.cin-state-actions a{flex:1}.cin-hero h1{letter-spacing:-.055em}}
