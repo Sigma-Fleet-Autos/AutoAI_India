@@ -32,7 +32,7 @@ import AppErrorBoundary from "./components/AppErrorBoundary";
 function AppLayout() {
   const { pathname } = useLocation();
   const isCinematicHome = pathname === "/" || pathname === "/cars";
-  const isPublicCinematicRoute = ["/compare", "/recommend", "/emi", "/news", "/about", "/premium", "/login", "/my-bookings"].includes(pathname) || pathname.startsWith("/book/") || pathname.startsWith("/showroom/");
+  const isPublicCinematicRoute = ["/compare", "/recommend", "/emi", "/news", "/about", "/premium", "/login", "/my-bookings"].includes(pathname) || pathname === "/dealers/apply" || pathname.startsWith("/book/") || pathname.startsWith("/showroom/");
   return (
     <div className="App bg-[#050505] text-white">
             {!isCinematicHome && !isPublicCinematicRoute && <Navbar />}
