@@ -21,6 +21,7 @@ export default function Home() {
   const [cars, setCars] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [carsStatus, setCarsStatus] = useState("loading");
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -30,7 +31,7 @@ export default function Home() {
       setCarsStatus("ready");
     }).catch(() => { if (active) setCarsStatus("error"); });
     return () => { active = false; };
-  }, []);
+  }, [retryKey]);
 
   return <div className="cin-home" id="home-content">
     <header className="cin-header"><div className="cin-container cin-header-inner">
@@ -42,7 +43,7 @@ export default function Home() {
       <button className="cin-mobile-toggle" type="button" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={23}/> : <Menu size={23}/>}</button>
     </div></header>
     <section className="cin-hero" aria-labelledby="cin-hero-title" data-testid="hero-section">
-      <div className="cin-hero-image" style={{ backgroundImage: `url("${HERO_IMAGE}")` }} role="img" aria-label="Sports car on a dramatic coastal road" />
+      <div className="cin-hero-image" style={{ backgroundImage: `url("${HERO_IMAGE}")` }} role="img" aria-label="Performance sedan photographed on an open road" />
       <div className="cin-hero-shade" />
       <div className="cin-hero-content cin-container">
         <span className="cin-eyebrow">AUTOAI INDIA / INTELLIGENT CAR DISCOVERY</span>
@@ -72,14 +73,14 @@ export default function Home() {
     </section>
 
     <section className="cin-editorial" data-testid="comparison-section"><div className="cin-container cin-editorial-grid">
-      <div className="cin-editorial-photo" role="img" aria-label="Premium car photographed in an architectural setting" />
+      <div className="cin-editorial-photo" role="img" aria-label="Performance car photographed in natural evening light" />
       <div className="cin-editorial-content"><span className="cin-eyebrow">02 / INTELLIGENT COMPARISON</span><h2>Every detail.<br />Side by side.</h2><p>Compare specifications, safety, practicality and ownership costs. Understand the trade-offs before you commit.</p><Link className="cin-btn cin-btn-light" to="/compare" data-testid="hero-cta-compare">Compare cars <ArrowRight size={18}/></Link></div>
     </div></section>
 
     <section className="cin-section cin-container" data-testid="trending-section">
       <SectionHeading eyebrow="03 / VEHICLE DISCOVERY" title="Cars worth considering." description="Explore vehicles from the AutoAI India catalogue." />
       {carsStatus === "loading" && <div className="cin-state" role="status">Loading vehicles…</div>}
-      {carsStatus === "error" && <div className="cin-state" role="status">Vehicle listings are temporarily unavailable. <Link to="/cars">Browse the catalogue</Link>.</div>}
+      {carsStatus === "error" && <div className="cin-state cin-state-recovery" role="status"><div><strong>Our vehicle catalogue could not be loaded.</strong><p>Check back shortly, or retry the connection. You can still explore car comparisons and personalised recommendations.</p></div><div className="cin-state-actions"><button type="button" onClick={() => { setCarsStatus("loading"); setRetryKey(k => k + 1); }}>Retry loading</button><Link to="/compare">Compare cars <ArrowUpRight size={16}/></Link></div></div>}
       {carsStatus === "ready" && (cars.length ? <div className="cin-cars-grid">{cars.map(car => <article className="cin-vehicle" key={car.id} data-testid={`car-card-${car.id}`}><div className="cin-vehicle-photo"><CarVisual car={car} className="w-full h-full" /></div><div className="cin-vehicle-details"><span className="cin-eyebrow">{car.brand} / {car.segment}</span><h3>{car.model}</h3><p>{car.variant}</p><div className="cin-vehicle-bottom"><span>{formatINR(car.price_ex_showroom)} <small>ex-showroom</small></span><Link to={`/showroom/${car.id}`} aria-label={`Explore ${car.brand} ${car.model}`}><ArrowUpRight size={20}/></Link></div></div></article>)}</div> : <div className="cin-state">No vehicles are available yet. <Link to="/cars">Explore all cars</Link>.</div>)}
     </section>
 
