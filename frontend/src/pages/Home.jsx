@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, ArrowUpRight, BrainCircuit, Calculator, GitCompareArrows, ShieldCheck, Sparkles } from "lucide-react";
-import { api } from "../lib/api";
-import CarCard from "../components/CarCard";
+import { ArrowRight, ArrowUpRight, BrainCircuit, Calculator, GitCompareArrows, ShieldCheck, Sparkles, Menu, X } from "lucide-react";
+import { api, formatINR } from "../lib/api";
+import CarVisual from "../components/CarVisual";
 import "../styles/home-cinematic.css";
 
 const HERO_IMAGE = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=2200&q=85";
@@ -19,6 +19,7 @@ function SectionHeading({ eyebrow, title, description }) {
 
 export default function Home() {
   const [cars, setCars] = useState([]);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [carsStatus, setCarsStatus] = useState("loading");
 
   useEffect(() => {
@@ -32,6 +33,14 @@ export default function Home() {
   }, []);
 
   return <div className="cin-home" id="home-content">
+    <header className="cin-header"><div className="cin-container cin-header-inner">
+      <Link to="/" className="cin-brand" aria-label="AutoAI India home"><span className="cin-brand-mark">A<span>·</span>AI</span><span className="cin-brand-name">AUTOAI <small>INDIA</small></span></Link>
+      <nav className={`cin-main-nav${menuOpen ? " cin-main-nav-open" : ""}`} aria-label="Primary navigation">
+        <Link onClick={() => setMenuOpen(false)} to="/cars">Discover</Link><Link onClick={() => setMenuOpen(false)} to="/compare">Compare</Link><Link onClick={() => setMenuOpen(false)} to="/recommend">AI advisor</Link><Link onClick={() => setMenuOpen(false)} to="/emi">Ownership</Link><Link onClick={() => setMenuOpen(false)} to="/news">Journal</Link>
+      </nav>
+      <div className="cin-header-actions"><Link className="cin-header-login" to="/login">Sign in</Link><Link className="cin-header-cta" to="/recommend">Find your car <ArrowUpRight size={15}/></Link></div>
+      <button className="cin-mobile-toggle" type="button" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={23}/> : <Menu size={23}/>}</button>
+    </div></header>
     <section className="cin-hero" aria-labelledby="cin-hero-title" data-testid="hero-section">
       <div className="cin-hero-image" style={{ backgroundImage: `url("${HERO_IMAGE}")` }} role="img" aria-label="Sports car on a dramatic coastal road" />
       <div className="cin-hero-shade" />
@@ -71,10 +80,11 @@ export default function Home() {
       <SectionHeading eyebrow="03 / VEHICLE DISCOVERY" title="Cars worth considering." description="Explore vehicles from the AutoAI India catalogue." />
       {carsStatus === "loading" && <div className="cin-state" role="status">Loading vehicles…</div>}
       {carsStatus === "error" && <div className="cin-state" role="status">Vehicle listings are temporarily unavailable. <Link to="/cars">Browse the catalogue</Link>.</div>}
-      {carsStatus === "ready" && (cars.length ? <div className="cin-cars-grid">{cars.map(car => <CarCard key={car.id} car={car} />)}</div> : <div className="cin-state">No vehicles are available yet. <Link to="/cars">Explore all cars</Link>.</div>)}
+      {carsStatus === "ready" && (cars.length ? <div className="cin-cars-grid">{cars.map(car => <article className="cin-vehicle" key={car.id} data-testid={`car-card-${car.id}`}><div className="cin-vehicle-photo"><CarVisual car={car} className="w-full h-full" /></div><div className="cin-vehicle-details"><span className="cin-eyebrow">{car.brand} / {car.segment}</span><h3>{car.model}</h3><p>{car.variant}</p><div className="cin-vehicle-bottom"><span>{formatINR(car.price_ex_showroom)} <small>ex-showroom</small></span><Link to={`/showroom/${car.id}`} aria-label={`Explore ${car.brand} ${car.model}`}><ArrowUpRight size={20}/></Link></div></div></article>)}</div> : <div className="cin-state">No vehicles are available yet. <Link to="/cars">Explore all cars</Link>.</div>)}
     </section>
 
     <section className="cin-advisor" data-testid="advisor-section"><div className="cin-container cin-advisor-inner"><span className="cin-eyebrow">04 / AUTOAI INTELLIGENCE</span><h2>Your next car.<br /><span>A smarter decision.</span></h2><p>Tell AutoAI about your budget, driving habits and priorities. Get tailored suggestions and understand why each car fits.</p><Link className="cin-btn cin-btn-light" to="/recommend">Get AI recommendations <ArrowRight size={18}/></Link><div className="cin-advisor-mark" aria-hidden="true"><BrainCircuit size={170} strokeWidth={0.7}/></div></div></section>
     <section className="cin-promise cin-container"><ShieldCheck size={24}/><p>Recommendations are decision-support tools. Confirm specifications, prices and availability with current sources before purchasing.</p></section>
+    <footer className="cin-footer"><div className="cin-container cin-footer-inner"><div><strong>AUTOAI INDIA</strong><p>Intelligence for every drive.</p></div><nav aria-label="Footer navigation"><Link to="/cars">Cars</Link><Link to="/compare">Compare</Link><Link to="/recommend">AI advisor</Link><Link to="/about">About</Link></nav><span>© {new Date().getFullYear()} AutoAI India</span></div></footer>
   </div>;
 }
