@@ -36,28 +36,41 @@ function NewsVisual({ n, tall }) {
 
 export default function News() {
   const [items, setItems] = useState([]);
+  const [status, setStatus] = useState("loading");
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
-    api.get("/news").then((r) => setItems(r.data));
-  }, []);
+    let active = true;
+    setStatus("loading");
+    api.get("/news", { timeout: 15000 }).then((r) => {
+      if (!active) return;
+      if (!Array.isArray(r.data)) throw new Error("Invalid news response");
+      setItems(r.data);
+      setStatus("ready");
+    }).catch(() => { if (active) setStatus("error"); });
+    return () => { active = false; };
+  }, [retry]);
 
   return (
-    <div className="bg-[#050505] min-h-screen" data-testid="news-page">
+    <div className="cin-public-page min-h-screen" data-testid="news-page">
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-px bg-[#F59E0B]" />
-          <span className="text-[10px] uppercase tracking-[0.35em] text-[#F59E0B] font-bold font-mono">/// daily intel</span>
+          <div className="w-10 h-px bg-[#c1d4d6]" />
+          <span className="text-[10px] uppercase tracking-[0.35em] text-[#c1d4d6] font-bold font-mono">AUTOAI / AUTOMOTIVE JOURNAL</span>
         </div>
-        <h1 className="font-display text-5xl lg:text-6xl tracking-tighter font-light uppercase max-w-3xl">
-          Launches. Price drops. <span className="text-[#F59E0B]">Real changes.</span>
+        <h1 className="font-display text-5xl lg:text-6xl tracking-tighter font-light max-w-3xl">
+          Launches. Price drops. <span className="text-[#c1d4d6]">Real changes.</span>
         </h1>
         <p className="text-slate-400 mt-4 max-w-2xl">AI-curated. Refreshed daily. No press-release fluff.</p>
 
+        {status === "loading" && <p role="status" className="mt-10 text-slate-300">Loading automotive news…</p>}
+        {status === "error" && <div role="alert" className="mt-10 border border-[#354247] p-6"><p>News could not be loaded. Please retry.</p><button type="button" onClick={() => setRetry(v => v + 1)} className="mt-4 border border-white/40 px-5 py-2">Retry news</button></div>}
+        {status === "ready" && items.length === 0 && <p className="mt-10 text-slate-300">No news articles are currently available.</p>}
         <div className="mt-10 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((n, i) => (
             <article
               key={n.id}
-              className={`border border-[#262626] bg-[#0D0D0D] overflow-hidden hover:border-[#F59E0B] transition-colors ${
+              className={`border border-[#354247] bg-[#12191d] overflow-hidden hover:border-[#c1d4d6] transition-colors ${
                 i === 0 ? "md:col-span-2 lg:row-span-2" : ""
               }`}
               data-testid={`news-${n.id}`}
@@ -72,7 +85,7 @@ export default function News() {
                 </div>
                 <h3 className={`font-display font-medium ${i === 0 ? "text-2xl lg:text-3xl" : "text-lg"}`}>{n.title}</h3>
                 <p className="text-sm text-slate-400 mt-3 leading-relaxed">{n.summary}</p>
-                <div className="mt-4 text-[10px] uppercase tracking-[0.2em] text-[#F59E0B] font-bold">{n.source}</div>
+                <div className="mt-4 text-[10px] uppercase tracking-[0.2em] text-[#c1d4d6] font-bold">{n.source}</div>
               </div>
             </article>
           ))}
