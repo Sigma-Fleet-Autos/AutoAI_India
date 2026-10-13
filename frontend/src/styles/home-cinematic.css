@@ -171,3 +171,15 @@
 @media(min-width:961px){.cin-hero h1{font-size:clamp(3.6rem,6.15vw,6.8rem);max-width:760px}.cin-hero-content{padding-block:70px 85px}.cin-hero-shade{background:linear-gradient(90deg,rgba(3,5,7,.84),rgba(3,5,7,.32) 50%,rgba(3,5,7,.04) 85%),linear-gradient(0deg,rgba(0,0,0,.35),transparent 35%)}}
 @media(max-width:960px){.cin-advisor{background-size:cover;background-position:65% center}.cin-advisor:before{background:rgba(10,15,18,.78)}}
 @media(max-width:600px){.cin-hero h1{font-size:clamp(2.8rem,11vw,4.6rem)}.cin-brand-name{font-size:19px}.cin-hero{min-height:670px}.cin-hero p{font-size:14px}}
+
+/* Public-route migration: scoped legacy form and card normalization */
+.cin-route-shell{background:#090d10;min-height:calc(100vh - 72px);color:#f5f7f6}
+.cin-public-page{background:#090d10!important;color:#f5f7f6;font-family:Manrope,sans-serif}
+.cin-public-page h1{font-family:Outfit,Manrope,sans-serif;letter-spacing:-.055em;line-height:1.08}
+.cin-public-page .ai-input{background:#151e22!important;color:#f3f5f4!important;border:1px solid #36444a!important;border-radius:0!important;min-height:48px}
+.cin-public-page .ai-input:focus{border-color:#b8cdd0!important;outline:2px solid transparent}
+.cin-public-page input::placeholder{color:#93a4a8}
+.cin-public-page button[type=submit]{background:#e8efed!important;color:#101719!important;letter-spacing:.035em;text-transform:none}
+.cin-public-page button[type=submit]:hover{background:#cbdcda!important}
+.cin-public-page button:disabled{cursor:wait}
+@media(max-width:600px){.cin-public-page h1{font-size:clamp(2.4rem,10vw,4rem)}}
