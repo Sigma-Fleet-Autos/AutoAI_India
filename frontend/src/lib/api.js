@@ -19,12 +19,20 @@ export const api = axios.create({
 export const USER_TOKEN_KEY = "autoai_token";
 export const ADMIN_TOKEN_KEY = "autoai_admin_token";
 
+function isPublicCatalogueCall(config) {
+  const path = (config.url || "").split("?")[0];
+  return (config.method || "get").toLowerCase() === "get" && ["/cars", "/news"].includes(path);
+}
+
 function isAdminApiCall(url = "") {
   return url.startsWith("/admin") || url.startsWith("admin") || url.startsWith("/v1/admin") || url.startsWith("v1/admin");
 }
 
 // Admin routes carry the admin session token; everything else uses the user token.
 api.interceptors.request.use((config) => {
+  // Public catalogue requests must not carry stale session credentials or trigger
+  // unnecessary CORS preflight requests on the separate Render API origin.
+  if (isPublicCatalogueCall(config)) return config;
   const key = isAdminApiCall(config.url || "") ? ADMIN_TOKEN_KEY : USER_TOKEN_KEY;
   const token = localStorage.getItem(key);
   if (token) {
