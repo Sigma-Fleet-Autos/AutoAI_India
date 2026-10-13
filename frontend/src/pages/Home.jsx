@@ -13,13 +13,17 @@ const CATEGORY_IMAGES = [
   { label: "Electric", image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=850&q=80" },
 ];
 
+export function CinematicHeader() {
+ const [menuOpen, setMenuOpen] = useState(false);
+ return <header className="cin-header"><div className="cin-container cin-header-inner"><Link to="/" className="cin-brand"><span className="cin-brand-mark">A<span>·</span>AI</span><span className="cin-brand-name">AUTOAI <small>INDIA</small></span></Link><nav className={`cin-main-nav${menuOpen ? " cin-main-nav-open" : ""}`} aria-label="Primary navigation"><Link to="/cars">Discover</Link><Link to="/compare">Compare</Link><Link to="/recommend">AI advisor</Link><Link to="/emi">Ownership</Link><Link to="/news">Journal</Link></nav><div className="cin-header-actions"><Link className="cin-header-login" to="/login">Sign in</Link><Link className="cin-header-cta" to="/recommend">Find your car <ArrowUpRight size={15}/></Link></div><button className="cin-mobile-toggle" type="button" aria-label="Toggle menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={23}/> : <Menu size={23}/>}</button></div></header>;
+}
+
 function SectionHeading({ eyebrow, title, description }) {
   return <div className="cin-section-heading"><span className="cin-eyebrow">{eyebrow}</span><h2>{title}</h2>{description && <p>{description}</p>}</div>;
 }
 
 export default function Home() {
   const [cars, setCars] = useState([]);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [carsStatus, setCarsStatus] = useState("loading");
   const [retryKey, setRetryKey] = useState(0);
 
@@ -34,14 +38,7 @@ export default function Home() {
   }, [retryKey]);
 
   return <div className="cin-home" id="home-content">
-    <header className="cin-header"><div className="cin-container cin-header-inner">
-      <Link to="/" className="cin-brand" aria-label="AutoAI India home"><span className="cin-brand-mark">A<span>·</span>AI</span><span className="cin-brand-name">AUTOAI <small>INDIA</small></span></Link>
-      <nav className={`cin-main-nav${menuOpen ? " cin-main-nav-open" : ""}`} aria-label="Primary navigation">
-        <Link onClick={() => setMenuOpen(false)} to="/cars">Discover</Link><Link onClick={() => setMenuOpen(false)} to="/compare">Compare</Link><Link onClick={() => setMenuOpen(false)} to="/recommend">AI advisor</Link><Link onClick={() => setMenuOpen(false)} to="/emi">Ownership</Link><Link onClick={() => setMenuOpen(false)} to="/news">Journal</Link>
-      </nav>
-      <div className="cin-header-actions"><Link className="cin-header-login" to="/login">Sign in</Link><Link className="cin-header-cta" to="/recommend">Find your car <ArrowUpRight size={15}/></Link></div>
-      <button className="cin-mobile-toggle" type="button" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={23}/> : <Menu size={23}/>}</button>
-    </div></header>
+    <CinematicHeader />
     <section className="cin-hero" aria-labelledby="cin-hero-title" data-testid="hero-section">
       <div className="cin-hero-image" style={{ backgroundImage: `url("${HERO_IMAGE}")` }} role="img" aria-label="Performance sedan photographed on an open road" />
       <div className="cin-hero-shade" />
