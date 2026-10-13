@@ -22,6 +22,7 @@ export default function DealerApply() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
 
   const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const toggleBrand = (b) => {
@@ -35,24 +36,27 @@ export default function DealerApply() {
     e.preventDefault();
     if (!form.business_name || !form.owner_name || !form.phone || !form.city) return;
     setSubmitting(true);
+    setError("");
     try {
       const { data } = await api.post("/dealers/apply", form);
       setResult(data);
+    } catch (err) {
+      setError(err.response?.data?.detail || "We could not submit your application. Please retry.");
     } finally { setSubmitting(false); }
   };
 
   if (result) {
     return (
-      <div className="bg-[#050505] min-h-screen" data-testid="dealer-apply-success">
+      <div className="cin-public-page min-h-screen" data-testid="dealer-apply-success">
         <div className="max-w-3xl mx-auto px-6 lg:px-10 py-16">
-          <div className="border border-[#10B981] bg-[#0A0A0A] p-10">
+          <div className="border border-[#10B981] bg-[#12191d] p-10">
             <CheckCircle2 size={48} className="text-[#10B981] mb-6" />
             <div className="text-[10px] uppercase tracking-[0.3em] text-[#10B981] font-mono mb-2">Application Received</div>
             <h1 className="font-display text-4xl lg:text-5xl tracking-tighter font-light">
-              Welcome, <span className="text-[#F59E0B]">{result.business_name}</span>
+              Welcome, <span className="text-[#c1d4d6]">{result.business_name}</span>
             </h1>
             <p className="text-slate-300 mt-4 text-lg">
-              Your dealer application is <span className="text-[#F59E0B]">pending verification</span>. Our team will review and activate you within 24 hours.
+              Your dealer application is <span className="text-[#c1d4d6]">pending verification</span>. Our team will review and activate you within 24 hours.
             </p>
             <div className="mt-8 grid md:grid-cols-2 gap-4 text-sm">
               <Info label="Application ID" value={result.id.slice(0, 8).toUpperCase()} />
@@ -60,7 +64,7 @@ export default function DealerApply() {
               <Info label="Bid per Lead" value={`₹${result.bid_per_lead}`} />
               <Info label="Status" value={result.status} />
             </div>
-            <a href="/dealer" className="mt-8 inline-flex bg-[#F59E0B] text-black px-6 py-3 text-xs uppercase tracking-[0.25em] font-bold hover:bg-[#D97706]">
+            <a href="/dealer" className="mt-8 inline-flex bg-[#c1d4d6] text-black px-6 py-3 text-xs uppercase tracking-[0.25em] font-bold hover:bg-[#d6e2e1]">
               Go to Dealer Command Center →
             </a>
           </div>
@@ -70,14 +74,14 @@ export default function DealerApply() {
   }
 
   return (
-    <div className="bg-[#050505] min-h-screen" data-testid="dealer-apply-page">
+    <div className="cin-public-page min-h-screen" data-testid="dealer-apply-page">
       <div className="max-w-5xl mx-auto px-6 lg:px-10 py-16">
         <div className="flex items-center gap-3 mb-4">
-          <Briefcase size={16} className="text-[#F59E0B]" />
-          <span className="text-[10px] uppercase tracking-[0.35em] text-[#F59E0B] font-bold font-mono">/// partner with auto-ai india</span>
+          <Briefcase size={16} className="text-[#c1d4d6]" />
+          <span className="text-[10px] uppercase tracking-[0.35em] text-[#c1d4d6] font-bold font-mono">PARTNERSHIPS / AUTOAI INDIA</span>
         </div>
-        <h1 className="font-display text-5xl lg:text-6xl tracking-tighter font-light uppercase leading-[0.95]">
-          Stop buying ads.<br />Start buying <span className="text-[#F59E0B]">leads.</span>
+        <h1 className="font-display text-5xl lg:text-6xl tracking-tighter font-light leading-[0.95]">
+          Stop buying ads.<br />Start buying <span className="text-[#c1d4d6]">leads.</span>
         </h1>
         <p className="text-slate-400 mt-4 max-w-2xl text-lg">
           Only pay when a qualified buyer books a test drive in your city. No monthly fee. No wasted marketing spend.
@@ -90,8 +94,8 @@ export default function DealerApply() {
             { icon: Sparkles, title: "Auction-based", desc: "Higher bid = priority placement in your city." },
             { icon: CheckCircle2, title: "Zero monthly cost", desc: "No subscription. No setup fees. Verified in 24hrs." },
           ].map((v, i) => (
-            <div key={i} className="border border-[#262626] bg-[#0A0A0A] p-5">
-              <v.icon size={18} className="text-[#F59E0B] mb-3" />
+            <div key={i} className="border border-[#354247] bg-[#12191d] p-5">
+              <v.icon size={18} className="text-[#c1d4d6] mb-3" />
               <div className="font-display text-lg font-medium">{v.title}</div>
               <p className="text-xs text-slate-400 mt-1 leading-relaxed">{v.desc}</p>
             </div>
@@ -99,7 +103,7 @@ export default function DealerApply() {
         </div>
 
         {/* Form */}
-        <form onSubmit={submit} className="mt-10 border border-[#262626] bg-[#0A0A0A] p-8 space-y-5">
+        <form onSubmit={submit} className="mt-10 border border-[#354247] bg-[#12191d] p-8 space-y-5">
           <div className="grid md:grid-cols-2 gap-4">
             <Field label="Business Name *">
               <input required value={form.business_name} onChange={(e) => update("business_name", e.target.value)} placeholder="Sai Motors Pvt Ltd" data-testid="dealer-business-input" className="w-full ai-input px-3 py-2.5" />
@@ -135,7 +139,7 @@ export default function DealerApply() {
                     onClick={() => toggleBrand(b)}
                     data-testid={`brand-chip-${b.toLowerCase().replace(/[^a-z]/g, "-")}`}
                     className={`text-[10px] uppercase tracking-[0.2em] px-3 py-1.5 border transition-colors ${
-                      active ? "bg-[#F59E0B] text-black border-[#F59E0B]" : "text-slate-300 border-[#262626] hover:border-[#F59E0B]"
+                      active ? "bg-[#c1d4d6] text-black border-[#c1d4d6]" : "text-slate-300 border-[#354247] hover:border-[#c1d4d6]"
                     }`}
                   >
                     {b}
@@ -145,15 +149,16 @@ export default function DealerApply() {
             </div>
           </div>
 
-          <div className="border border-[#F59E0B]/30 bg-[#F59E0B]/5 p-4 text-xs text-slate-300">
-            <strong className="text-[#F59E0B]">Bid strategy:</strong> Dealers with higher bids receive priority placement in their city. Typical bids are ₹300-₹1,500 per qualified test-drive booking.
+          <div className="border border-[#c1d4d6]/30 bg-[#c1d4d6]/5 p-4 text-xs text-slate-300">
+            <strong className="text-[#c1d4d6]">Bid strategy:</strong> Dealers with higher bids receive priority placement in their city. Typical bids are ₹300-₹1,500 per qualified test-drive booking.
           </div>
 
+          {error && <p role="alert" className="text-red-300 text-sm">{typeof error === "string" ? error : "Submission failed. Please retry."}</p>}
           <button
             disabled={submitting || !form.brands.length}
             type="submit"
             data-testid="dealer-submit-btn"
-            className="w-full bg-[#F59E0B] text-black font-semibold text-xs uppercase tracking-[0.25em] py-4 disabled:opacity-50 hover:bg-[#D97706] flex items-center justify-center gap-2"
+            className="w-full bg-[#c1d4d6] text-black font-semibold text-xs uppercase tracking-[0.25em] py-4 disabled:opacity-50 hover:bg-[#d6e2e1] flex items-center justify-center gap-2"
           >
             {submitting ? <><Loader2 size={14} className="animate-spin" />Submitting</> : <>Apply to Partner →</>}
           </button>
