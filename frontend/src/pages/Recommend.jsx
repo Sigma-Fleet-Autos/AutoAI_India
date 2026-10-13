@@ -13,11 +13,13 @@ export default function Recommend() {
   const [notes, setNotes] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const run = async (e) => {
     e?.preventDefault();
     setLoading(true);
     setResult(null);
+    setError("");
     try {
       const { data } = await api.post("/ai/recommend", {
         budget_min: budget[0],
@@ -30,7 +32,7 @@ export default function Recommend() {
       setResult(data);
     } catch (err) {
       console.error("AI recommend failed:", err);
-      setResult({ error: "Could not fetch recommendations. Please try again." });
+      setError(typeof err.response?.data?.detail === "string" ? err.response.data.detail : "Recommendations are unavailable. Check the connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -131,6 +133,7 @@ export default function Recommend() {
           </div>
         </form>
 
+        {error && <div role="alert" className="mt-6 border border-red-400/40 p-5 text-red-200" data-testid="recommend-error">{error}</div>}
         {result && (
           <div className="mt-10 fade-up" data-testid="recommend-result">
             <div className="border border-[#a9bdbf] bg-[#12191d] p-6 mb-6">
