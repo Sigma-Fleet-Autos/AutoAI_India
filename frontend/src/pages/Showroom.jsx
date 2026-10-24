@@ -43,6 +43,10 @@ export default function Showroom() {
     const controller = new AbortController();
     setCar(null);
     setLoadError(false);
+    setLocked(false);
+    setTrialSeconds(180);
+    setAutoSpin(false);
+    setAngle(0);
     setConfiguratorStatus("unavailable");
     setVerifiedVariantId(null);
     api.get(`/cars/${carId}`, { signal: controller.signal })
