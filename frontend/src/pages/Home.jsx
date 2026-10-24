@@ -43,7 +43,12 @@ export default function Home() {
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0.4]);
 
   useEffect(() => {
-    api.get("/cars").then((r) => setCars(r.data.slice(0, 6))).catch(() => {});
+    let active = true;
+    const controller = new AbortController();
+    api.get("/cars", { signal: controller.signal })
+      .then(({ data }) => { if (active && Array.isArray(data)) setCars(data.slice(0, 6)); })
+      .catch(() => {});
+    return () => { active = false; controller.abort(); };
   }, []);
 
   return (
