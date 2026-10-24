@@ -24,7 +24,7 @@ export default function Showroom() {
   const { carId } = useParams();
   const [car, setCar] = useState(null);
   const [angle, setAngle] = useState(0);
-  const [autoSpin, setAutoSpin] = useState(true);
+  const [autoSpin, setAutoSpin] = useState(false);
   const [color, setColor] = useState(COLORS[0]);
   const [doors, setDoors] = useState(false);
   const [hood, setHood] = useState(false);
@@ -90,7 +90,7 @@ export default function Showroom() {
   const realUrl = getCarImage(car.id);
   const proxiedUrl = realUrl ? `${API}/image-proxy?url=${encodeURIComponent(realUrl)}` : null;
 
-  // 3D sway effect based on angle — creates the illusion of rotation
+  // Legacy photographic preview only; not genuine 3D geometry.
   // Angle 0-180 = normal; 180-360 = mirrored (as if we rotated to back, showing reverse)
   const normAngle = angle % 360;
   const isBack = normAngle > 90 && normAngle < 270;
@@ -108,7 +108,7 @@ export default function Showroom() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] font-mono">
               <Crown size={12} className="text-[#F59E0B]" />
-              <span className="text-[#F59E0B]">Premium Preview</span>
+              <span className="text-[#F59E0B]">Photographic Preview</span>
               <span className="text-slate-500">·</span>
               <span className={locked ? "text-[#EF4444]" : "text-slate-300"} data-testid="trial-timer">
                 {locked ? "EXPIRED" : `${trialMin}:${trialSec} left`}
@@ -118,7 +118,7 @@ export default function Showroom() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-8 grid lg:grid-cols-12 gap-6">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-6">\n        <p role="note" className="border-l-2 border-[#F59E0B] bg-[#151515] px-5 py-4 text-sm leading-6 text-slate-200" data-testid="showroom-photo-disclosure">This is an illustrative photographic preview, not a 3D configurator. Image movement, colours, interior and lighting effects do not represent verified manufacturer equipment or selectable production options.</p>\n      </div>\n      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-8 grid lg:grid-cols-12 gap-6">
         {/* Viewer */}
         <div className="lg:col-span-8">
           <div
@@ -252,7 +252,7 @@ export default function Showroom() {
                   <Lock size={48} className="text-[#F59E0B] mx-auto mb-4" />
                   <div className="font-display text-3xl font-light">Preview Expired</div>
                   <p className="text-slate-400 mt-2 text-sm">
-                    Unlock unlimited 360° showroom access for every car, full customization, and exclusive AI insights.
+                    Explore available premium features. This photographic preview does not provide genuine 3D vehicle customization.
                   </p>
                   <Link to="/premium" className="mt-6 inline-block btn-shine bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black px-6 py-3 text-xs uppercase tracking-[0.25em] font-bold" data-testid="upgrade-cta-lock">
                     Unlock Premium →
@@ -265,7 +265,7 @@ export default function Showroom() {
           {/* Drag hint + angle slider */}
           <div className="mt-3 flex flex-col gap-2">
             <div className="text-center text-[10px] uppercase tracking-[0.3em] text-slate-500 font-mono">
-              {locked ? "· preview ended ·" : "· drag image to rotate · swipe on mobile ·"}
+              {locked ? "· preview ended ·" : "· illustrative image movement · not a 360° model ·"}
             </div>
             <input
               type="range"
@@ -295,7 +295,7 @@ export default function Showroom() {
             )}
           </div>
 
-          <Panel icon={<Palette size={14} />} title="Paint" disabled={locked}>
+          <p className="text-xs leading-5 text-slate-400">Visual effects below are illustrative only. For manufacturer-verified options, use a vehicle-specific configurator when available.</p>\n          <Panel icon={<Palette size={14} />} title="Illustrative colour effects" disabled={locked}>
             <div className="grid grid-cols-7 gap-2">
               {COLORS.map((c) => (
                 <button
@@ -312,7 +312,7 @@ export default function Showroom() {
             <div className="text-xs text-slate-400 mt-3">{color.name}</div>
           </Panel>
 
-          <Panel icon={<Zap size={14} />} title="Live States" disabled={locked}>
+          <Panel icon={<Zap size={14} />} title="Simulated visual indicators (not vehicle controls)" disabled={locked}>
             <div className="grid grid-cols-2 gap-2">
               <Toggle active={doors} onClick={() => setDoors(!doors)} icon={<DoorOpen size={12} />} label="Doors" tid="toggle-doors" disabled={locked} />
               <Toggle active={hood} onClick={() => setHood(!hood)} icon={<Package size={12} />} label="Hood" tid="toggle-hood" disabled={locked} />
@@ -321,7 +321,7 @@ export default function Showroom() {
             </div>
           </Panel>
 
-          <Panel icon={<Gauge size={14} />} title="Rotation" disabled={locked}>
+          <Panel icon={<Gauge size={14} />} title="Image movement (not 3D rotation)" disabled={locked}>
             <div className="flex items-center gap-2">
               <button
                 disabled={locked}
@@ -350,7 +350,7 @@ export default function Showroom() {
               <div className="text-[10px] uppercase tracking-[0.3em] text-[#F59E0B] font-bold font-mono">Loving it?</div>
             </div>
             <div className="text-sm text-slate-300 leading-relaxed mb-4">
-              Unlock unlimited showroom time, all 106 cars, and exclusive AI perks.
+              Explore premium membership features and available AI assistance.
             </div>
             <Link to="/premium" data-testid="upgrade-cta-panel" className="block btn-shine bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black text-center text-xs uppercase tracking-[0.25em] font-bold py-3">
               Go Premium →
