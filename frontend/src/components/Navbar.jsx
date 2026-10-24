@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { Menu, X, Zap, Crown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,6 +9,16 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { t } = useI18n();
+  const location = useLocation();
+
+  useEffect(() => { setOpen(false); }, [location.pathname]);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onEscape = (event) => { if (event.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", onEscape);
+    return () => window.removeEventListener("keydown", onEscape);
+  }, [open]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -119,7 +129,9 @@ export default function Navbar() {
           className="lg:hidden text-white flex items-center gap-3 z-[60]"
           onClick={() => setOpen(!open)}
           data-testid="nav-mobile-toggle"
-          aria-label="Toggle menu"
+          aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={open}
+          aria-controls="autoai-mobile-navigation"
         >
           {open ? <X size={22} /> : <Menu size={22} />}
         </button>
@@ -137,6 +149,9 @@ export default function Navbar() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            id="autoai-mobile-navigation"
+            role="navigation"
+            aria-label="Mobile navigation"
             className="lg:hidden border-t border-white/10 bg-[#050505]/95 backdrop-blur-xl overflow-hidden"
             data-testid="nav-mobile-menu"
           >
