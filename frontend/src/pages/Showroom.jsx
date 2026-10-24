@@ -299,7 +299,7 @@ export default function Showroom() {
             <div className="text-[10px] uppercase tracking-[0.3em] text-[#F59E0B] font-bold font-mono">{car.brand}</div>
             <div className="font-display text-3xl font-medium mt-1">{car.model}</div>
             <div className="text-sm text-slate-400 mt-0.5">{car.variant} · {car.segment}</div>
-            <div className="font-num text-4xl text-[#F59E0B] mt-3">{formatINR(car.price_ex_showroom)}</div>
+            <div className="font-num text-4xl text-[#F59E0B] mt-3">{typeof car.price_ex_showroom === "number" && Number.isFinite(car.price_ex_showroom) && car.price_ex_showroom > 0 ? formatINR(car.price_ex_showroom) : "Price unavailable"}</div>
             {isLuxury && (
               <div className="mt-3 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.25em] text-[#F59E0B] border border-[#F59E0B]/40 px-2 py-1">
                 <Crown size={10} /> Luxury Segment
