@@ -51,3 +51,31 @@ def test_diagnostics_is_ready_only_when_database_and_all_catalog_inputs_exist():
         asset_count=1,
     )
     assert result["ready"] is True
+
+
+def test_diagnostics_fail_closed_on_malformed_catalog_counts():
+    result = assess_production_configurator_diagnostics(
+        configured_database_name="autoai",
+        expected_database_name="autoai",
+        variant_count="100",
+        pricing_count=True,
+        asset_count=None,
+    )
+    assert result["ready"] is False
+    assert result["catalog"] == {
+        "variants": 0,
+        "verified_pricing": 0,
+        "published_assets": 0,
+    }
+
+
+def test_diagnostics_fail_closed_on_negative_catalog_counts():
+    result = assess_production_configurator_diagnostics(
+        configured_database_name="autoai",
+        expected_database_name="autoai",
+        variant_count=-1,
+        pricing_count=1,
+        asset_count=1,
+    )
+    assert result["ready"] is False
+    assert result["catalog"]["variants"] == 0
