@@ -190,7 +190,7 @@ export default function Home() {
             </motion.div>
 
             <motion.div variants={fadeUp} custom={4} className="mt-14 grid grid-cols-3 gap-6 max-w-lg">
-              <Metric k={cars.length ? `${cars.length}+` : "—"} v="Featured vehicles" />
+              <Metric k={cars.length ? String(cars.length) : "—"} v="Featured vehicles" />
               <Metric k="Compare" v="Vehicle specifications" />
               <Metric k="Explore" v="Indian car choices" />
             </motion.div>
