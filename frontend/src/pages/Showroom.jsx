@@ -35,8 +35,16 @@ export default function Showroom() {
   const [trialSeconds, setTrialSeconds] = useState(180);
   const dragRef = useRef({ active: false, startX: 0, startAngle: 0 });
 
+  const [loadError, setLoadError] = useState(false);
   useEffect(() => {
-    api.get(`/cars/${carId}`).then((r) => setCar(r.data));
+    let active = true;
+    const controller = new AbortController();
+    setCar(null);
+    setLoadError(false);
+    api.get(`/cars/${carId}`, { signal: controller.signal })
+      .then((response) => { if (active) setCar(response.data); })
+      .catch((error) => { if (active && error?.code !== "ERR_CANCELED") setLoadError(true); });
+    return () => { active = false; controller.abort(); };
   }, [carId]);
 
   useEffect(() => {
@@ -80,7 +88,8 @@ export default function Showroom() {
   };
   const onTouchEnd = () => { dragRef.current.active = false; };
 
-  if (!car) return <div className="min-h-screen bg-black flex items-center justify-center text-slate-400">Loading showroom…</div>;
+  if (loadError) return <main role="alert" className="min-h-screen bg-[#050505] flex flex-col items-center justify-center gap-6 px-6 text-center text-slate-200"><p>Vehicle details are currently unavailable. Please return to the catalogue and try again.</p><Link to="/cars" className="border border-white/40 px-6 py-3 text-sm">Back to vehicles</Link></main>;
+  if (!car) return <main role="status" className="min-h-screen bg-black flex items-center justify-center text-slate-400">Loading showroom…</main>;
 
   const isLuxury = LUXURY_SEGMENTS.some((s) => (car.segment || "").includes(s.split(" ")[0]));
   const trialMin = Math.floor(trialSeconds / 60);
