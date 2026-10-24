@@ -24,10 +24,18 @@ def test_production_catalog_seeding_is_explicitly_disabled():
         and isinstance(node.test.comparators[0], ast.Constant)
         and node.test.comparators[0].value == "production"
     ]
-    assert len(guards) == 1, "Startup demo seeding must be guarded from production"
+    seed_guards = [
+        node for node in guards
+        if any(
+            isinstance(child, ast.Call)
+            and ast.unparse(child.func) in {"db.cars.insert_many", "db.news.insert_many"}
+            for child in ast.walk(node)
+        )
+    ]
+    assert len(seed_guards) == 1, "Catalog inserts must share one non-production guard"
     guarded_calls = {
         ast.unparse(node.func)
-        for node in ast.walk(guards[0])
+        for node in ast.walk(seed_guards[0])
         if isinstance(node, ast.Await)
         for node in ast.walk(node.value)
         if isinstance(node, ast.Call)
@@ -35,7 +43,7 @@ def test_production_catalog_seeding_is_explicitly_disabled():
     assert "db.cars.insert_many" in guarded_calls
     assert "db.news.insert_many" in guarded_calls
     for node in startup.body:
-        if node is guards[0]:
+        if node is seed_guards[0]:
             continue
         assert not any(
             isinstance(child, ast.Call)
