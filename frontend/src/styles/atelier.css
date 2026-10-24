@@ -1,0 +1,64 @@
+/* AutoAI India / Atelier: original luxury interaction foundations.
+   Scoped to .autoai-atelier so existing product flows remain unchanged. */
+.autoai-atelier {
+  --atelier-ink: #111412;
+  --atelier-paper: #f5f4f0;
+  --atelier-stone: #deddd7;
+  --atelier-muted: #777a75;
+  --atelier-accent: #c9d5cb;
+  --atelier-ease: cubic-bezier(.22, 1, .36, 1);
+  background: var(--atelier-paper);
+  color: var(--atelier-ink);
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+.autoai-atelier .atelier-eyebrow {
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+.autoai-atelier .atelier-heading {
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: -.055em;
+  line-height: .99;
+  text-wrap: balance;
+}
+.autoai-atelier .atelier-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 1.6rem;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .045em;
+  text-decoration: none;
+  transition: background .3s var(--atelier-ease), color .3s var(--atelier-ease), transform .3s var(--atelier-ease);
+}
+.autoai-atelier .atelier-action:hover { background: var(--atelier-ink); color: var(--atelier-paper); transform: translateY(-2px); }
+.autoai-atelier .atelier-action:focus-visible { outline: 3px solid #66816f; outline-offset: 4px; }
+.autoai-atelier .atelier-media { overflow: hidden; background: var(--atelier-stone); }
+.autoai-atelier .atelier-media img,
+.autoai-atelier .atelier-media video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .8s var(--atelier-ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .autoai-atelier a:hover .atelier-media img { transform: scale(1.035); }
+}
+.autoai-atelier .atelier-container { width: min(100% - 3rem, 1440px); margin-inline: auto; }
+@media (min-width: 1024px) { .autoai-atelier .atelier-container { width: min(100% - 6rem, 1440px); } }
+@media (prefers-reduced-motion: reduce) {
+  .autoai-atelier *, .autoai-atelier *::before, .autoai-atelier *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
