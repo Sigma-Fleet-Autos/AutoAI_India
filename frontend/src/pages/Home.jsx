@@ -7,15 +7,12 @@ import CarCard from "../components/CarCard";
 import { useI18n } from "../lib/i18n";
 
 const tickerItems = [
-  "Tata Nexon 5★ Safety",
-  "Maruti Brezza — 2 wk wait",
-  "Hyundai Creta — 6 wk",
-  "Mahindra Thar — 16 wk",
-  "Toyota Innova Hycross — 20 wk",
-  "Kia Seltos — 7 wk",
-  "BharatNCAP: Curvv 5★",
-  "Scorpio-N — 12 wk",
-  "Grand Vitara Hybrid — 27.9 kmpl",
+  "Explore the catalogue",
+  "Compare vehicle specifications",
+  "Review ownership costs",
+  "Discover electric vehicles",
+  "Explore safety information",
+  "Plan your next test drive",
 ];
 
 const HERO_CAR =
@@ -170,7 +167,7 @@ export default function Home() {
               custom={2}
               className="mt-10 text-slate-300 text-base md:text-lg max-w-xl leading-relaxed"
             >
-              Zero promotions. Zero human bias. Zero waiting. Just an AI engine analysing real data
+              Explore vehicle information, comparisons and buying tools with greater clarity
               to tell you which car actually deserves your money — and which ones don't.
             </motion.p>
 
@@ -193,9 +190,9 @@ export default function Home() {
             </motion.div>
 
             <motion.div variants={fadeUp} custom={4} className="mt-14 grid grid-cols-3 gap-6 max-w-lg">
-              <Metric k="106+" v={t("cars_indexed")} />
-              <Metric k="0%" v={t("brand_bias")} />
-              <Metric k="24/7" v={t("ai_expert")} />
+              <Metric k={cars.length ? `${cars.length}+` : "—"} v="Featured vehicles" />
+              <Metric k="Compare" v="Vehicle specifications" />
+              <Metric k="Explore" v="Indian car choices" />
             </motion.div>
           </motion.div>
 
