@@ -9,7 +9,7 @@ export default function CarCard({ car }) {
   const { t } = useI18n();
   return (
     <motion.div
-      whileHover={{ y: -6 }}
+      whileHover={{ y: -3 }}
       transition={{ type: "spring", stiffness: 300, damping: 22 }}
       data-testid={`car-card-${car.id}`}
       className="group relative border border-white/10 bg-[#0A0A0A] hover:border-[#F59E0B]/60 transition-colors duration-500 flex flex-col overflow-hidden corner-notch"
@@ -49,10 +49,10 @@ export default function CarCard({ car }) {
         </div>
 
         <div className="grid grid-cols-4 gap-2 pt-4 border-t border-white/5">
-          <Stat icon={<Fuel size={12} />} label={car.fuel === "Electric" ? "km" : "kmpl"} value={car.mileage_kmpl} />
-          <Stat icon={<Shield size={12} />} label="safety" value={`${car.safety_rating}★`} />
-          <Stat icon={<Users size={12} />} label="seats" value={car.seats} />
-          <Stat icon={<Clock size={12} />} label="wait wk" value={car.waiting_weeks} />
+          <Stat icon={<Fuel size={12} />} label={car.fuel === "Electric" ? "range" : "kmpl"} value={car.fuel === "Electric" ? "—" : (car.mileage_kmpl ?? "—")} />
+          <Stat icon={<Shield size={12} />} label="safety" value={car.safety_rating == null ? "—" : `${car.safety_rating}★`} />
+          <Stat icon={<Users size={12} />} label="seats" value={car.seats ?? "—"} />
+          <Stat icon={<Clock size={12} />} label="wait wk" value={car.waiting_weeks ?? "—"} />
         </div>
 
         <div className="mt-5 grid grid-cols-2 gap-2">
@@ -61,7 +61,7 @@ export default function CarCard({ car }) {
             data-testid={`showroom-btn-${car.id}`}
             className="border border-white/15 text-center text-[10px] uppercase tracking-[0.2em] font-bold py-2.5 text-slate-300 hover:border-[#F59E0B] hover:text-[#F59E0B] transition-all"
           >
-            360° Explore
+            View showroom
           </Link>
           <Link
             to={`/book/${car.id}`}
