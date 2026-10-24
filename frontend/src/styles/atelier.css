@@ -82,3 +82,29 @@
   outline: 2px solid #e6ece7;
   outline-offset: 4px;
 }
+
+/* Re-skin existing API-backed vehicle cards inside the new discovery surface. */
+.autoai-atelier [data-testid^="car-card-"] {
+  border: 1px solid #d9dad5;
+  background: #fff;
+  color: #111412;
+  clip-path: none;
+  border-radius: 2px;
+  box-shadow: none;
+}
+.autoai-atelier [data-testid^="car-card-"]:hover { border-color: #777a75; }
+.autoai-atelier [data-testid^="car-card-"] .text-white { color: #111412; }
+.autoai-atelier [data-testid^="car-card-"] .text-slate-400,
+.autoai-atelier [data-testid^="car-card-"] .text-slate-500 { color: #555a55; }
+.autoai-atelier [data-testid^="car-card-"] [data-testid^="showroom-btn-"] {
+  border-color: #777a75;
+  color: #111412;
+}
+.autoai-atelier [data-testid^="car-card-"] [data-testid^="book-btn-"] {
+  background: #111412;
+  color: #fff;
+}
+.autoai-atelier [data-testid^="car-card-"] .group-hover\\:opacity-100 { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .autoai-atelier .animate-pulse { animation: none !important; }
+}
