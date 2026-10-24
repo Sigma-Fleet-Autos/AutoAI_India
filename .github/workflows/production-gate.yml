@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
+    branches: [main, 'phase-3/production-configurator-catalog-foundation']
   workflow_dispatch:
 
 permissions:
