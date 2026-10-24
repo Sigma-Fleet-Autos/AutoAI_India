@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import re
 from typing import Any, Dict, Iterable, Optional
 
@@ -56,7 +57,10 @@ def assess_vehicle_configurator_readiness(
     else:
         if pricing.get("variant_id") != variant_id:
             blockers.append("variant pricing identity does not match the vehicle")
-        if not isinstance(pricing.get("base_ex_showroom"), (int, float)) or pricing.get("base_ex_showroom", 0) <= 0:
+        base_price = pricing.get("base_ex_showroom")
+        if (type(base_price) not in (int, float)
+                or not math.isfinite(base_price)
+                or base_price <= 0):
             blockers.append("authoritative variant pricing has no positive base ex-showroom price")
         if pricing.get("verification_status") != "verified":
             blockers.append("variant pricing verification is not complete")
@@ -96,7 +100,7 @@ def assess_vehicle_configurator_readiness(
 
         checksum = asset.get("checksum_sha256")
         file_size = asset.get("file_size_bytes")
-        if not isinstance(file_size, int) or file_size <= 0 or file_size > 200 * 1024 * 1024:
+        if type(file_size) is not int or file_size <= 0 or file_size > 200 * 1024 * 1024:
             blockers.append("configurator asset integrity evidence is incomplete")
         if not isinstance(checksum, str) or not _SHA256_PATTERN.fullmatch(checksum):
             if "configurator asset integrity evidence is incomplete" not in blockers:
