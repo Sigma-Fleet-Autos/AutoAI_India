@@ -181,8 +181,9 @@ async def seed_db():
         logger.warning("SECRET_KEY is not configured — sessions and OTPs will be invalidated on restart.")
     if not ADMIN_PIN:
         logger.warning("ADMIN_PIN is not configured — the admin API will refuse all requests.")
-    task = asyncio.create_task(_prewarm_images(), name="auto-ai-image-prewarm")
-    task.add_done_callback(lambda completed: (completed.exception() if not completed.cancelled() else None))
+    if security.APP_ENV != "production":
+        task = asyncio.create_task(_prewarm_images(), name="auto-ai-image-prewarm")
+        task.add_done_callback(lambda completed: (completed.exception() if not completed.cancelled() else None))
 
 async def _prewarm_images() -> None:
     global _IMAGE_CACHE_SIZE
