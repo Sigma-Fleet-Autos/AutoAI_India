@@ -127,7 +127,10 @@ export default function Showroom() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-6">\n        <p role="note" className="border-l-2 border-[#F59E0B] bg-[#151515] px-5 py-4 text-sm leading-6 text-slate-200" data-testid="showroom-photo-disclosure">This is an illustrative photographic preview, not a 3D configurator. Image movement, colours, interior and lighting effects do not represent verified manufacturer equipment or selectable production options.</p>\n      </div>\n      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-8 grid lg:grid-cols-12 gap-6">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-6">
+        <p role="note" className="border-l-2 border-[#F59E0B] bg-[#151515] px-5 py-4 text-sm leading-6 text-slate-200" data-testid="showroom-photo-disclosure">This is an illustrative photographic preview, not a 3D configurator. Image movement, colours, interior and lighting effects do not represent verified manufacturer equipment or selectable production options.</p>
+      </div>
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-8 grid lg:grid-cols-12 gap-6">
         {/* Viewer */}
         <div className="lg:col-span-8">
           <div
@@ -304,7 +307,8 @@ export default function Showroom() {
             )}
           </div>
 
-          <p className="text-xs leading-5 text-slate-400">Visual effects below are illustrative only. For manufacturer-verified options, use a vehicle-specific configurator when available.</p>\n          <Panel icon={<Palette size={14} />} title="Illustrative colour effects" disabled={locked}>
+          <p className="text-xs leading-5 text-slate-400">Visual effects below are illustrative only. For manufacturer-verified options, use a vehicle-specific configurator when available.</p>
+          <Panel icon={<Palette size={14} />} title="Illustrative colour effects" disabled={locked}>
             <div className="grid grid-cols-7 gap-2">
               {COLORS.map((c) => (
                 <button
