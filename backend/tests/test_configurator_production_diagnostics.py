@@ -79,3 +79,15 @@ def test_diagnostics_fail_closed_on_negative_catalog_counts():
     )
     assert result["ready"] is False
     assert result["catalog"]["variants"] == 0
+
+
+def test_diagnostics_rejects_malformed_database_authority_with_valid_catalog():
+    result = assess_production_configurator_diagnostics(
+        configured_database_name={"database": "autoai"},
+        expected_database_name="autoai",
+        variant_count=1,
+        pricing_count=1,
+        asset_count=1,
+    )
+    assert result["ready"] is False
+    assert result["database"]["reason"] == "configured production database name is not configured"
