@@ -138,3 +138,24 @@ def test_asset_storage_publication_state_is_required():
     )
     assert result["ready"] is False
     assert "configurator asset storage publication state is not complete" in result["blockers"]
+
+
+def test_boolean_and_nonfinite_prices_block_vehicle_readiness():
+    colors, wheels, interiors = _options()
+    for price in (True, False, float("nan"), float("inf"), float("-inf")):
+        result = assess_vehicle_configurator_readiness(
+            _vehicle(), {**_pricing(), "base_ex_showroom": price},
+            colors, wheels, interiors, _asset()
+        )
+        assert result["ready"] is False
+        assert "authoritative variant pricing has no positive base ex-showroom price" in result["blockers"]
+
+
+def test_boolean_asset_size_blocks_vehicle_readiness():
+    colors, wheels, interiors = _options()
+    result = assess_vehicle_configurator_readiness(
+        _vehicle(), _pricing(), colors, wheels, interiors,
+        {**_asset(), "file_size_bytes": True}
+    )
+    assert result["ready"] is False
+    assert "configurator asset integrity evidence is incomplete" in result["blockers"]

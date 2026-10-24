@@ -6,17 +6,23 @@ from typing import Optional
 
 
 def assess_database_authority(
-    configured_database_name: str,
-    expected_database_name: Optional[str],
+    configured_database_name: object,
+    expected_database_name: object,
 ) -> dict[str, object]:
     """Require an explicitly configured expected database and exact name match."""
     expected = expected_database_name.strip() if isinstance(expected_database_name, str) else ""
-    configured = configured_database_name.strip()
+    configured = configured_database_name.strip() if isinstance(configured_database_name, str) else ""
 
     if not expected:
         return {
             "ready": False,
             "reason": "expected production database name is not configured",
+        }
+
+    if not configured:
+        return {
+            "ready": False,
+            "reason": "configured production database name is not configured",
         }
 
     if configured != expected:
