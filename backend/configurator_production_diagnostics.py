@@ -5,12 +5,17 @@ from __future__ import annotations
 from configurator_database_authority import assess_database_authority
 
 
+def _safe_count(value: object) -> int:
+    """Treat malformed or negative diagnostic counts as zero (not ready)."""
+    return value if type(value) is int and value > 0 else 0
+
+
 def assess_production_configurator_diagnostics(
     configured_database_name: object,
     expected_database_name: object,
-    variant_count: int,
-    pricing_count: int,
-    asset_count: int,
+    variant_count: object,
+    pricing_count: object,
+    asset_count: object,
 ) -> dict[str, object]:
     """Report database authority and catalog counts without mutating production data."""
     database = assess_database_authority(
@@ -18,9 +23,9 @@ def assess_production_configurator_diagnostics(
         expected_database_name,
     )
     catalog = {
-        "variants": max(0, variant_count),
-        "verified_pricing": max(0, pricing_count),
-        "published_assets": max(0, asset_count),
+        "variants": _safe_count(variant_count),
+        "verified_pricing": _safe_count(pricing_count),
+        "published_assets": _safe_count(asset_count),
     }
     return {
         "ready": bool(database["ready"]) and all(value > 0 for value in catalog.values()),
