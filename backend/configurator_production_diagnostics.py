@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from configurator_database_authority import assess_database_authority
 
 
 def assess_production_configurator_diagnostics(
-    configured_database_name: str,
-    expected_database_name: Optional[str],
+    configured_database_name: object,
+    expected_database_name: object,
     variant_count: int,
     pricing_count: int,
     asset_count: int,
