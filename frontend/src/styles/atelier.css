@@ -62,3 +62,23 @@
     transition-duration: .01ms !important;
   }
 }
+
+/* Native-feeling navigation interaction, safe-area aware on phones. */
+@media (max-width: 1023px) {
+  [data-testid="site-navbar"] [data-testid="nav-mobile-menu"] {
+    max-height: calc(100dvh - 4rem - env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  [data-testid="site-navbar"] [data-testid="nav-mobile-toggle"] {
+    min-width: 44px;
+    min-height: 44px;
+    justify-content: center;
+  }
+}
+[data-testid="site-navbar"] a:focus-visible,
+[data-testid="site-navbar"] button:focus-visible {
+  outline: 2px solid #e6ece7;
+  outline-offset: 4px;
+}
