@@ -57,6 +57,10 @@ export default function Showroom() {
         if (!variantId) return;
         try {
           const { configuratorApi } = await import("../services/configuratorApi");
+          // Require the canonical variant resource to exist and match the mapped ID.
+          const variantResponse = await configuratorApi.getVariant(variantId);
+          const canonicalId = variantResponse.data?.variant_id || variantResponse.data?.id;
+          if (String(canonicalId || "") !== variantId) return;
           const availability = await configuratorApi.getAvailability(variantId);
           if (active && availability.data?.configurator_status === "AVAILABLE") {
             setVerifiedVariantId(variantId);
