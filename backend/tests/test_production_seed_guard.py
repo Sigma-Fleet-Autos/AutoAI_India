@@ -42,3 +42,31 @@ def test_production_catalog_seeding_is_explicitly_disabled():
             and ast.unparse(child.func) in {"db.cars.insert_many", "db.news.insert_many"}
             for child in ast.walk(node)
         )
+
+
+def test_production_startup_does_not_prewarm_third_party_images():
+    source = Path(__file__).resolve().parents[1] / "server.py"
+    module = ast.parse(source.read_text(encoding="utf-8"))
+    startup = next(
+        node for node in module.body
+        if isinstance(node, ast.AsyncFunctionDef) and node.name == "seed_db"
+    )
+    prewarm_guards = [
+        node for node in startup.body
+        if isinstance(node, ast.If)
+        and ast.unparse(node.test) == "security.APP_ENV != 'production'"
+        and any(
+            isinstance(child, ast.Call)
+            and ast.unparse(child.func) == "_prewarm_images"
+            for child in ast.walk(node)
+        )
+    ]
+    assert len(prewarm_guards) == 1
+    for node in startup.body:
+        if node is prewarm_guards[0]:
+            continue
+        assert not any(
+            isinstance(child, ast.Call)
+            and ast.unparse(child.func) == "_prewarm_images"
+            for child in ast.walk(node)
+        )
