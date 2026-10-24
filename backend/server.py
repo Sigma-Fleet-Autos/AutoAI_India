@@ -155,10 +155,11 @@ _IMAGE_CACHE_SIZE = 0
 async def seed_db():
     await db.command("ping")
     await _rate_limiter.connect()
-    if await db.cars.estimated_document_count() == 0 and CARS_SEED:
-        await db.cars.insert_many([dict(c) for c in CARS_SEED])
-    if await db.news.estimated_document_count() == 0 and NEWS_SEED:
-        await db.news.insert_many([dict(n) for n in NEWS_SEED])
+    if security.APP_ENV != "production":
+        if await db.cars.estimated_document_count() == 0 and CARS_SEED:
+            await db.cars.insert_many([dict(c) for c in CARS_SEED])
+        if await db.news.estimated_document_count() == 0 and NEWS_SEED:
+            await db.news.insert_many([dict(n) for n in NEWS_SEED])
     await db.otps.create_index("phone")
     await db.otps.create_index("expires_at", expireAfterSeconds=0)
     await db.user_sessions.create_index("token_hash", unique=True)
