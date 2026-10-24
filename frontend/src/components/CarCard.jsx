@@ -7,6 +7,8 @@ import CarVisual from "./CarVisual";
 
 export default function CarCard({ car }) {
   const { t } = useI18n();
+  const price = car.price_ex_showroom;
+  const hasVerifiedPriceValue = typeof price === "number" && Number.isFinite(price) && price > 0;
   return (
     <motion.div
       whileHover={{ y: -3 }}
@@ -31,8 +33,8 @@ export default function CarCard({ car }) {
 
         {/* price chip */}
         <div className="absolute bottom-3 right-3 bg-black/70 backdrop-blur-md border border-[#F59E0B]/30 px-3 py-1.5">
-          <div className="text-[9px] uppercase tracking-[0.2em] text-slate-400 font-mono">Ex-showroom</div>
-          <div className="font-num text-xl text-[#F59E0B] leading-none mt-0.5">{formatINR(car.price_ex_showroom)}</div>
+          <div className="text-[9px] uppercase tracking-[0.2em] text-slate-400 font-mono">Ex-showroom · catalogue</div>
+          <div className="font-num text-xl text-[#F59E0B] leading-none mt-0.5">{hasVerifiedPriceValue ? formatINR(price) : "Price unavailable"}</div>
         </div>
       </div>
 
