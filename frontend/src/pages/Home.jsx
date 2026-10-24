@@ -51,6 +51,28 @@ export default function Home() {
 
   return (
     <div className="bg-[#050505] text-white overflow-hidden">
+      <section className="autoai-atelier" aria-labelledby="atelier-discover-title">
+        <div className="atelier-container py-16 md:py-24">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(260px,.7fr)] lg:items-end">
+            <div>
+              <p className="atelier-eyebrow mb-5">AutoAI India · The automotive edit</p>
+              <h2 id="atelier-discover-title" className="atelier-heading text-5xl sm:text-6xl lg:text-7xl">
+                Every drive begins with a better decision.
+              </h2>
+            </div>
+            <div>
+              <p className="mb-7 max-w-md text-base leading-7 text-[#555a55]">
+                Explore the cars shaping India. Compare what matters, discover the details,
+                and make your next move with greater clarity.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link to="/cars" className="atelier-action">Explore vehicles <ArrowRight className="ml-3" size={16} aria-hidden="true" /></Link>
+                <Link to="/compare" className="atelier-action">Compare models</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       {/* ============== HERO ============== */}
       <section className="relative min-h-[100vh] overflow-hidden hero-grid" data-testid="hero-section">
         {/* VIDEO BACKGROUND — Indian highway driving reel */}
