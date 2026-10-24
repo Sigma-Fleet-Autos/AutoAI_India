@@ -37,18 +37,35 @@ export default function Showroom() {
 
   const [loadError, setLoadError] = useState(false);
   const [configuratorStatus, setConfiguratorStatus] = useState("loading");
+  const [verifiedVariantId, setVerifiedVariantId] = useState(null);
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
     setCar(null);
     setLoadError(false);
-    setConfiguratorStatus("loading");
-    import("../services/configuratorApi")
-      .then(({ configuratorApi }) => configuratorApi.getAvailability(carId))
-      .then(({ data }) => { if (active) setConfiguratorStatus(data?.configurator_status === "AVAILABLE" ? "available" : "unavailable"); })
-      .catch(() => { if (active) setConfiguratorStatus("unavailable"); });
+    setConfiguratorStatus("unavailable");
+    setVerifiedVariantId(null);
     api.get(`/cars/${carId}`, { signal: controller.signal })
-      .then((response) => { if (active) setCar(response.data); })
+      .then(async (response) => {
+        if (!active) return;
+        const vehicle = response.data;
+        setCar(vehicle);
+        // Catalogue IDs are not canonical variant IDs. Only use an explicit mapping.
+        const variantId = typeof vehicle?.variant_id === "string" && vehicle.variant_id.trim()
+          ? vehicle.variant_id.trim()
+          : null;
+        if (!variantId) return;
+        try {
+          const { configuratorApi } = await import("../services/configuratorApi");
+          const availability = await configuratorApi.getAvailability(variantId);
+          if (active && availability.data?.configurator_status === "AVAILABLE") {
+            setVerifiedVariantId(variantId);
+            setConfiguratorStatus("available");
+          }
+        } catch {
+          if (active) setConfiguratorStatus("unavailable");
+        }
+      })
       .catch((error) => { if (active && error?.code !== "ERR_CANCELED") setLoadError(true); });
     return () => { active = false; controller.abort(); };
   }, [carId]);
@@ -134,8 +151,8 @@ export default function Showroom() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-6">
-        {configuratorStatus === "available" && <Link to={`/configurator/${encodeURIComponent(carId)}`} data-testid="showroom-configurator-link" className="mb-4 inline-flex min-h-[44px] items-center border border-[#F59E0B] px-5 py-3 text-xs font-bold uppercase tracking-[0.15em] text-[#F59E0B] hover:bg-[#F59E0B] hover:text-black">Open verified 3D configurator →</Link>}
-        {configuratorStatus === "unavailable" && <p className="mb-4 text-xs text-slate-400" data-testid="showroom-configurator-unavailable">Verified 3D configuration is not available for this vehicle.</p>}
+        {configuratorStatus === "available" && verifiedVariantId && <Link to={`/configurator/${encodeURIComponent(verifiedVariantId)}`} data-testid="showroom-configurator-link" className="mb-4 inline-flex min-h-[44px] items-center border border-[#F59E0B] px-5 py-3 text-xs font-bold uppercase tracking-[0.15em] text-[#F59E0B] hover:bg-[#F59E0B] hover:text-black">Open verified 3D configurator →</Link>}
+        {configuratorStatus === "unavailable" && <p className="mb-4 text-xs text-slate-400" data-testid="showroom-configurator-unavailable">Verified 3D configuration is not available for this catalogue entry.</p>}
         <p role="note" className="border-l-2 border-[#F59E0B] bg-[#151515] px-5 py-4 text-sm leading-6 text-slate-200" data-testid="showroom-photo-disclosure">This is an illustrative photographic preview, not a 3D configurator. Image movement, colours, interior and lighting effects do not represent verified manufacturer equipment or selectable production options.</p>
       </div>
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-8 grid lg:grid-cols-12 gap-6">
