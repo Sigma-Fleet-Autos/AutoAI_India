@@ -6,8 +6,8 @@ from typing import Optional
 
 
 def assess_database_authority(
-    configured_database_name: Optional[str],
-    expected_database_name: Optional[str],
+    configured_database_name: object,
+    expected_database_name: object,
 ) -> dict[str, object]:
     """Require an explicitly configured expected database and exact name match."""
     expected = expected_database_name.strip() if isinstance(expected_database_name, str) else ""
