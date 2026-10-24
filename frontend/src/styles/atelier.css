@@ -104,7 +104,6 @@
   background: #111412;
   color: #fff;
 }
-.autoai-atelier [data-testid^="car-card-"] .group-hover\\:opacity-100 { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .autoai-atelier .animate-pulse { animation: none !important; }
 }
