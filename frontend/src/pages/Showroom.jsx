@@ -43,6 +43,13 @@ export default function Showroom() {
     setLoadError(false);
     setAutoSpin(false);
     setAngle(0);
+    setColor(COLORS[0]);
+    setDoors(false);
+    setHood(false);
+    setBoot(false);
+    setLights(false);
+    setView("exterior");
+    dragRef.current = { active: false, pointerId: null, startX: 0, startAngle: 0 };
     setConfiguratorStatus("unavailable");
     setVerifiedVariantId(null);
     api.get(`/cars/${carId}`, { signal: controller.signal })
