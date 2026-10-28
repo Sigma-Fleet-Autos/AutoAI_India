@@ -31,7 +31,7 @@ export default function Showroom() {
   const [boot, setBoot] = useState(false);
   const [lights, setLights] = useState(false);
   const [view, setView] = useState("exterior");
-  const dragRef = useRef({ active: false, startX: 0, startAngle: 0 });
+  const dragRef = useRef({ active: false, pointerId: null, startX: 0, startAngle: 0 });
 
   const [loadError, setLoadError] = useState(false);
   const [configuratorStatus, setConfiguratorStatus] = useState("loading");
@@ -95,16 +95,21 @@ export default function Showroom() {
   const onPointerDown = (event) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
     if (event.target.closest("button, a, input, select, textarea")) return;
-    dragRef.current = { active: true, startX: event.clientX, startAngle: angle };
+    if (dragRef.current.active) return;
+    dragRef.current = { active: true, pointerId: event.pointerId, startX: event.clientX, startAngle: angle };
     event.currentTarget.setPointerCapture?.(event.pointerId);
     setAutoSpin(false);
   };
   const onPointerMove = (event) => {
-    if (!dragRef.current.active) return;
+    if (!dragRef.current.active || dragRef.current.pointerId !== event.pointerId) return;
     const dx = event.clientX - dragRef.current.startX;
     setAngle((dragRef.current.startAngle + dx * 0.8 + 3600) % 360);
   };
-  const onPointerEnd = () => { dragRef.current.active = false; };
+  const onPointerEnd = (event) => {
+    if (dragRef.current.pointerId !== event.pointerId) return;
+    dragRef.current.active = false;
+    dragRef.current.pointerId = null;
+  };
 
   if (loadError) return <main role="alert" className="min-h-screen bg-[#050505] flex flex-col items-center justify-center gap-6 px-6 text-center text-slate-200"><p>Vehicle details are currently unavailable. Please return to the catalogue and try again.</p><Link to="/cars" className="border border-white/40 px-6 py-3 text-sm">Back to vehicles</Link></main>;
   if (!car) return <main role="status" className="min-h-screen bg-black flex items-center justify-center text-slate-400">Loading showroom…</main>;
@@ -155,6 +160,7 @@ export default function Showroom() {
             onPointerMove={onPointerMove}
             onPointerUp={onPointerEnd}
             onPointerCancel={onPointerEnd}
+            onLostPointerCapture={onPointerEnd}
             
             
             
