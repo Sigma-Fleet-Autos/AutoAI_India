@@ -101,10 +101,16 @@ export default function Showroom() {
 
   const onPointerDown = (event) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
-    if (event.target.closest("button, a, input, select, textarea")) return;
+    if (event.target instanceof Element && event.target.closest("button, a, input, select, textarea, [role=button]")) return;
     if (dragRef.current.active) return;
     dragRef.current = { active: true, pointerId: event.pointerId, startX: event.clientX, startAngle: angle };
-    event.currentTarget.setPointerCapture?.(event.pointerId);
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      dragRef.current.active = false;
+      dragRef.current.pointerId = null;
+      return;
+    }
     setAutoSpin(false);
   };
   const onPointerMove = (event) => {
