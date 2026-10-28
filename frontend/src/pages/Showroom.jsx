@@ -90,7 +90,7 @@ export default function Showroom() {
       window.clearInterval(id);
       motionPreference.removeEventListener("change", onPreferenceChange);
     };
-  }, [autoSpin, locked]);
+  }, [autoSpin]);
 
   const onMouseDown = (e) => {
     
@@ -189,7 +189,7 @@ export default function Showroom() {
             {/* THE ACTUAL CAR IMAGE — 3D sway */}
             <div className="absolute inset-0 flex items-center justify-center p-8" style={{ perspective: "1400px" }}>
               {view === "interior" ? (
-                <InteriorView accent={color.ring}  />
+                <InteriorView accent={color.ring} />
               ) : (
                 <motion.div
                   className="relative w-[92%] h-[80%] transition-filter duration-300"
