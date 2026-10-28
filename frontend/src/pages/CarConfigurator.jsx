@@ -46,6 +46,7 @@ export default function CarConfigurator() {
       setLoading(true); setError(null); setOptions(null); store.reset();
       try {
         const availRes = await configuratorApi.getAvailability(variantId);
+        if (cancelled) return;
         const { configurator_status: configuratorStatus, asset_id: assetId } = availRes.data;
         // Catalogue car IDs are not interchangeable with canonical configurator variant IDs.
         const variantData = (await configuratorApi.getVariant(variantId)).data;
@@ -57,11 +58,13 @@ export default function CarConfigurator() {
         setVariant(variantData); store.setVariant(variantId);
         if (configuratorStatus === 'AVAILABLE' && assetId) {
           const assetRes = await configuratorApi.getAsset(variantId);
-          if (!cancelled && assetRes.data.available) store.setAsset(assetRes.data.asset);
+          if (cancelled) return;
+          if (assetRes.data.available) store.setAsset(assetRes.data.asset);
           else store.setAssetUnavailable(configuratorStatus);
         } else store.setAssetUnavailable(configuratorStatus);
         const optsRes = await configuratorApi.getOptions(variantId);
-        if (!cancelled) setOptions(optsRes.data);
+        if (cancelled) return;
+        setOptions(optsRes.data);
 
         const configToken = new URLSearchParams(window.location.search).get('config');
         if (configToken) {
