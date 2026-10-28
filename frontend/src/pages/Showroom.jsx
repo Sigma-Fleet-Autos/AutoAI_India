@@ -149,7 +149,7 @@ export default function Showroom() {
         {/* Viewer */}
         <div className="lg:col-span-8">
           <div
-            className="relative border border-white/10 bg-gradient-to-b from-[#0A0A0A] to-[#050505] aspect-[16/10] overflow-hidden select-none cursor-grab active:cursor-grabbing corner-notch"
+            className="relative border border-white/10 bg-gradient-to-b from-[#0A0A0A] to-[#050505] aspect-[16/10] overflow-hidden select-none touch-none cursor-grab active:cursor-grabbing corner-notch"
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerEnd}
