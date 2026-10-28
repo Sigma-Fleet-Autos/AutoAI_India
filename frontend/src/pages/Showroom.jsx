@@ -79,9 +79,21 @@ export default function Showroom() {
   }, [carId]);
 
   useEffect(() => {
-    if (!autoSpin || locked) return;
-    const id = setInterval(() => setAngle((a) => (a + 0.8) % 360), 40);
-    return () => clearInterval(id);
+    if (!autoSpin || locked) return undefined;
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (motionPreference.matches) {
+      setAutoSpin(false);
+      return undefined;
+    }
+    const id = window.setInterval(() => {
+      if (!document.hidden) setAngle((a) => (a + 0.8) % 360);
+    }, 40);
+    const onPreferenceChange = (event) => { if (event.matches) setAutoSpin(false); };
+    motionPreference.addEventListener("change", onPreferenceChange);
+    return () => {
+      window.clearInterval(id);
+      motionPreference.removeEventListener("change", onPreferenceChange);
+    };
   }, [autoSpin, locked]);
 
   useEffect(() => {
