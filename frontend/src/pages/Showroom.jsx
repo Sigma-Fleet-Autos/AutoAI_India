@@ -92,30 +92,18 @@ export default function Showroom() {
     };
   }, [autoSpin]);
 
-  const onMouseDown = (e) => {
-    
-    dragRef.current = { active: true, startX: e.clientX, startAngle: angle };
+  const onPointerDown = (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    dragRef.current = { active: true, startX: event.clientX, startAngle: angle };
+    event.currentTarget.setPointerCapture?.(event.pointerId);
     setAutoSpin(false);
   };
-  const onMouseMove = (e) => {
+  const onPointerMove = (event) => {
     if (!dragRef.current.active) return;
-    const dx = e.clientX - dragRef.current.startX;
+    const dx = event.clientX - dragRef.current.startX;
     setAngle((dragRef.current.startAngle + dx * 0.8 + 3600) % 360);
   };
-  const onMouseUp = () => { dragRef.current.active = false; };
-
-  // touch
-  const onTouchStart = (e) => {
-    
-    dragRef.current = { active: true, startX: e.touches[0].clientX, startAngle: angle };
-    setAutoSpin(false);
-  };
-  const onTouchMove = (e) => {
-    if (!dragRef.current.active) return;
-    const dx = e.touches[0].clientX - dragRef.current.startX;
-    setAngle((dragRef.current.startAngle + dx * 0.8 + 3600) % 360);
-  };
-  const onTouchEnd = () => { dragRef.current.active = false; };
+  const onPointerEnd = () => { dragRef.current.active = false; };
 
   if (loadError) return <main role="alert" className="min-h-screen bg-[#050505] flex flex-col items-center justify-center gap-6 px-6 text-center text-slate-200"><p>Vehicle details are currently unavailable. Please return to the catalogue and try again.</p><Link to="/cars" className="border border-white/40 px-6 py-3 text-sm">Back to vehicles</Link></main>;
   if (!car) return <main role="status" className="min-h-screen bg-black flex items-center justify-center text-slate-400">Loading showroom…</main>;
@@ -162,13 +150,13 @@ export default function Showroom() {
         <div className="lg:col-span-8">
           <div
             className="relative border border-white/10 bg-gradient-to-b from-[#0A0A0A] to-[#050505] aspect-[16/10] overflow-hidden select-none cursor-grab active:cursor-grabbing corner-notch"
-            onMouseDown={onMouseDown}
-            onMouseMove={onMouseMove}
-            onMouseUp={onMouseUp}
-            onMouseLeave={onMouseUp}
-            onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerEnd}
+            onPointerCancel={onPointerEnd}
+            
+            
+            
             data-testid="showroom-viewer"
           >
             {/* Studio spotlight */}
