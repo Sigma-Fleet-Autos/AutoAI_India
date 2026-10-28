@@ -94,6 +94,7 @@ export default function Showroom() {
 
   const onPointerDown = (event) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
+    if (event.target.closest("button, a, input, select, textarea")) return;
     dragRef.current = { active: true, startX: event.clientX, startAngle: angle };
     event.currentTarget.setPointerCapture?.(event.pointerId);
     setAutoSpin(false);
@@ -115,7 +116,7 @@ export default function Showroom() {
   const proxiedUrl = realUrl ? `${API}/image-proxy?url=${encodeURIComponent(realUrl)}` : null;
 
   // Legacy photographic preview only; not genuine 3D geometry.
-  // Angle 0-180 = normal; 180-360 = mirrored (as if we rotated to back, showing reverse)
+  // The image is mirrored for part of the slider range; this does not reveal a rear vehicle photograph.
   const normAngle = angle % 360;
   const isBack = normAngle > 90 && normAngle < 270;
   const swayDeg = Math.sin((angle * Math.PI) / 180) * 18; // ±18deg rotation
@@ -242,7 +243,7 @@ export default function Showroom() {
               <RotateCw size={11} className="text-[#F59E0B]" />
               {Math.round(angle)}°
               <span className="text-slate-600">·</span>
-              <span className="text-[#F59E0B]">{isBack ? "REAR" : "FRONT"}</span>
+              <span className="text-[#F59E0B]">{isBack ? "MIRRORED PHOTO" : "ORIGINAL PHOTO"}</span>
             </div>
 
             {/* Paint readout */}
