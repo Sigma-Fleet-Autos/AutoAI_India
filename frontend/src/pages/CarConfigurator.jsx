@@ -47,9 +47,12 @@ export default function CarConfigurator() {
       try {
         const availRes = await configuratorApi.getAvailability(variantId);
         const { configurator_status: configuratorStatus, asset_id: assetId } = availRes.data;
-        let variantData;
-        try { variantData = (await configuratorApi.getVariant(variantId)).data; }
-        catch { const { api } = await import('../lib/api'); variantData = (await api.get(`/cars/${variantId}`)).data; }
+        // Catalogue car IDs are not interchangeable with canonical configurator variant IDs.
+        const variantData = (await configuratorApi.getVariant(variantId)).data;
+        const canonicalId = variantData?.variant_id || variantData?.id;
+        if (String(canonicalId || '') !== variantId) {
+          throw new Error('The configurator variant could not be verified.');
+        }
         if (cancelled) return;
         setVariant(variantData); store.setVariant(variantId);
         if (configuratorStatus === 'AVAILABLE' && assetId) {
@@ -163,7 +166,8 @@ export default function CarConfigurator() {
       <SaveSharePanel canCommit={canCommit} saveState={saveState} onSave={saveConfiguration} onShare={copyShareLink} shareCopied={shareCopied} />
       {saveState.shareToken && <Link to={`/configurator/conversion?config=${encodeURIComponent(saveState.shareToken)}`} className="block w-full rounded-xl border border-amber-400/30 bg-amber-400/5 py-3 text-center text-xs font-bold uppercase tracking-widest text-amber-300 transition hover:bg-amber-400/10">Finance · Insurance · Dealer →</Link>}
       <InteractionPanel supportedInteractions={store.asset.supportedInteractions} /><CameraPanel supportedInteractions={store.asset.supportedInteractions} />
-      <Link aria-disabled={!canCommit} className={`block w-full rounded-xl py-3 text-center text-xs font-bold uppercase tracking-widest transition ${canCommit ? 'bg-amber-400 text-black hover:bg-amber-300' : 'pointer-events-none bg-white/10 text-white/20'}`} to={canCommit ? `/book/${variantId}` : '#'}>Book configured test drive →</Link>
+      <p className="text-xs leading-5 text-white/50">Test-drive booking requires a verified catalogue vehicle ID. Configurator variant IDs are not accepted as booking IDs.</p>
+      <Link to="/cars" className="block w-full rounded-xl border border-white/20 py-3 text-center text-xs font-bold uppercase tracking-widest text-white transition hover:border-amber-400/60">Find a vehicle to book →</Link>
     </aside></div></div></main>;
 }
 
