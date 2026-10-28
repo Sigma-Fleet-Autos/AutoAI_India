@@ -97,14 +97,17 @@ export default function Showroom() {
   }, [autoSpin, locked]);
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setTrialSeconds((s) => {
-        if (s <= 1) { setLocked(true); return 0; }
-        return s - 1;
-      });
+    if (!car || locked) return undefined;
+    const id = window.setInterval(() => {
+      if (document.hidden) return;
+      setTrialSeconds((seconds) => Math.max(0, seconds - 1));
     }, 1000);
-    return () => clearInterval(id);
-  }, []);
+    return () => window.clearInterval(id);
+  }, [car, locked]);
+
+  useEffect(() => {
+    if (trialSeconds === 0) setLocked(true);
+  }, [trialSeconds]);
 
   const onMouseDown = (e) => {
     if (locked) return;
