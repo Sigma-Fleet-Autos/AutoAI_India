@@ -87,14 +87,18 @@ export default function CarConfigurator() {
           const savedPurchasable = saved?.data?.configuration?.purchasable;
           if (savedPurchasable?.variant_id === variantId && !cancelled) {
             const current = useConfiguratorStore.getState();
-            const validSelection = (value) => typeof value === 'string' && value.trim() ? value : null;
-            current.setPaint(validSelection(savedPurchasable.paint_id));
-            current.setWheels(validSelection(savedPurchasable.wheel_id));
-            current.setInterior(validSelection(savedPurchasable.interior_id));
-            current.setRoof(validSelection(savedPurchasable.roof_id));
-            // Restore only well-formed, unique accessory IDs from persisted data.
+            // Restore only IDs that the canonical options endpoint currently exposes.
+            const validSelection = (value, available) =>
+              typeof value === 'string' && Array.isArray(available) &&
+              available.some((option) => getOptionId(option) === value) ? value : null;
+            current.setPaint(validSelection(savedPurchasable.paint_id, optsRes.data?.colors));
+            current.setWheels(validSelection(savedPurchasable.wheel_id, optsRes.data?.wheels));
+            current.setInterior(validSelection(savedPurchasable.interior_id, optsRes.data?.interiors));
+            current.setRoof(validSelection(savedPurchasable.roof_id, optsRes.data?.roofs));
+            const availableAccessories = Array.isArray(optsRes.data?.accessories) ? optsRes.data.accessories : [];
             const accessoryIds = Array.isArray(savedPurchasable.accessory_ids)
-              ? [...new Set(savedPurchasable.accessory_ids.filter((id) => typeof id === 'string' && id.trim()))]
+              ? [...new Set(savedPurchasable.accessory_ids.filter((id) =>
+                  typeof id === 'string' && availableAccessories.some((option) => getOptionId(option) === id)))]
               : [];
             accessoryIds.forEach((id) => current.toggleAccessory(id));
             if (typeof saved.data.city === 'string' && saved.data.city.trim()) current.setCity(saved.data.city);
