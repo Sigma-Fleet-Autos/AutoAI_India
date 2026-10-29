@@ -42,8 +42,13 @@ export default function CarConfigurator() {
   useEffect(() => {
     if (!variantId) return undefined;
     let cancelled = false;
+    // Invalidate any outstanding validation/price requests before replacing the variant.
+    requestSequence.current += 1;
     async function load() {
-      setLoading(true); setError(null); setOptions(null); store.reset();
+      setLoading(true); setError(null); setVariant(null); setOptions(null);
+      setSaveState({ loading: false, error: null, configId: null, shareToken: null });
+      setShareCopied(false);
+      store.reset();
       try {
         const availRes = await configuratorApi.getAvailability(variantId);
         if (cancelled) return;
@@ -84,7 +89,7 @@ export default function CarConfigurator() {
       finally { if (!cancelled) setLoading(false); }
     }
     load();
-    return () => { cancelled = true; };
+    return () => { cancelled = true; requestSequence.current += 1; };
   }, [variantId]);
 
   const validateAndPrice = useCallback(async () => {
