@@ -90,7 +90,7 @@ export default function CarConfigurator() {
             // Restore only IDs that the canonical options endpoint currently exposes.
             const validSelection = (value, available) =>
               typeof value === 'string' && Array.isArray(available) &&
-              available.some((option) => getOptionId(option) === value) ? value : null;
+              available.some((option) => getOptionId(option) === value && option.available !== false) ? value : null;
             current.setPaint(validSelection(savedPurchasable.paint_id, optsRes.data?.colors));
             current.setWheels(validSelection(savedPurchasable.wheel_id, optsRes.data?.wheels));
             current.setInterior(validSelection(savedPurchasable.interior_id, optsRes.data?.interiors));
@@ -98,7 +98,7 @@ export default function CarConfigurator() {
             const availableAccessories = Array.isArray(optsRes.data?.accessories) ? optsRes.data.accessories : [];
             const accessoryIds = Array.isArray(savedPurchasable.accessory_ids)
               ? [...new Set(savedPurchasable.accessory_ids.filter((id) =>
-                  typeof id === 'string' && availableAccessories.some((option) => getOptionId(option) === id)))]
+                  typeof id === 'string' && availableAccessories.some((option) => getOptionId(option) === id && option.available !== false)))]
               : [];
             accessoryIds.forEach((id) => current.toggleAccessory(id));
             if (typeof saved.data.city === 'string' && saved.data.city.trim()) current.setCity(saved.data.city);
