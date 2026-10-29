@@ -156,7 +156,9 @@ export default function CarConfigurator() {
     const current = useConfiguratorStore.getState();
     // Enforce the same backend-pricing precondition in the handler as in the UI.
     if (!current.validation.result?.valid || current.validation.loading ||
-        current.price.loading || current.price.error || !current.price.data) return;
+        current.price.loading || current.price.error ||
+        !Number.isFinite(Number(current.price.data?.estimated_on_road)) ||
+        Number(current.price.data?.estimated_on_road) <= 0) return;
     setSaveState({ loading: true, error: null, configId: null, shareToken: null });
     try {
       const payload = {
@@ -202,7 +204,9 @@ export default function CarConfigurator() {
   const price = store.price.data;
   const validation = store.validation.result;
   // A valid compatibility check alone is insufficient: require a fresh backend price.
-  const canCommit = Boolean(validation?.valid && price && !store.price.error) &&
+  const hasVerifiedPrice = Number.isFinite(Number(price?.estimated_on_road)) &&
+    Number(price?.estimated_on_road) > 0;
+  const canCommit = Boolean(validation?.valid && hasVerifiedPrice && !store.price.error) &&
     !store.validation.loading && !store.price.loading;
   return <main className="min-h-screen bg-[#050505] pt-20 text-white"><div className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-10">
     <div className="mb-5 flex flex-wrap items-center justify-between gap-4"><Link to="/cars" className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-white/40 hover:text-white"><ArrowLeft size={14} /> Exit configurator</Link><div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/5 px-4 py-2 text-[10px] uppercase tracking-widest text-amber-300"><Sparkles size={12} /> {store.asset.available ? 'Live 3D configurator' : '3D Coming Soon'}</div></div>
