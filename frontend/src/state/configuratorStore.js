@@ -244,7 +244,8 @@ export const useConfiguratorStore = create((set, get) => ({
   setAssetUnavailable(status = 'COMING_SOON') {
     set({ asset: { ...defaultAsset, configuratorStatus: status } });
   },
-  setPriceLoading() { set({ price: { ...get().price, loading: true, error: null } }); },
+  // Never display a previous selection's price while the backend recalculates.
+  setPriceLoading() { set({ price: { ...defaultPrice, loading: true } }); },
   setPriceResult(data) { set({ price: { loading: false, error: null, data, lastFetchedFor: JSON.stringify(get().purchasable) } }); },
   setPriceError(error) { set({ price: { ...get().price, loading: false, error } }); },
   setValidationLoading() { set({ validation: { loading: true, error: null, result: null } }); },
