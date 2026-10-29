@@ -140,6 +140,17 @@ export default function CarConfigurator() {
     if (store.isInitialized) validateAndPrice();
   }, [store.isInitialized, store.city, store.purchasable.paintId, store.purchasable.wheelId, store.purchasable.interiorId, store.purchasable.roofId, store.purchasable.accessoryIds.join(','), validateAndPrice]);
 
+  // A saved link belongs to the exact purchasable selection and pricing city.
+  // Discard pending save/share feedback when those inputs change.
+  useEffect(() => {
+    saveSequence.current += 1;
+    shareSequence.current += 1;
+    setSaveState({ loading: false, error: null, configId: null, shareToken: null });
+    setShareCopied(false);
+  }, [store.city, store.purchasable.variantId, store.purchasable.paintId,
+      store.purchasable.wheelId, store.purchasable.interiorId,
+      store.purchasable.roofId, store.purchasable.accessoryIds.join(',')]);
+
   const saveConfiguration = async () => {
     const sequence = ++saveSequence.current;
     const current = useConfiguratorStore.getState();
