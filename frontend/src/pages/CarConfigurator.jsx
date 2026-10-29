@@ -38,6 +38,7 @@ export default function CarConfigurator() {
   const [shareCopied, setShareCopied] = useState(false);
   const requestSequence = useRef(0);
   const saveSequence = useRef(0);
+  const shareSequence = useRef(0);
   const store = useConfiguratorStore();
 
   useEffect(() => {
@@ -46,6 +47,7 @@ export default function CarConfigurator() {
     // Invalidate any outstanding validation/price requests before replacing the variant.
     requestSequence.current += 1;
     saveSequence.current += 1;
+    shareSequence.current += 1;
     async function load() {
       setLoading(true); setError(null); setVariant(null); setOptions(null);
       setSaveState({ loading: false, error: null, configId: null, shareToken: null });
@@ -91,7 +93,7 @@ export default function CarConfigurator() {
       finally { if (!cancelled) setLoading(false); }
     }
     load();
-    return () => { cancelled = true; requestSequence.current += 1; saveSequence.current += 1; };
+    return () => { cancelled = true; requestSequence.current += 1; saveSequence.current += 1; shareSequence.current += 1; };
   }, [variantId]);
 
   const validateAndPrice = useCallback(async () => {
@@ -152,9 +154,18 @@ export default function CarConfigurator() {
 
   const copyShareLink = async () => {
     if (!saveState.shareToken) return;
+    const sequence = ++shareSequence.current;
     const url = `${window.location.origin}${window.location.pathname}?config=${encodeURIComponent(saveState.shareToken)}`;
-    try { await navigator.clipboard.writeText(url); setShareCopied(true); window.setTimeout(() => setShareCopied(false), 1800); }
-    catch { setSaveState((state) => ({ ...state, error: 'Unable to copy share link' })); }
+    try {
+      await navigator.clipboard.writeText(url);
+      if (sequence !== shareSequence.current) return;
+      setShareCopied(true);
+      window.setTimeout(() => {
+        if (sequence === shareSequence.current) setShareCopied(false);
+      }, 1800);
+    } catch {
+      if (sequence === shareSequence.current) setSaveState((state) => ({ ...state, error: 'Unable to copy share link' }));
+    }
   };
 
   if (loading) return <main className="min-h-screen bg-[#050505] pt-24 text-white"><div className="mx-auto max-w-7xl px-6 py-20 text-center text-xs uppercase tracking-widest text-white/40">Loading configurator…</div></main>;
