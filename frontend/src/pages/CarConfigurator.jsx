@@ -37,6 +37,7 @@ export default function CarConfigurator() {
   const [saveState, setSaveState] = useState({ loading: false, error: null, configId: null, shareToken: null });
   const [shareCopied, setShareCopied] = useState(false);
   const requestSequence = useRef(0);
+  const saveSequence = useRef(0);
   const store = useConfiguratorStore();
 
   useEffect(() => {
@@ -44,6 +45,7 @@ export default function CarConfigurator() {
     let cancelled = false;
     // Invalidate any outstanding validation/price requests before replacing the variant.
     requestSequence.current += 1;
+    saveSequence.current += 1;
     async function load() {
       setLoading(true); setError(null); setVariant(null); setOptions(null);
       setSaveState({ loading: false, error: null, configId: null, shareToken: null });
@@ -89,7 +91,7 @@ export default function CarConfigurator() {
       finally { if (!cancelled) setLoading(false); }
     }
     load();
-    return () => { cancelled = true; requestSequence.current += 1; };
+    return () => { cancelled = true; requestSequence.current += 1; saveSequence.current += 1; };
   }, [variantId]);
 
   const validateAndPrice = useCallback(async () => {
@@ -122,6 +124,7 @@ export default function CarConfigurator() {
   }, [store.isInitialized, store.city, store.purchasable.paintId, store.purchasable.wheelId, store.purchasable.interiorId, store.purchasable.roofId, store.purchasable.accessoryIds.join(','), validateAndPrice]);
 
   const saveConfiguration = async () => {
+    const sequence = ++saveSequence.current;
     const current = useConfiguratorStore.getState();
     if (!current.validation.result?.valid || current.validation.loading) return;
     setSaveState({ loading: true, error: null, configId: null, shareToken: null });
@@ -141,8 +144,10 @@ export default function CarConfigurator() {
         asset_version: current.asset?.version || null,
       };
       const response = await configuratorApi.saveConfiguration(payload);
-      setSaveState({ loading: false, error: null, configId: response.data.config_id, shareToken: response.data.share_token });
-    } catch (err) { setSaveState({ loading: false, error: getErrorMessage(err, 'Sign in to save this configuration'), configId: null, shareToken: null }); }
+      if (sequence === saveSequence.current) setSaveState({ loading: false, error: null, configId: response.data.config_id, shareToken: response.data.share_token });
+    } catch (err) {
+      if (sequence === saveSequence.current) setSaveState({ loading: false, error: getErrorMessage(err, 'Sign in to save this configuration'), configId: null, shareToken: null });
+    }
   };
 
   const copyShareLink = async () => {
