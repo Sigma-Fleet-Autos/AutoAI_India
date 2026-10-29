@@ -154,7 +154,9 @@ export default function CarConfigurator() {
   const saveConfiguration = async () => {
     const sequence = ++saveSequence.current;
     const current = useConfiguratorStore.getState();
-    if (!current.validation.result?.valid || current.validation.loading) return;
+    // Enforce the same backend-pricing precondition in the handler as in the UI.
+    if (!current.validation.result?.valid || current.validation.loading ||
+        current.price.loading || current.price.error || !current.price.data) return;
     setSaveState({ loading: true, error: null, configId: null, shareToken: null });
     try {
       const payload = {
