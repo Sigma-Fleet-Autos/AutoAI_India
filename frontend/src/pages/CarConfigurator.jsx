@@ -87,10 +87,11 @@ export default function CarConfigurator() {
           const savedPurchasable = saved?.data?.configuration?.purchasable;
           if (savedPurchasable?.variant_id === variantId && !cancelled) {
             const current = useConfiguratorStore.getState();
-            current.setPaint(savedPurchasable.paint_id || null);
-            current.setWheels(savedPurchasable.wheel_id || null);
-            current.setInterior(savedPurchasable.interior_id || null);
-            current.setRoof(savedPurchasable.roof_id || null);
+            const validSelection = (value) => typeof value === 'string' && value.trim() ? value : null;
+            current.setPaint(validSelection(savedPurchasable.paint_id));
+            current.setWheels(validSelection(savedPurchasable.wheel_id));
+            current.setInterior(validSelection(savedPurchasable.interior_id));
+            current.setRoof(validSelection(savedPurchasable.roof_id));
             // Restore only well-formed, unique accessory IDs from persisted data.
             const accessoryIds = Array.isArray(savedPurchasable.accessory_ids)
               ? [...new Set(savedPurchasable.accessory_ids.filter((id) => typeof id === 'string' && id.trim()))]
