@@ -85,8 +85,12 @@ export default function CarConfigurator() {
             current.setWheels(savedPurchasable.wheel_id || null);
             current.setInterior(savedPurchasable.interior_id || null);
             current.setRoof(savedPurchasable.roof_id || null);
-            (savedPurchasable.accessory_ids || []).forEach((id) => current.toggleAccessory(id));
-            if (saved.data.city) current.setCity(saved.data.city);
+            // Restore only well-formed, unique accessory IDs from persisted data.
+            const accessoryIds = Array.isArray(savedPurchasable.accessory_ids)
+              ? [...new Set(savedPurchasable.accessory_ids.filter((id) => typeof id === 'string' && id.trim()))]
+              : [];
+            accessoryIds.forEach((id) => current.toggleAccessory(id));
+            if (typeof saved.data.city === 'string' && saved.data.city.trim()) current.setCity(saved.data.city);
           }
         }
       } catch (err) { if (!cancelled) setError(getErrorMessage(err, 'Failed to load vehicle')); }
