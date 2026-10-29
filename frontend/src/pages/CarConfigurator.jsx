@@ -77,8 +77,14 @@ export default function CarConfigurator() {
 
         const configToken = new URLSearchParams(window.location.search).get('config');
         if (configToken) {
-          const saved = await configuratorApi.loadConfiguration(configToken);
-          const savedPurchasable = saved.data?.configuration?.purchasable;
+          // An invalid share token must not prevent a verified variant from loading.
+          let saved = null;
+          try {
+            saved = await configuratorApi.loadConfiguration(configToken);
+          } catch {
+            if (cancelled) return;
+          }
+          const savedPurchasable = saved?.data?.configuration?.purchasable;
           if (savedPurchasable?.variant_id === variantId && !cancelled) {
             const current = useConfiguratorStore.getState();
             current.setPaint(savedPurchasable.paint_id || null);
