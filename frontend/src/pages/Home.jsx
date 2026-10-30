@@ -201,70 +201,26 @@ export default function Home() {
             </motion.div>
           </motion.div>
 
-          {/* side HUD card */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="lg:col-span-4 relative"
-          >
-            <div className="relative glass border border-white/10 p-6 corner-notch">
-              <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-[#F59E0B]/60 to-transparent" />
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-2">
-                  <Radar size={14} className="text-[#F59E0B]" />
-                  <span className="text-[10px] uppercase tracking-[0.25em] text-slate-400 font-mono">
-                    Live · Zero-Wait Tracker
-                  </span>
-                </div>
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inset-0 rounded-full bg-[#10B981] opacity-70" />
-                  <span className="relative rounded-full h-2 w-2 bg-[#10B981]" />
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                {[
-                  { m: "Maruti Brezza", w: 2, c: "#10B981" },
-                  { m: "Hyundai Creta", w: 6, c: "#F59E0B" },
-                  { m: "Mahindra Thar", w: 16, c: "#EF4444" },
-                  { m: "Kia Seltos", w: 7, c: "#F59E0B" },
-                ].map((x, i) => (
-                  <motion.div
-                    key={x.m}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.9 + i * 0.1 }}
-                    className="flex items-center justify-between border-b border-white/10 pb-2.5"
-                  >
-                    <span className="text-sm text-slate-200">{x.m}</span>
-                    <span className="font-mono text-xs font-semibold" style={{ color: x.c }}>
-                      {x.w} weeks
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-
-              <div className="mt-6 text-[10px] text-slate-500 font-mono flex items-center gap-2">
-                <Cpu size={11} />
-                <span>$ {t("refresh_label")}</span>
-                <span className="text-[#F59E0B]">daily · 06:00 IST</span>
-              </div>
+          {/* Editorial navigation: no fabricated live inventory or waiting-time claims. */}
+          <aside className="lg:col-span-4 self-center border border-white/20 bg-black/60 p-6 backdrop-blur-md" aria-label="Explore AutoAI tools">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-white/60">Your buying journey</p>
+            <h2 className="mt-4 font-display text-2xl font-light text-white">Explore with clarity.</h2>
+            <p className="mt-3 text-sm leading-6 text-white/70">
+              Compare specifications, browse the vehicle catalogue and estimate your budget.
+              Dealer waiting times and availability must be confirmed directly.
+            </p>
+            <div className="mt-6 divide-y divide-white/15 border-y border-white/15">
+              <Link to="/cars" className="flex min-h-12 items-center justify-between text-sm text-white hover:text-amber-200">
+                Browse vehicles <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+              <Link to="/compare" className="flex min-h-12 items-center justify-between text-sm text-white hover:text-amber-200">
+                Compare models <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+              <Link to="/emi" className="flex min-h-12 items-center justify-between text-sm text-white hover:text-amber-200">
+                Estimate EMI <ArrowRight size={16} aria-hidden="true" />
+              </Link>
             </div>
-
-            {/* floating badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 1.4, duration: 0.5 }}
-              className="float-up absolute -top-5 -right-5 bg-gradient-to-br from-[#F59E0B] to-[#D97706] text-black px-4 py-2.5 amber-glow"
-            >
-              <div className="font-display text-xs font-bold uppercase tracking-[0.2em]">
-                <Zap size={12} className="inline mb-0.5 mr-1" strokeWidth={3} />
-                AI Live
-              </div>
-            </motion.div>
-          </motion.div>
+          </aside>
         </div>
 
         {/* ticker */}
