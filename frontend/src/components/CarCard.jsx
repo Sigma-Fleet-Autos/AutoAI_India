@@ -23,9 +23,9 @@ export default function CarCard({ car }) {
         </div>
 
         {/* price chip */}
-        <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-md border border-[#d9dad5] px-3 py-1.5">
+        <div className="absolute bottom-3 right-3 left-3 sm:left-auto bg-white/95 backdrop-blur-md border border-[#d9dad5] px-3 py-1.5 max-w-[calc(100%-1.5rem)]">
           <div className="text-[9px] uppercase tracking-[0.2em] text-[#555a55] font-mono">Ex-showroom · catalogue</div>
-          <div className="font-num text-xl text-[#111412] leading-none mt-0.5">{hasVerifiedPriceValue ? formatINR(price) : "Price unavailable"}</div>
+          <div className="font-num text-base sm:text-xl text-[#111412] leading-tight mt-0.5 break-words">{hasVerifiedPriceValue ? formatINR(price) : "Price unavailable"}</div>
         </div>
       </div>
 
@@ -41,25 +41,25 @@ export default function CarCard({ car }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-2 pt-4 border-t border-[#e2e3df]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-3 gap-y-4 pt-4 border-t border-[#e2e3df]">
           <Stat icon={<Fuel size={12} />} label={car.fuel === "Electric" ? "range" : "kmpl"} value={car.fuel === "Electric" ? "—" : (car.mileage_kmpl ?? "—")} />
           <Stat icon={<Shield size={12} />} label="safety" value={car.safety_rating == null ? "—" : `${car.safety_rating}★`} />
           <Stat icon={<Users size={12} />} label="seats" value={car.seats ?? "—"} />
           <Stat icon={<Clock size={12} />} label="wait wk" value={car.waiting_weeks ?? "—"} />
         </div>
 
-        <div className="mt-5 grid grid-cols-2 gap-2">
+        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2">
           <Link
             to={`/showroom/${car.id}`}
             data-testid={`showroom-btn-${car.id}`}
-            className="border border-[#c7c9c3] text-center text-[10px] uppercase tracking-[0.2em] font-bold py-3 text-[#111412] hover:border-[#111412] hover:text-[#111412] transition-all"
+            className="border border-[#c7c9c3] text-center text-[10px] uppercase tracking-[0.2em] font-bold py-3 min-h-11 flex items-center justify-center text-[#111412] hover:border-[#111412] hover:text-[#111412] transition-all"
           >
             View showroom
           </Link>
           <Link
             to={`/book/${car.id}`}
             data-testid={`book-btn-${car.id}`}
-            className="bg-[#111412] text-white text-center text-[10px] uppercase tracking-[0.25em] font-bold py-3 hover:bg-[#303630] transition-all"
+            className="bg-[#111412] text-white text-center text-[10px] uppercase tracking-[0.25em] font-bold py-3 min-h-11 flex items-center justify-center hover:bg-[#303630] transition-all"
           >
             {t("book_now")} →
           </Link>
