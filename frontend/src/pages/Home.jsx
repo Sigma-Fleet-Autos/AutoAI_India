@@ -87,7 +87,7 @@ export default function Home() {
             loop
             muted
             playsInline
-            preload="auto"
+            preload="metadata"
             poster={HERO_CAR}
             data-testid="hero-video"
             className="absolute inset-0 w-full h-full object-cover opacity-55"
@@ -247,9 +247,9 @@ export default function Home() {
         >
           <div className="chip mb-5">/// the engine room</div>
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight font-light leading-[1.05]">
-            Five AI pillars.
+            Tools for better decisions.
             <br />
-            <span className="text-gradient-amber italic font-semibold">One unbiased verdict.</span>
+            <span className="text-gradient-amber italic font-semibold">Your next move, considered.</span>
           </h2>
         </motion.div>
 
@@ -260,8 +260,8 @@ export default function Home() {
           whileInView="show"
           viewport={{ once: true, margin: "-80px" }}
         >
-          <Feature to="/compare" span="md:col-span-7" icon={<Scale size={22} />} kicker="01 · AI Comparison" title="Two cars enter. One walks out." desc="Claude-powered engine analyses safety, mileage, power, space, waiting & real cost-of-ownership — and exposes the cons brands hide." />
-          <Feature to="/recommend" span="md:col-span-5" icon={<Sparkles size={22} />} kicker="02 · AI Recommender" title="Your budget. Your need. Our verdict." desc="Tell us what you want. Get a ranked top-3 with transparent 'why' and honest watchouts." />
+          <Feature to="/compare" span="md:col-span-7" icon={<Scale size={22} />} kicker="01 · AI Comparison" title="Two cars enter. One walks out." desc="Compare available vehicle specifications and buying considerations side by side. Verify safety ratings, pricing and delivery information with official sources." />
+          <Feature to="/recommend" span="md:col-span-5" icon={<Sparkles size={22} />} kicker="02 · AI Recommender" title="Your budget. Your need. Our verdict." desc="Explore recommendations based on your preferences, then review specifications and trade-offs before deciding." />
           <Feature to="/emi" span="md:col-span-4" icon={<Calculator size={22} />} kicker="03 · EMI Studio" title="Loan math, demystified." desc="Interactive slider. Instant eligibility. Total interest exposed." />
           <Feature to="/cars" span="md:col-span-4" icon={<Gauge size={22} />} kicker="04 · Zero-Wait DB" title="Live availability tracker." desc="Waiting weeks across top models, refreshed daily." />
           <Feature to="/news" span="md:col-span-4" icon={<Newspaper size={22} />} kicker="05 · Daily Intel" title="Launches. Price drops. Hidden changes." desc="AI-curated feed. No press-release fluff." />
