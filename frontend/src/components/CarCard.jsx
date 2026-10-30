@@ -15,7 +15,7 @@ export default function CarCard({ car }) {
     >
       {/* car image */}
       <div className="relative aspect-[16/10] overflow-hidden bg-[#e8e9e5]">
-        <CarVisual car={car} className="w-full h-full group-hover:scale-[1.025] transition-transform duration-700 ease-out" />
+        <CarVisual car={car} className="w-full h-full motion-safe:group-hover:scale-[1.025] motion-safe:transition-transform motion-safe:duration-700 motion-safe:ease-out" />
 
         {/* floating segment tag */}
         <div className="absolute top-3 left-3 bg-white/95 border border-[#d9dad5] px-2.5 py-1 text-[9px] uppercase tracking-[0.2em] font-mono text-[#414640]">
@@ -23,7 +23,7 @@ export default function CarCard({ car }) {
         </div>
 
         {/* price chip */}
-        <div className="absolute bottom-3 right-3 left-3 sm:left-auto bg-white/95 backdrop-blur-md border border-[#d9dad5] px-3 py-1.5 max-w-[calc(100%-1.5rem)]">
+        <div className="absolute bottom-3 right-3 left-3 sm:left-auto bg-white/95 backdrop-blur-md border border-[#d9dad5] px-3 py-1.5 max-w-[calc(100%_-_1.5rem)]">
           <div className="text-[9px] uppercase tracking-[0.2em] text-[#555a55] font-mono">Ex-showroom · catalogue</div>
           <div className="font-num text-base sm:text-xl text-[#111412] leading-tight mt-0.5 break-words">{hasVerifiedPriceValue ? formatINR(price) : "Price unavailable"}</div>
         </div>
