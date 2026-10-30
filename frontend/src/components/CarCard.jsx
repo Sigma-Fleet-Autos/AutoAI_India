@@ -36,7 +36,7 @@ export default function CarCard({ car }) {
             <div className="font-display text-xl font-medium text-[#111412] mt-1 leading-tight">{car.model}</div>
             <div className="text-xs text-[#555a55] mt-1">{car.variant}</div>
           </div>
-          <div className="w-8 h-8 border border-[#d9dad5] group-hover:border-[#111412] group-hover:text-[#111412] flex items-center justify-center text-slate-400 transition-all">
+          <div className="w-8 h-8 border border-[#d9dad5] group-hover:border-[#111412] group-hover:text-[#111412] flex items-center justify-center text-[#555a55] transition-all">
             <ArrowUpRight size={14} />
           </div>
         </div>
@@ -52,14 +52,14 @@ export default function CarCard({ car }) {
           <Link
             to={`/showroom/${car.id}`}
             data-testid={`showroom-btn-${car.id}`}
-            className="border border-[#c7c9c3] text-center text-[10px] uppercase tracking-[0.2em] font-bold py-3 text-slate-300 hover:border-[#111412] hover:text-[#111412] transition-all"
+            className="border border-[#c7c9c3] text-center text-[10px] uppercase tracking-[0.2em] font-bold py-3 text-[#111412] hover:border-[#111412] hover:text-[#111412] transition-all"
           >
             View showroom
           </Link>
           <Link
             to={`/book/${car.id}`}
             data-testid={`book-btn-${car.id}`}
-            className="bg-[#111412] text-white text-center text-[10px] uppercase tracking-[0.25em] font-bold py-2.5 hover:bg-[#303630] transition-all"
+            className="bg-[#111412] text-white text-center text-[10px] uppercase tracking-[0.25em] font-bold py-3 hover:bg-[#303630] transition-all"
           >
             {t("book_now")} →
           </Link>
@@ -72,11 +72,11 @@ export default function CarCard({ car }) {
 function Stat({ icon, label, value }) {
   return (
     <div>
-      <div className="flex items-center gap-1 text-slate-500">
+      <div className="flex items-center gap-1 text-[#555a55]">
         {icon}
         <span className="text-[9px] uppercase tracking-wider">{label}</span>
       </div>
-      <div className="text-sm font-semibold text-white mt-0.5 font-mono">{value}</div>
+      <div className="text-sm font-semibold text-[#111412] mt-0.5 font-mono">{value}</div>
     </div>
   );
 }
