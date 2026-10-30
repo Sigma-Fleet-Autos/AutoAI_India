@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Scale, Sparkles, Calculator, Newspaper, Gauge, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { api, API } from "../lib/api";
 import CarCard from "../components/CarCard";
 import { useI18n } from "../lib/i18n";
@@ -38,6 +38,7 @@ const stagger = {
 export default function Home() {
   const [cars, setCars] = useState([]);
   const { t } = useI18n();
+  const prefersReducedMotion = useReducedMotion();
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 600], [0, 100]);
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0.4]);
@@ -82,18 +83,28 @@ export default function Home() {
           style={{ y: heroY, opacity: heroOpacity }}
           className="absolute inset-0 z-[0]"
         >
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="metadata"
-            poster={HERO_CAR}
-            data-testid="hero-video"
-            className="absolute inset-0 w-full h-full object-cover opacity-55"
-          >
-            <source src={`${API}/video-proxy?url=${encodeURIComponent(HERO_VIDEO_URL)}`} type="video/mp4" />
-          </video>
+          {!prefersReducedMotion && (
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              poster={HERO_CAR}
+              data-testid="hero-video"
+              className="absolute inset-0 w-full h-full object-cover opacity-55"
+            >
+              <source src={`${API}/video-proxy?url=${encodeURIComponent(HERO_VIDEO_URL)}`} type="video/mp4" />
+            </video>
+          )}
+          {prefersReducedMotion && (
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-55"
+              style={{ backgroundImage: `url(${HERO_CAR})` }}
+              role="img"
+              aria-label="Automotive showroom photograph"
+            />
+          )}
           {/* darkening + warm tint overlays */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/55 to-[#050505]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/70 to-transparent" />
