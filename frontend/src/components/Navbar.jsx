@@ -1,5 +1,5 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { Menu, X, Zap, Crown } from "lucide-react";
+import { Menu, X, Crown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import LanguageToggle from "./LanguageToggle";
@@ -43,28 +43,24 @@ export default function Navbar() {
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       className={`sticky top-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "glass-strong border-b border-white/10 shadow-[0_4px_40px_-20px_rgba(0,0,0,0.8)]"
-          : "glass border-b border-white/5"
+          ? "bg-[#f5f4f0]/95 backdrop-blur-xl border-b border-[#d9dad5] shadow-sm"
+          : "bg-[#f5f4f0]/95 backdrop-blur-xl border-b border-[#d9dad5]"
       }`}
       data-testid="site-navbar"
     >
-      {/* animated top accent line */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#F59E0B]/60 to-transparent" />
-
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 lg:px-10 h-16">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 group" data-testid="nav-logo">
           <motion.div
             whileHover={{ rotate: 12, scale: 1.08 }}
             transition={{ type: "spring", stiffness: 300 }}
-            className="relative w-9 h-9 bg-gradient-to-br from-[#F59E0B] to-[#C5832B] flex items-center justify-center amber-glow"
+            className="relative w-9 h-9 border border-[#111412] flex items-center justify-center amber-glow"
           >
-            <Zap size={16} strokeWidth={3} className="text-black relative z-[1]" />
-            <div className="absolute inset-0 bg-[#F59E0B]/30 blur-md -z-[0]" />
+            <span className="text-[#111412] font-semibold text-xs">A·</span>
           </motion.div>
-          <div className="font-display uppercase tracking-[0.18em] text-sm font-semibold">
-            Auto<span className="text-[#F59E0B]">·</span>AI
-            <span className="ml-1.5 text-[10px] tracking-[0.3em] text-slate-400 font-mono">IN</span>
+          <div className="font-display uppercase tracking-[0.18em] text-sm font-semibold text-[#111412]">
+            Auto<span className="text-[#111412]">·</span>AI
+            <span className="ml-1.5 text-[10px] tracking-[0.3em] text-[#555a55] font-mono">IN</span>
           </div>
         </Link>
 
@@ -77,7 +73,7 @@ export default function Navbar() {
               data-testid={`nav-${l.key.replace("nav_", "")}`}
               className={({ isActive }) =>
                 `relative px-3.5 py-2 text-[11px] uppercase tracking-[0.22em] font-semibold transition-colors ${
-                  isActive ? "text-[#F59E0B]" : "text-slate-300 hover:text-white"
+                  isActive ? "text-[#111412]" : "text-[#555a55] hover:text-[#111412]"
                 }`
               }
             >
@@ -87,7 +83,7 @@ export default function Navbar() {
                   {isActive && (
                     <motion.span
                       layoutId="nav-underline"
-                      className="absolute left-2 right-2 -bottom-px h-px bg-[#F59E0B]"
+                      className="absolute left-2 right-2 -bottom-px h-px bg-[#111412]"
                       transition={{ type: "spring", stiffness: 400, damping: 30 }}
                     />
                   )}
@@ -103,14 +99,14 @@ export default function Navbar() {
           <Link
             to="/login"
             data-testid="nav-login"
-            className="text-[11px] uppercase tracking-[0.22em] font-semibold text-slate-300 border border-white/15 px-4 py-2 hover:border-[#F59E0B]/50 hover:text-[#F59E0B] transition-all"
+            className="text-[11px] uppercase tracking-[0.22em] font-semibold text-[#555a55] border border-[#c7c9c3] px-4 py-2 hover:border-[#111412] hover:text-[#111412] transition-all"
           >
             Login
           </Link>
           <Link
             to="/premium"
             data-testid="nav-premium"
-            className="group flex items-center gap-1.5 text-[11px] uppercase tracking-[0.22em] font-semibold text-[#F59E0B] border border-[#F59E0B]/40 px-4 py-2 hover:bg-[#F59E0B]/10 transition-all"
+            className="group flex items-center gap-1.5 text-[11px] uppercase tracking-[0.22em] font-semibold text-[#111412] border border-[#c7c9c3] px-4 py-2 hover:bg-[#111412]/10 transition-all"
           >
             <Crown size={12} strokeWidth={2.5} className="group-hover:rotate-12 transition-transform" />{" "}
             Premium
@@ -118,7 +114,7 @@ export default function Navbar() {
           <Link
             to="/compare"
             data-testid="cta-compare-top"
-            className="btn-shine bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black text-[11px] uppercase tracking-[0.22em] font-bold px-5 py-2.5 hover:shadow-[0_0_24px_-4px_rgba(245,158,11,0.6)] transition-all"
+            className="bg-[#111412] text-white text-[11px] uppercase tracking-[0.22em] font-bold px-5 py-2.5 hover:bg-[#303630] transition-all"
           >
             {t("cta_true_verdict")}
           </Link>
@@ -126,7 +122,7 @@ export default function Navbar() {
 
         {/* Mobile toggle */}
         <button
-          className="lg:hidden text-white flex items-center gap-3 z-[60]"
+          className="lg:hidden text-[#111412] flex items-center justify-center min-w-11 min-h-11 z-[60]"
           onClick={() => setOpen(!open)}
           data-testid="nav-mobile-toggle"
           aria-label={open ? "Close navigation menu" : "Open navigation menu"}
@@ -152,7 +148,7 @@ export default function Navbar() {
             id="autoai-mobile-navigation"
             role="navigation"
             aria-label="Mobile navigation"
-            className="lg:hidden border-t border-white/10 bg-[#050505]/95 backdrop-blur-xl overflow-hidden"
+            className="lg:hidden border-t border-[#d9dad5] bg-[#f5f4f0]/95 backdrop-blur-xl overflow-hidden"
             data-testid="nav-mobile-menu"
           >
             {links.map((l, i) => (
@@ -166,8 +162,8 @@ export default function Navbar() {
                   to={l.to}
                   onClick={() => setOpen(false)}
                   className={({ isActive }) =>
-                    `block px-6 py-3.5 text-sm uppercase tracking-[0.22em] border-b border-white/5 font-semibold ${
-                      isActive ? "text-[#F59E0B] bg-[#F59E0B]/5" : "text-slate-300"
+                    `block px-6 py-3.5 text-sm uppercase tracking-[0.22em] border-b border-[#d9dad5] font-semibold ${
+                      isActive ? "text-[#111412] bg-[#111412]/5" : "text-[#555a55]"
                     }`
                   }
                 >
@@ -179,14 +175,14 @@ export default function Navbar() {
               <Link
                 to="/login"
                 onClick={() => setOpen(false)}
-                className="flex-1 text-center text-[11px] uppercase tracking-[0.22em] text-slate-300 border border-white/15 py-3"
+                className="flex-1 text-center text-[11px] uppercase tracking-[0.22em] text-[#555a55] border border-[#c7c9c3] py-3"
               >
                 Login
               </Link>
               <Link
                 to="/premium"
                 onClick={() => setOpen(false)}
-                className="flex-1 text-center text-[11px] uppercase tracking-[0.22em] font-bold bg-[#F59E0B] text-black py-3"
+                className="flex-1 text-center text-[11px] uppercase tracking-[0.22em] font-bold bg-[#111412] text-white py-3"
               >
                 Premium
               </Link>
