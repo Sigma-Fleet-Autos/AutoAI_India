@@ -80,7 +80,7 @@ export default function Home() {
       <section className="relative min-h-[100vh] overflow-hidden hero-grid" data-testid="hero-section">
         {/* VIDEO BACKGROUND — Indian highway driving reel */}
         <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
+          style={prefersReducedMotion ? undefined : { y: heroY, opacity: heroOpacity }}
           className="absolute inset-0 z-[0]"
         >
           {!prefersReducedMotion && (
@@ -125,9 +125,9 @@ export default function Home() {
 
         {/* hero car image — right side, large (overlays on video) */}
         <motion.div
-          initial={{ opacity: 0, scale: 1.08, x: 40 }}
-          animate={{ opacity: 0.65, scale: 1, x: 0 }}
-          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+          initial={prefersReducedMotion ? false : { opacity: 0, scale: 1.08, x: 40 }}
+          animate={prefersReducedMotion ? { opacity: 0.65 } : { opacity: 0.65, scale: 1, x: 0 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
           className="absolute right-[-6%] top-[10%] w-[72%] md:w-[62%] lg:w-[58%] aspect-[16/10] z-[2] pointer-events-none"
         >
           <div
@@ -170,9 +170,9 @@ export default function Home() {
               in <span className="relative inline-block">
                 India
                 <motion.span
-                  initial={{ scaleX: 0 }}
+                  initial={prefersReducedMotion ? false : { scaleX: 0 }}
                   animate={{ scaleX: 1 }}
-                  transition={{ delay: 1.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                  transition={prefersReducedMotion ? { duration: 0 } : { delay: 1.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                   className="absolute left-0 right-0 -bottom-2 h-[3px] bg-[#F59E0B] origin-left"
                 />
               </span>.
