@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Scale, Sparkles, Calculator, Newspaper, Gauge, ShieldCheck, Zap, Cpu, Radar } from "lucide-react";
+import { ArrowRight, Scale, Sparkles, Calculator, Newspaper, Gauge, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { api, API } from "../lib/api";
@@ -143,7 +143,7 @@ export default function Home() {
               <div className="w-12 h-px bg-[#F59E0B]" />
               <span className="chip">
                 <span className="w-1.5 h-1.5 bg-[#F59E0B] rounded-full animate-pulse" />
-                India's First Unbiased Car AI
+                Independent car discovery for India
               </span>
             </motion.div>
 
@@ -152,9 +152,9 @@ export default function Home() {
               custom={1}
               className="font-display text-5xl md:text-7xl lg:text-[7.2rem] font-light tracking-tighter leading-[0.92] uppercase"
             >
-              The <span className="text-gradient-amber font-semibold italic">True Verdict</span>
+              Find <span className="text-gradient-amber font-semibold italic">your next car</span>
               <br />
-              on every car
+              with clarity
               <br />
               in <span className="relative inline-block">
                 India
@@ -172,8 +172,8 @@ export default function Home() {
               custom={2}
               className="mt-10 text-slate-300 text-base md:text-lg max-w-xl leading-relaxed"
             >
-              Explore vehicle information, comparisons and buying tools with greater clarity
-              to tell you which car actually deserves your money — and which ones don't.
+              Explore vehicle specifications, comparisons and buying tools to make a more informed decision.
+              Confirm current prices, availability and delivery timelines with your dealer.
             </motion.p>
 
             <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row gap-3">
