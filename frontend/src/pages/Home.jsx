@@ -147,13 +147,13 @@ export default function Home() {
           <motion.div
             className="lg:col-span-8"
             variants={stagger}
-            initial="hidden"
+            initial={prefersReducedMotion ? false : "hidden"}
             animate="show"
           >
             <motion.div variants={fadeUp} custom={0} className="flex items-center gap-3 mb-8">
               <div className="w-12 h-px bg-[#F59E0B]" />
               <span className="chip">
-                <span className="w-1.5 h-1.5 bg-[#F59E0B] rounded-full animate-pulse" />
+                <span className="w-1.5 h-1.5 bg-[#F59E0B] rounded-full motion-safe:animate-pulse" />
                 Independent car discovery for India
               </span>
             </motion.div>
@@ -236,7 +236,7 @@ export default function Home() {
 
         {/* ticker */}
         <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 py-3 overflow-hidden bg-black/70 backdrop-blur-sm ticker-mask z-[3]">
-          <div className="flex marquee gap-12 whitespace-nowrap">
+          <div className="flex motion-safe:marquee gap-12 whitespace-nowrap">
             {[...tickerItems, ...tickerItems].map((txt, i) => (
               <span key={i} className="font-mono text-xs text-slate-400 uppercase tracking-widest">
                 <span className="text-[#F59E0B] mr-3">◆</span>
