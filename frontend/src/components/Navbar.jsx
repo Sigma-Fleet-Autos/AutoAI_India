@@ -50,11 +50,11 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 lg:px-10 h-16">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group" data-testid="nav-logo">
+        <Link to="/" className="flex items-center gap-2.5 group min-h-11" data-testid="nav-logo">
           <motion.div
-            whileHover={{ rotate: 12, scale: 1.08 }}
+            whileHover={{ scale: 1.03 }}
             transition={{ type: "spring", stiffness: 300 }}
-            className="relative w-9 h-9 border border-[#111412] flex items-center justify-center amber-glow"
+            className="relative w-9 h-9 border border-[#111412] flex items-center justify-center"
           >
             <span className="text-[#111412] font-semibold text-xs">A·</span>
           </motion.div>
@@ -72,7 +72,7 @@ export default function Navbar() {
               to={l.to}
               data-testid={`nav-${l.key.replace("nav_", "")}`}
               className={({ isActive }) =>
-                `relative px-3.5 py-2 text-[11px] uppercase tracking-[0.22em] font-semibold transition-colors ${
+                `relative px-3.5 py-3 text-[11px] uppercase tracking-[0.22em] font-semibold transition-colors ${
                   isActive ? "text-[#111412]" : "text-[#555a55] hover:text-[#111412]"
                 }`
               }
@@ -106,7 +106,7 @@ export default function Navbar() {
           <Link
             to="/premium"
             data-testid="nav-premium"
-            className="group flex items-center gap-1.5 text-[11px] uppercase tracking-[0.22em] font-semibold text-[#111412] border border-[#c7c9c3] px-4 py-2 hover:bg-[#111412]/10 transition-all"
+            className="group flex items-center gap-1.5 text-[11px] uppercase tracking-[0.22em] font-semibold text-[#111412] border border-[#c7c9c3] px-4 py-2 hover:bg-white transition-all"
           >
             <Crown size={12} strokeWidth={2.5} className="group-hover:rotate-12 transition-transform" />{" "}
             Premium
@@ -163,7 +163,7 @@ export default function Navbar() {
                   onClick={() => setOpen(false)}
                   className={({ isActive }) =>
                     `block px-6 py-3.5 text-sm uppercase tracking-[0.22em] border-b border-[#d9dad5] font-semibold ${
-                      isActive ? "text-[#111412] bg-[#111412]/5" : "text-[#555a55]"
+                      isActive ? "text-[#111412] bg-white" : "text-[#555a55]"
                     }`
                   }
                 >
