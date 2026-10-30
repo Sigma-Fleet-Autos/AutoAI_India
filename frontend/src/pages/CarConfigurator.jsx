@@ -128,6 +128,11 @@ export default function CarConfigurator() {
       }
       const priceResponse = await configuratorApi.calculatePrice(configuration, current.city);
       if (sequence !== requestSequence.current) return;
+      const amount = priceResponse.data?.estimated_on_road;
+      if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
+        current.setPriceError('Backend pricing returned an invalid on-road estimate');
+        return;
+      }
       current.setPriceResult(priceResponse.data);
     } catch (err) {
       if (sequence !== requestSequence.current) return;
