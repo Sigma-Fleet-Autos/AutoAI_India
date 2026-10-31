@@ -1,21 +1,18 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Scale, Sparkles, Calculator, Newspaper, Gauge, ShieldCheck, Zap, Cpu, Radar } from "lucide-react";
+import { ArrowRight, Scale, Sparkles, Calculator, Newspaper, Gauge, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { api, API } from "../lib/api";
 import CarCard from "../components/CarCard";
 import { useI18n } from "../lib/i18n";
 
 const tickerItems = [
-  "Tata Nexon 5★ Safety",
-  "Maruti Brezza — 2 wk wait",
-  "Hyundai Creta — 6 wk",
-  "Mahindra Thar — 16 wk",
-  "Toyota Innova Hycross — 20 wk",
-  "Kia Seltos — 7 wk",
-  "BharatNCAP: Curvv 5★",
-  "Scorpio-N — 12 wk",
-  "Grand Vitara Hybrid — 27.9 kmpl",
+  "Explore the catalogue",
+  "Compare vehicle specifications",
+  "Review ownership costs",
+  "Discover electric vehicles",
+  "Explore safety information",
+  "Plan your next test drive",
 ];
 
 const HERO_CAR =
@@ -41,35 +38,73 @@ const stagger = {
 export default function Home() {
   const [cars, setCars] = useState([]);
   const { t } = useI18n();
+  const prefersReducedMotion = useReducedMotion();
   const { scrollY } = useScroll();
   const heroY = useTransform(scrollY, [0, 600], [0, 100]);
   const heroOpacity = useTransform(scrollY, [0, 400], [1, 0.4]);
 
   useEffect(() => {
-    api.get("/cars").then((r) => setCars(r.data.slice(0, 6))).catch(() => {});
+    let active = true;
+    const controller = new AbortController();
+    api.get("/cars", { signal: controller.signal })
+      .then(({ data }) => { if (active && Array.isArray(data)) setCars(data.slice(0, 6)); })
+      .catch(() => {});
+    return () => { active = false; controller.abort(); };
   }, []);
 
   return (
     <div className="bg-[#050505] text-white overflow-hidden">
+      <section className="autoai-atelier" aria-labelledby="atelier-discover-title">
+        <div className="atelier-container py-16 md:py-24">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(260px,.7fr)] lg:items-end">
+            <div>
+              <p className="atelier-eyebrow mb-5">AutoAI India · The automotive edit</p>
+              <h2 id="atelier-discover-title" className="atelier-heading text-5xl sm:text-6xl lg:text-7xl">
+                Every drive begins with a better decision.
+              </h2>
+            </div>
+            <div>
+              <p className="mb-7 max-w-md text-base leading-7 text-[#555a55]">
+                Explore the cars shaping India. Compare what matters, discover the details,
+                and make your next move with greater clarity.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link to="/cars" className="atelier-action">Explore vehicles <ArrowRight className="ml-3" size={16} aria-hidden="true" /></Link>
+                <Link to="/compare" className="atelier-action">Compare models</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       {/* ============== HERO ============== */}
       <section className="relative min-h-[100vh] overflow-hidden hero-grid" data-testid="hero-section">
         {/* VIDEO BACKGROUND — Indian highway driving reel */}
         <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
+          style={prefersReducedMotion ? undefined : { y: heroY, opacity: heroOpacity }}
           className="absolute inset-0 z-[0]"
         >
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            poster={HERO_CAR}
-            data-testid="hero-video"
-            className="absolute inset-0 w-full h-full object-cover opacity-55"
-          >
-            <source src={`${API}/video-proxy?url=${encodeURIComponent(HERO_VIDEO_URL)}`} type="video/mp4" />
-          </video>
+          {!prefersReducedMotion && (
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              poster={HERO_CAR}
+              data-testid="hero-video"
+              className="absolute inset-0 w-full h-full object-cover opacity-55"
+            >
+              <source src={`${API}/video-proxy?url=${encodeURIComponent(HERO_VIDEO_URL)}`} type="video/mp4" />
+            </video>
+          )}
+          {prefersReducedMotion && (
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-55"
+              style={{ backgroundImage: `url(${HERO_CAR})` }}
+              role="img"
+              aria-label="Automotive showroom photograph"
+            />
+          )}
           {/* darkening + warm tint overlays */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/55 to-[#050505]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/70 to-transparent" />
@@ -90,9 +125,9 @@ export default function Home() {
 
         {/* hero car image — right side, large (overlays on video) */}
         <motion.div
-          initial={{ opacity: 0, scale: 1.08, x: 40 }}
-          animate={{ opacity: 0.65, scale: 1, x: 0 }}
-          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+          initial={prefersReducedMotion ? false : { opacity: 0, scale: 1.08, x: 40 }}
+          animate={prefersReducedMotion ? { opacity: 0.65 } : { opacity: 0.65, scale: 1, x: 0 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
           className="absolute right-[-6%] top-[10%] w-[72%] md:w-[62%] lg:w-[58%] aspect-[16/10] z-[2] pointer-events-none"
         >
           <div
@@ -112,14 +147,14 @@ export default function Home() {
           <motion.div
             className="lg:col-span-8"
             variants={stagger}
-            initial="hidden"
+            initial={prefersReducedMotion ? false : "hidden"}
             animate="show"
           >
             <motion.div variants={fadeUp} custom={0} className="flex items-center gap-3 mb-8">
               <div className="w-12 h-px bg-[#F59E0B]" />
               <span className="chip">
-                <span className="w-1.5 h-1.5 bg-[#F59E0B] rounded-full animate-pulse" />
-                India's First Unbiased Car AI
+                <span className="w-1.5 h-1.5 bg-[#F59E0B] rounded-full motion-safe:animate-pulse" />
+                Independent car discovery for India
               </span>
             </motion.div>
 
@@ -128,16 +163,16 @@ export default function Home() {
               custom={1}
               className="font-display text-5xl md:text-7xl lg:text-[7.2rem] font-light tracking-tighter leading-[0.92] uppercase"
             >
-              The <span className="text-gradient-amber font-semibold italic">True Verdict</span>
+              Find <span className="text-gradient-amber font-semibold italic">your next car</span>
               <br />
-              on every car
+              with clarity
               <br />
               in <span className="relative inline-block">
                 India
                 <motion.span
-                  initial={{ scaleX: 0 }}
+                  initial={prefersReducedMotion ? false : { scaleX: 0 }}
                   animate={{ scaleX: 1 }}
-                  transition={{ delay: 1.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                  transition={prefersReducedMotion ? { duration: 0 } : { delay: 1.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                   className="absolute left-0 right-0 -bottom-2 h-[3px] bg-[#F59E0B] origin-left"
                 />
               </span>.
@@ -148,8 +183,8 @@ export default function Home() {
               custom={2}
               className="mt-10 text-slate-300 text-base md:text-lg max-w-xl leading-relaxed"
             >
-              Zero promotions. Zero human bias. Zero waiting. Just an AI engine analysing real data
-              to tell you which car actually deserves your money — and which ones don't.
+              Explore vehicle specifications, comparisons and buying tools to make a more informed decision.
+              Confirm current prices, availability and delivery timelines with your dealer.
             </motion.p>
 
             <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row gap-3">
@@ -171,81 +206,37 @@ export default function Home() {
             </motion.div>
 
             <motion.div variants={fadeUp} custom={4} className="mt-14 grid grid-cols-3 gap-6 max-w-lg">
-              <Metric k="106+" v={t("cars_indexed")} />
-              <Metric k="0%" v={t("brand_bias")} />
-              <Metric k="24/7" v={t("ai_expert")} />
+              <Metric k={cars.length ? String(cars.length) : "—"} v="Featured vehicles" />
+              <Metric k="Compare" v="Vehicle specifications" />
+              <Metric k="Explore" v="Indian car choices" />
             </motion.div>
           </motion.div>
 
-          {/* side HUD card */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="lg:col-span-4 relative"
-          >
-            <div className="relative glass border border-white/10 p-6 corner-notch">
-              <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-[#F59E0B]/60 to-transparent" />
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-2">
-                  <Radar size={14} className="text-[#F59E0B]" />
-                  <span className="text-[10px] uppercase tracking-[0.25em] text-slate-400 font-mono">
-                    Live · Zero-Wait Tracker
-                  </span>
-                </div>
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inset-0 rounded-full bg-[#10B981] opacity-70" />
-                  <span className="relative rounded-full h-2 w-2 bg-[#10B981]" />
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                {[
-                  { m: "Maruti Brezza", w: 2, c: "#10B981" },
-                  { m: "Hyundai Creta", w: 6, c: "#F59E0B" },
-                  { m: "Mahindra Thar", w: 16, c: "#EF4444" },
-                  { m: "Kia Seltos", w: 7, c: "#F59E0B" },
-                ].map((x, i) => (
-                  <motion.div
-                    key={x.m}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.9 + i * 0.1 }}
-                    className="flex items-center justify-between border-b border-white/10 pb-2.5"
-                  >
-                    <span className="text-sm text-slate-200">{x.m}</span>
-                    <span className="font-mono text-xs font-semibold" style={{ color: x.c }}>
-                      {x.w} weeks
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-
-              <div className="mt-6 text-[10px] text-slate-500 font-mono flex items-center gap-2">
-                <Cpu size={11} />
-                <span>$ {t("refresh_label")}</span>
-                <span className="text-[#F59E0B]">daily · 06:00 IST</span>
-              </div>
+          {/* Editorial navigation: no fabricated live inventory or waiting-time claims. */}
+          <aside className="lg:col-span-4 self-center border border-white/20 bg-black/60 p-6 backdrop-blur-md" aria-label="Explore AutoAI tools">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-white/60">Your buying journey</p>
+            <h2 className="mt-4 font-display text-2xl font-light text-white">Explore with clarity.</h2>
+            <p className="mt-3 text-sm leading-6 text-white/70">
+              Compare specifications, browse the vehicle catalogue and estimate your budget.
+              Dealer waiting times and availability must be confirmed directly.
+            </p>
+            <div className="mt-6 divide-y divide-white/15 border-y border-white/15">
+              <Link to="/cars" className="flex min-h-12 items-center justify-between text-sm text-white hover:text-amber-200">
+                Browse vehicles <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+              <Link to="/compare" className="flex min-h-12 items-center justify-between text-sm text-white hover:text-amber-200">
+                Compare models <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+              <Link to="/emi" className="flex min-h-12 items-center justify-between text-sm text-white hover:text-amber-200">
+                Estimate EMI <ArrowRight size={16} aria-hidden="true" />
+              </Link>
             </div>
-
-            {/* floating badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 1.4, duration: 0.5 }}
-              className="float-up absolute -top-5 -right-5 bg-gradient-to-br from-[#F59E0B] to-[#D97706] text-black px-4 py-2.5 amber-glow"
-            >
-              <div className="font-display text-xs font-bold uppercase tracking-[0.2em]">
-                <Zap size={12} className="inline mb-0.5 mr-1" strokeWidth={3} />
-                AI Live
-              </div>
-            </motion.div>
-          </motion.div>
+          </aside>
         </div>
 
         {/* ticker */}
         <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 py-3 overflow-hidden bg-black/70 backdrop-blur-sm ticker-mask z-[3]">
-          <div className="flex marquee gap-12 whitespace-nowrap">
+          <div className="flex motion-safe:marquee gap-12 whitespace-nowrap">
             {[...tickerItems, ...tickerItems].map((txt, i) => (
               <span key={i} className="font-mono text-xs text-slate-400 uppercase tracking-widest">
                 <span className="text-[#F59E0B] mr-3">◆</span>
@@ -267,9 +258,9 @@ export default function Home() {
         >
           <div className="chip mb-5">/// the engine room</div>
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight font-light leading-[1.05]">
-            Five AI pillars.
+            Tools for better decisions.
             <br />
-            <span className="text-gradient-amber italic font-semibold">One unbiased verdict.</span>
+            <span className="text-gradient-amber italic font-semibold">Your next move, considered.</span>
           </h2>
         </motion.div>
 
@@ -280,11 +271,11 @@ export default function Home() {
           whileInView="show"
           viewport={{ once: true, margin: "-80px" }}
         >
-          <Feature to="/compare" span="md:col-span-7" icon={<Scale size={22} />} kicker="01 · AI Comparison" title="Two cars enter. One walks out." desc="Claude-powered engine analyses safety, mileage, power, space, waiting & real cost-of-ownership — and exposes the cons brands hide." />
-          <Feature to="/recommend" span="md:col-span-5" icon={<Sparkles size={22} />} kicker="02 · AI Recommender" title="Your budget. Your need. Our verdict." desc="Tell us what you want. Get a ranked top-3 with transparent 'why' and honest watchouts." />
-          <Feature to="/emi" span="md:col-span-4" icon={<Calculator size={22} />} kicker="03 · EMI Studio" title="Loan math, demystified." desc="Interactive slider. Instant eligibility. Total interest exposed." />
-          <Feature to="/cars" span="md:col-span-4" icon={<Gauge size={22} />} kicker="04 · Zero-Wait DB" title="Live availability tracker." desc="Waiting weeks across top models, refreshed daily." />
-          <Feature to="/news" span="md:col-span-4" icon={<Newspaper size={22} />} kicker="05 · Daily Intel" title="Launches. Price drops. Hidden changes." desc="AI-curated feed. No press-release fluff." />
+          <Feature to="/compare" span="md:col-span-7" icon={<Scale size={22} />} kicker="01 · AI Comparison" title="Two cars enter. One walks out." desc="Compare available vehicle specifications and buying considerations side by side. Verify safety ratings, pricing and delivery information with official sources." />
+          <Feature to="/recommend" span="md:col-span-5" icon={<Sparkles size={22} />} kicker="02 · AI Recommender" title="Your budget. Your need. Our verdict." desc="Explore recommendations based on your preferences, then review specifications and trade-offs before deciding." />
+          <Feature to="/emi" span="md:col-span-4" icon={<Calculator size={22} />} kicker="03 · EMI Studio" title="Understand the monthly cost." desc="Explore illustrative EMI and interest calculations. Loan approval and final terms depend on the lender." />
+          <Feature to="/cars" span="md:col-span-4" icon={<Gauge size={22} />} kicker="04 · Vehicle Catalogue" title="Discover available models." desc="Browse listed vehicles and specifications. Confirm stock, waiting periods and prices with dealers." />
+          <Feature to="/news" span="md:col-span-4" icon={<Newspaper size={22} />} kicker="05 · Automotive News" title="Stay informed." desc="Read automotive updates and check manufacturer announcements for current launch and pricing details." />
         </motion.div>
       </section>
 
@@ -302,17 +293,14 @@ export default function Home() {
           >
             <div className="chip mb-5">/// the unbiased pledge</div>
             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight font-light leading-[1.02]">
-              No dealership
+              Look beyond
               <br />
-              handshake.
+              the headline.
               <br />
-              No ad money.
-              <br />
-              <span className="text-gradient-amber italic font-semibold">Just math and truth.</span>
+              <span className="text-gradient-amber italic font-semibold">Compare the details.</span>
             </h2>
             <p className="mt-7 text-slate-400 leading-relaxed max-w-md">
-              8 years on the dealership floor taught our founder one thing: Indian car buyers deserve
-              better than paid reviews. Auto-AI India is built to expose what brands hide.
+              Car buying decisions deserve clear specifications, transparent comparisons and realistic ownership considerations. Check critical details with manufacturers, lenders and dealers before committing.
             </p>
           </motion.div>
 
@@ -324,9 +312,9 @@ export default function Home() {
             viewport={{ once: true }}
           >
             {[
-              { t: "Data-first verdicts", d: "Safety stars, mileage, waiting, TCO — not brand love." },
-              { t: "Hidden con exposure", d: "The AI surfaces real cons buyers discover 6 months later." },
-              { t: "Zero paid placement", d: "Rankings cannot be bought. Ever." },
+              { t: "Specification-led discovery", d: "Review listed safety, efficiency and ownership information alongside official sources." },
+              { t: "Understand trade-offs", d: "Consider practical compromises between features, budget and running costs." },
+              { t: "Verify before purchase", d: "Confirm offers, finance terms and vehicle availability with the relevant provider." },
             ].map((x, i) => (
               <motion.div
                 key={i}

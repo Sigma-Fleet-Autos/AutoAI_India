@@ -120,6 +120,8 @@ class Car(BaseModel):
     price_ex_showroom: int; price_on_road: int; mileage_kmpl: float; engine_cc: int; power_bhp: int
     seats: int; boot_litres: int; safety_rating: int; ground_clearance_mm: int; waiting_weeks: int; image: str
     tags: List[str] = []
+    # Explicit catalogue-to-configurator mapping; never infer from the legacy car ID.
+    variant_id: Optional[str] = Field(default=None, min_length=1, max_length=120)
 class NewsItem(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str; title: str; summary: str; category: str; date: str; source: str; image: str

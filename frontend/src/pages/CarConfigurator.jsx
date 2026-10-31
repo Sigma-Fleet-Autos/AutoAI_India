@@ -37,48 +37,78 @@ export default function CarConfigurator() {
   const [saveState, setSaveState] = useState({ loading: false, error: null, configId: null, shareToken: null });
   const [shareCopied, setShareCopied] = useState(false);
   const requestSequence = useRef(0);
+  const saveSequence = useRef(0);
+  const shareSequence = useRef(0);
   const store = useConfiguratorStore();
 
   useEffect(() => {
     if (!variantId) return undefined;
     let cancelled = false;
+    // Invalidate any outstanding validation/price requests before replacing the variant.
+    requestSequence.current += 1;
+    saveSequence.current += 1;
+    shareSequence.current += 1;
     async function load() {
-      setLoading(true); setError(null); setOptions(null); store.reset();
+      setLoading(true); setError(null); setVariant(null); setOptions(null);
+      setSaveState({ loading: false, error: null, configId: null, shareToken: null });
+      setShareCopied(false);
+      store.reset();
       try {
         const availRes = await configuratorApi.getAvailability(variantId);
+        if (cancelled) return;
         const { configurator_status: configuratorStatus, asset_id: assetId } = availRes.data;
-        let variantData;
-        try { variantData = (await configuratorApi.getVariant(variantId)).data; }
-        catch { const { api } = await import('../lib/api'); variantData = (await api.get(`/cars/${variantId}`)).data; }
+        // Catalogue car IDs are not interchangeable with canonical configurator variant IDs.
+        const variantData = (await configuratorApi.getVariant(variantId)).data;
+        const canonicalId = variantData?.variant_id || variantData?.id;
+        if (String(canonicalId || '') !== variantId) {
+          throw new Error('The configurator variant could not be verified.');
+        }
         if (cancelled) return;
         setVariant(variantData); store.setVariant(variantId);
         if (configuratorStatus === 'AVAILABLE' && assetId) {
           const assetRes = await configuratorApi.getAsset(variantId);
-          if (!cancelled && assetRes.data.available) store.setAsset(assetRes.data.asset);
+          if (cancelled) return;
+          if (assetRes.data.available) store.setAsset(assetRes.data.asset);
           else store.setAssetUnavailable(configuratorStatus);
         } else store.setAssetUnavailable(configuratorStatus);
         const optsRes = await configuratorApi.getOptions(variantId);
-        if (!cancelled) setOptions(optsRes.data);
+        if (cancelled) return;
+        setOptions(optsRes.data);
 
         const configToken = new URLSearchParams(window.location.search).get('config');
         if (configToken) {
-          const saved = await configuratorApi.loadConfiguration(configToken);
-          const savedPurchasable = saved.data?.configuration?.purchasable;
+          // An invalid share token must not prevent a verified variant from loading.
+          let saved = null;
+          try {
+            saved = await configuratorApi.loadConfiguration(configToken);
+          } catch {
+            if (cancelled) return;
+          }
+          const savedPurchasable = saved?.data?.configuration?.purchasable;
           if (savedPurchasable?.variant_id === variantId && !cancelled) {
             const current = useConfiguratorStore.getState();
-            current.setPaint(savedPurchasable.paint_id || null);
-            current.setWheels(savedPurchasable.wheel_id || null);
-            current.setInterior(savedPurchasable.interior_id || null);
-            current.setRoof(savedPurchasable.roof_id || null);
-            (savedPurchasable.accessory_ids || []).forEach((id) => current.toggleAccessory(id));
-            if (saved.data.city) current.setCity(saved.data.city);
+            // Restore only IDs that the canonical options endpoint currently exposes.
+            const validSelection = (value, available) =>
+              typeof value === 'string' && Array.isArray(available) &&
+              available.some((option) => getOptionId(option) === value && option.available !== false) ? value : null;
+            current.setPaint(validSelection(savedPurchasable.paint_id, optsRes.data?.colors));
+            current.setWheels(validSelection(savedPurchasable.wheel_id, optsRes.data?.wheels));
+            current.setInterior(validSelection(savedPurchasable.interior_id, optsRes.data?.interiors));
+            current.setRoof(validSelection(savedPurchasable.roof_id, optsRes.data?.roofs));
+            const availableAccessories = Array.isArray(optsRes.data?.accessories) ? optsRes.data.accessories : [];
+            const accessoryIds = Array.isArray(savedPurchasable.accessory_ids)
+              ? [...new Set(savedPurchasable.accessory_ids.filter((id) =>
+                  typeof id === 'string' && availableAccessories.some((option) => getOptionId(option) === id && option.available !== false)))]
+              : [];
+            accessoryIds.forEach((id) => current.toggleAccessory(id));
+            if (typeof saved.data.city === 'string' && saved.data.city.trim()) current.setCity(saved.data.city);
           }
         }
       } catch (err) { if (!cancelled) setError(getErrorMessage(err, 'Failed to load vehicle')); }
       finally { if (!cancelled) setLoading(false); }
     }
     load();
-    return () => { cancelled = true; };
+    return () => { cancelled = true; requestSequence.current += 1; saveSequence.current += 1; shareSequence.current += 1; };
   }, [variantId]);
 
   const validateAndPrice = useCallback(async () => {
@@ -98,6 +128,11 @@ export default function CarConfigurator() {
       }
       const priceResponse = await configuratorApi.calculatePrice(configuration, current.city);
       if (sequence !== requestSequence.current) return;
+      const amount = priceResponse.data?.estimated_on_road;
+      if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
+        current.setPriceError('Backend pricing returned an invalid on-road estimate');
+        return;
+      }
       current.setPriceResult(priceResponse.data);
     } catch (err) {
       if (sequence !== requestSequence.current) return;
@@ -110,9 +145,25 @@ export default function CarConfigurator() {
     if (store.isInitialized) validateAndPrice();
   }, [store.isInitialized, store.city, store.purchasable.paintId, store.purchasable.wheelId, store.purchasable.interiorId, store.purchasable.roofId, store.purchasable.accessoryIds.join(','), validateAndPrice]);
 
+  // A saved link belongs to the exact purchasable selection and pricing city.
+  // Discard pending save/share feedback when those inputs change.
+  useEffect(() => {
+    saveSequence.current += 1;
+    shareSequence.current += 1;
+    setSaveState({ loading: false, error: null, configId: null, shareToken: null });
+    setShareCopied(false);
+  }, [store.city, store.purchasable.variantId, store.purchasable.paintId,
+      store.purchasable.wheelId, store.purchasable.interiorId,
+      store.purchasable.roofId, store.purchasable.accessoryIds.join(',')]);
+
   const saveConfiguration = async () => {
+    const sequence = ++saveSequence.current;
     const current = useConfiguratorStore.getState();
-    if (!current.validation.result?.valid || current.validation.loading) return;
+    // Enforce the same backend-pricing precondition in the handler as in the UI.
+    if (!current.validation.result?.valid || current.validation.loading ||
+        current.price.loading || current.price.error ||
+        !Number.isFinite(Number(current.price.data?.estimated_on_road)) ||
+        Number(current.price.data?.estimated_on_road) <= 0) return;
     setSaveState({ loading: true, error: null, configId: null, shareToken: null });
     try {
       const payload = {
@@ -130,15 +181,26 @@ export default function CarConfigurator() {
         asset_version: current.asset?.version || null,
       };
       const response = await configuratorApi.saveConfiguration(payload);
-      setSaveState({ loading: false, error: null, configId: response.data.config_id, shareToken: response.data.share_token });
-    } catch (err) { setSaveState({ loading: false, error: getErrorMessage(err, 'Sign in to save this configuration'), configId: null, shareToken: null }); }
+      if (sequence === saveSequence.current) setSaveState({ loading: false, error: null, configId: response.data.config_id, shareToken: response.data.share_token });
+    } catch (err) {
+      if (sequence === saveSequence.current) setSaveState({ loading: false, error: getErrorMessage(err, 'Sign in to save this configuration'), configId: null, shareToken: null });
+    }
   };
 
   const copyShareLink = async () => {
     if (!saveState.shareToken) return;
+    const sequence = ++shareSequence.current;
     const url = `${window.location.origin}${window.location.pathname}?config=${encodeURIComponent(saveState.shareToken)}`;
-    try { await navigator.clipboard.writeText(url); setShareCopied(true); window.setTimeout(() => setShareCopied(false), 1800); }
-    catch { setSaveState((state) => ({ ...state, error: 'Unable to copy share link' })); }
+    try {
+      await navigator.clipboard.writeText(url);
+      if (sequence !== shareSequence.current) return;
+      setShareCopied(true);
+      window.setTimeout(() => {
+        if (sequence === shareSequence.current) setShareCopied(false);
+      }, 1800);
+    } catch {
+      if (sequence === shareSequence.current) setSaveState((state) => ({ ...state, error: 'Unable to copy share link' }));
+    }
   };
 
   if (loading) return <main className="min-h-screen bg-[#050505] pt-24 text-white"><div className="mx-auto max-w-7xl px-6 py-20 text-center text-xs uppercase tracking-widest text-white/40">Loading configurator…</div></main>;
@@ -146,24 +208,29 @@ export default function CarConfigurator() {
 
   const price = store.price.data;
   const validation = store.validation.result;
-  const canCommit = Boolean(validation?.valid) && !store.validation.loading && !store.price.loading;
+  // A valid compatibility check alone is insufficient: require a fresh backend price.
+  const hasVerifiedPrice = Number.isFinite(Number(price?.estimated_on_road)) &&
+    Number(price?.estimated_on_road) > 0;
+  const canCommit = Boolean(validation?.valid && hasVerifiedPrice && !store.price.error) &&
+    !store.validation.loading && !store.price.loading;
   return <main className="min-h-screen bg-[#050505] pt-20 text-white"><div className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-10">
     <div className="mb-5 flex flex-wrap items-center justify-between gap-4"><Link to="/cars" className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-white/40 hover:text-white"><ArrowLeft size={14} /> Exit configurator</Link><div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/5 px-4 py-2 text-[10px] uppercase tracking-widest text-amber-300"><Sparkles size={12} /> {store.asset.available ? 'Live 3D configurator' : '3D Coming Soon'}</div></div>
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]"><div className="overflow-hidden rounded-[24px] border border-white/10 bg-[#0a0a0a]"><div className="relative p-2"><ConfiguratorViewer options={options} /></div></div>
-    <aside className="space-y-4"><div className="rounded-2xl border border-white/10 bg-[#0d0d0d] p-5"><div className="text-[10px] uppercase tracking-widest text-amber-400">{variant?.brand || ''}</div><h1 className="mt-1 text-2xl font-light">{variant?.model || variantId}</h1>{variant?.variant && <p className="mt-0.5 text-xs text-white/40">{variant.variant}</p>}<div className="mt-3 flex items-end justify-between"><div className="font-mono text-3xl text-amber-400">{price ? formatINR(price.estimated_on_road) : '—'}</div>{store.price.loading && <span className="text-[9px] uppercase tracking-widest text-white/30">Updating</span>}</div>{price && <p className="mt-1 text-[10px] text-white/25">{price.price_is_estimate ? 'Estimated on-road' : 'Configured price'} · {price.city || store.city || 'base pricing'}</p>}{store.price.error && <p className="mt-2 text-[10px] text-red-400">{store.price.error}</p>}</div>
+    <aside className="space-y-4"><div className="rounded-2xl border border-white/10 bg-[#0d0d0d] p-5"><div className="text-[10px] uppercase tracking-widest text-amber-400">{variant?.brand || ''}</div><h1 className="mt-1 text-2xl font-light">{variant?.model || variantId}</h1>{variant?.variant && <p className="mt-0.5 text-xs text-white/40">{variant.variant}</p>}<div className="mt-3 flex items-end justify-between"><div className="font-mono text-3xl text-amber-400">{hasVerifiedPrice ? formatINR(price.estimated_on_road) : '—'}</div>{store.price.loading && <span className="text-[9px] uppercase tracking-widest text-white/30">Updating</span>}</div>{hasVerifiedPrice && <p className="mt-1 text-[10px] text-white/25">{price.price_is_estimate ? 'Estimated on-road' : 'Configured price'} · {price.city || store.city || 'base pricing'}</p>}{store.price.error && <p className="mt-2 text-[10px] text-red-400">{store.price.error}</p>}</div>
       <OptionPanel title="Exterior colour" options={options?.colors} selectedId={store.purchasable.paintId} onSelect={store.setPaint} colorMode />
       <OptionPanel title="Wheels" options={options?.wheels} selectedId={store.purchasable.wheelId} onSelect={store.setWheels} />
       <OptionPanel title="Interior" options={options?.interiors} selectedId={store.purchasable.interiorId} onSelect={store.setInterior} />
       <OptionPanel title="Roof" options={options?.roofs} selectedId={store.purchasable.roofId} onSelect={store.setRoof} />
       <OptionPanel title="Accessories" options={options?.accessories} selectedIds={store.purchasable.accessoryIds} onToggle={store.toggleAccessory} multi />
       <ValidationPanel validation={validation} error={store.validation.error} />
-      <PriceBreakdown price={price} />
+      <PriceBreakdown price={hasVerifiedPrice ? price : null} />
       <ConfigurationSummary variant={variant} options={options} purchasable={store.purchasable} />
       <PricingLocationPicker variantId={variantId} city={store.city} setCity={store.setCity} />
       <SaveSharePanel canCommit={canCommit} saveState={saveState} onSave={saveConfiguration} onShare={copyShareLink} shareCopied={shareCopied} />
       {saveState.shareToken && <Link to={`/configurator/conversion?config=${encodeURIComponent(saveState.shareToken)}`} className="block w-full rounded-xl border border-amber-400/30 bg-amber-400/5 py-3 text-center text-xs font-bold uppercase tracking-widest text-amber-300 transition hover:bg-amber-400/10">Finance · Insurance · Dealer →</Link>}
       <InteractionPanel supportedInteractions={store.asset.supportedInteractions} /><CameraPanel supportedInteractions={store.asset.supportedInteractions} />
-      <Link aria-disabled={!canCommit} className={`block w-full rounded-xl py-3 text-center text-xs font-bold uppercase tracking-widest transition ${canCommit ? 'bg-amber-400 text-black hover:bg-amber-300' : 'pointer-events-none bg-white/10 text-white/20'}`} to={canCommit ? `/book/${variantId}` : '#'}>Book configured test drive →</Link>
+      <p className="text-xs leading-5 text-white/50">Test-drive booking requires a verified catalogue vehicle ID. Configurator variant IDs are not accepted as booking IDs.</p>
+      <Link to="/cars" className="block w-full rounded-xl border border-white/20 py-3 text-center text-xs font-bold uppercase tracking-widest text-white transition hover:border-amber-400/60">Find a vehicle to book →</Link>
     </aside></div></div></main>;
 }
 
