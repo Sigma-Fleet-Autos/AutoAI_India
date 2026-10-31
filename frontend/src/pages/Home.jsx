@@ -101,24 +101,24 @@ export default function Home() {
       </section>
 
       {/* ============== BENTO FEATURES ============== */}
-      <section className="relative max-w-7xl mx-auto px-6 lg:px-10 py-28" data-testid="features-section">
+      <section className="autoai-atelier border-t border-[#d9dad5] py-20 md:py-28" data-testid="features-section">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-2xl mb-14"
+          className="atelier-container mb-14"
         >
-          <div className="chip mb-5">/// the engine room</div>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight font-light leading-[1.05]">
+          <p className="atelier-eyebrow mb-5">02 / The buying toolkit</p>
+          <h2 className="atelier-heading max-w-4xl text-4xl md:text-6xl leading-[1.08]">
             Tools for better decisions.
             <br />
-            <span className="text-gradient-amber italic font-semibold">Your next move, considered.</span>
+            <span className="italic font-normal">Your next move, considered.</span>
           </h2>
         </motion.div>
 
         <motion.div
-          className="grid md:grid-cols-12 gap-4"
+          className="atelier-container grid md:grid-cols-12 gap-4"
           variants={stagger}
           initial="hidden"
           whileInView="show"
@@ -266,24 +266,24 @@ function Feature({ to, span, icon, kicker, title, desc }) {
       <Link
         to={to}
         data-testid={`feature-${kicker.split("·")[0].trim()}`}
-        className="group relative h-full block border border-white/10 bg-[#0A0A0A]/70 backdrop-blur-md p-8 hover:border-[#F59E0B]/60 transition-all duration-500 overflow-hidden tilt-card corner-notch"
+        className="group relative h-full block border border-[#d9dad5] bg-white p-8 text-[#111412] transition-colors hover:border-[#777a75] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#111412]"
       >
         <div
-          className="absolute -right-20 -top-20 w-80 h-80 rounded-full opacity-0 group-hover:opacity-30 transition-opacity duration-700 blur-3xl"
+          className="hidden"
           style={{ background: "radial-gradient(circle, #F59E0B, transparent 70%)" }}
         />
         <div className="relative z-[1]">
-          <div className="w-12 h-12 flex items-center justify-center border border-[#F59E0B]/30 bg-[#F59E0B]/5 text-[#F59E0B] mb-6 group-hover:bg-[#F59E0B]/15 group-hover:scale-105 transition-all duration-300">
+          <div className="mb-6 flex h-12 w-12 items-center justify-center border border-[#c5c8c0] bg-[#f5f4f0] text-[#111412]">
             {icon}
           </div>
-          <div className="text-[10px] uppercase tracking-[0.3em] text-slate-500 font-mono mb-3">
+          <div className="mb-3 text-[10px] uppercase tracking-[0.2em] text-[#555a55]">
             {kicker}
           </div>
           <div className="font-display text-2xl lg:text-3xl font-medium mb-3 max-w-xs leading-[1.15]">
             {title}
           </div>
-          <p className="text-sm text-slate-400 max-w-md leading-relaxed">{desc}</p>
-          <div className="mt-6 flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-[#F59E0B] font-bold">
+          <p className="max-w-md text-sm leading-relaxed text-[#555a55]">{desc}</p>
+          <div className="mt-6 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#111412]">
             Enter{" "}
             <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
           </div>
