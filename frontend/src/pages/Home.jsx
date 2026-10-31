@@ -345,9 +345,9 @@ export default function Home() {
           className="flex items-end justify-between mb-12 flex-wrap gap-4"
         >
           <div>
-            <div className="chip mb-5">/// trending right now</div>
+            <div className="chip mb-5">/// featured catalogue</div>
             <h2 className="font-display text-4xl md:text-5xl tracking-tight font-light">
-              Most searched <span className="text-[#F59E0B]">in India</span>
+              Explore <span className="text-[#F59E0B]">featured vehicles</span>
             </h2>
           </div>
           <Link
@@ -388,17 +388,17 @@ export default function Home() {
           <div className="relative">
             <div className="chip mb-6">/// final word</div>
             <h2 className="font-display text-4xl md:text-6xl lg:text-7xl tracking-tighter font-light uppercase max-w-4xl leading-[0.95]">
-              Buying a car in India
+              Find your next car
               <br />
-              just got{" "}
-              <span className="text-gradient-amber italic font-semibold">honest.</span>
+              with{" "}
+              <span className="text-gradient-amber italic font-semibold">clarity.</span>
             </h2>
             <Link
               to="/compare"
               data-testid="footer-cta-compare"
               className="mt-10 btn-shine inline-flex bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black px-8 py-4 font-semibold text-xs uppercase tracking-[0.22em] items-center gap-3 hover:shadow-[0_0_40px_-5px_rgba(245,158,11,0.6)] transition-all"
             >
-              Get Your First Verdict <ArrowRight size={16} />
+              Compare Vehicles <ArrowRight size={16} />
             </Link>
           </div>
         </motion.div>
