@@ -6,15 +6,6 @@ import { api } from "../lib/api";
 import CarCard from "../components/CarCard";
 import { useI18n } from "../lib/i18n";
 
-const tickerItems = [
-  "Explore the catalogue",
-  "Compare vehicle specifications",
-  "Review ownership costs",
-  "Discover electric vehicles",
-  "Explore safety information",
-  "Plan your next test drive",
-];
-
 const HERO_CAR =
   "https://images.unsplash.com/photo-1763165561886-a9391b2132c1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2MzR8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBjYXIlMjBzaG93cm9vbSUyMGRhcmt8ZW58MHx8fHwxNzc2Njg1NzQzfDA&ixlib=rb-4.1.0&q=85";
 
@@ -265,15 +256,6 @@ export default function Home() {
           </div>
         </motion.div>
       </section>
-    </div>
-  );
-}
-
-function Metric({ k, v }) {
-  return (
-    <div>
-      <div className="font-num text-4xl md:text-5xl text-white leading-none">{k}</div>
-      <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mt-2">{v}</div>
     </div>
   );
 }
