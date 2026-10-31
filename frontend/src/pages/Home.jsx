@@ -23,15 +23,28 @@ const stagger = {
 
 export default function Home() {
   const [cars, setCars] = useState([]);
+  const [catalogueStatus, setCatalogueStatus] = useState("loading");
+  const [catalogueRequest, setCatalogueRequest] = useState(0);
 
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
+    setCatalogueStatus("loading");
     api.get("/cars", { signal: controller.signal })
-      .then(({ data }) => { if (active && Array.isArray(data)) setCars(data.slice(0, 6)); })
-      .catch(() => {});
+      .then(({ data }) => {
+        if (!active) return;
+        if (!Array.isArray(data)) {
+          setCatalogueStatus("error");
+          return;
+        }
+        setCars(data.filter((car) => car && car.id != null).slice(0, 6));
+        setCatalogueStatus("ready");
+      })
+      .catch(() => {
+        if (active) setCatalogueStatus("error");
+      });
     return () => { active = false; controller.abort(); };
-  }, []);
+  }, [catalogueRequest]);
 
   return (
     <div className="overflow-hidden bg-[#f5f4f0] text-[#111412]">
@@ -178,18 +191,41 @@ export default function Home() {
               Browse catalogue <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </div>
-          {cars.length > 0 ? (
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {cars.map((car) => <CarCard key={car.id} car={car} />)}
-            </div>
-          ) : (
-            <div className="border border-[#d9dad5] bg-white px-6 py-12 text-center">
-              <p className="text-base text-[#555a55]">Featured vehicles are not available right now.</p>
-              <Link to="/cars" className="mt-5 inline-flex min-h-12 items-center gap-2 font-semibold text-[#111412] underline underline-offset-4">
-                Explore the catalogue <ArrowRight size={16} aria-hidden="true" />
-              </Link>
-            </div>
-          )}
+          <div aria-live="polite" aria-busy={catalogueStatus === "loading"}>
+            {catalogueStatus === "loading" ? (
+              <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3" role="status" aria-label="Loading featured vehicles">
+                {[1, 2, 3].map((item) => (
+                  <div key={item} className="min-h-[340px] border border-[#d9dad5] bg-white">
+                    <div className="h-48 bg-[#e9eae5]" />
+                    <div className="space-y-4 p-6">
+                      <div className="h-5 w-2/3 bg-[#e9eae5]" />
+                      <div className="h-4 w-1/2 bg-[#e9eae5]" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : catalogueStatus === "ready" && cars.length > 0 ? (
+              <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                {cars.map((car) => <CarCard key={car.id} car={car} />)}
+              </div>
+            ) : (
+              <div className="border border-[#d9dad5] bg-white px-6 py-12 text-center">
+                <p className="text-base text-[#555a55]">
+                  {catalogueStatus === "error" ? "We couldn't load featured vehicles." : "No featured vehicles are listed right now."}
+                </p>
+                <div className="mt-5 flex flex-wrap items-center justify-center gap-5">
+                  {catalogueStatus === "error" && (
+                    <button type="button" onClick={() => setCatalogueRequest((request) => request + 1)} className="min-h-12 border border-[#111412] px-5 font-semibold text-[#111412] hover:bg-[#e9eae5]">
+                      Try again
+                    </button>
+                  )}
+                  <Link to="/cars" className="inline-flex min-h-12 items-center gap-2 font-semibold text-[#111412] underline underline-offset-4">
+                    Explore the catalogue <ArrowRight size={16} aria-hidden="true" />
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
