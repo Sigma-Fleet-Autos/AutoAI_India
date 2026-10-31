@@ -48,28 +48,6 @@ export default function Home() {
 
   return (
     <div className="overflow-hidden bg-[#f5f4f0] text-[#111412]">
-      <section className="autoai-atelier" aria-labelledby="atelier-discover-title">
-        <div className="atelier-container py-16 md:py-24">
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(260px,.7fr)] lg:items-end">
-            <div>
-              <p className="atelier-eyebrow mb-5">AutoAI India · The automotive edit</p>
-              <h2 id="atelier-discover-title" className="atelier-heading text-5xl sm:text-6xl lg:text-7xl">
-                Every drive begins with a better decision.
-              </h2>
-            </div>
-            <div>
-              <p className="mb-7 max-w-md text-base leading-7 text-[#555a55]">
-                Explore the cars shaping India. Compare what matters, discover the details,
-                and make your next move with greater clarity.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Link to="/cars" className="atelier-action">Explore vehicles <ArrowRight className="ml-3" size={16} aria-hidden="true" /></Link>
-                <Link to="/compare" className="atelier-action">Compare models</Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
       {/* ============== EDITORIAL HERO ============== */}
       <section className="autoai-atelier relative overflow-hidden border-t border-[#d9dad5]" data-testid="hero-section" aria-labelledby="home-hero-title">
         <div className="atelier-container grid gap-10 py-14 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-center lg:gap-16">
@@ -260,10 +238,6 @@ function Feature({ to, span, icon, kicker, title, desc }) {
         data-testid={`feature-${kicker.split("·")[0].trim()}`}
         className="group relative h-full block border border-[#d9dad5] bg-white p-8 text-[#111412] transition-colors hover:border-[#777a75] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#111412]"
       >
-        <div
-          className="hidden"
-          style={{ background: "radial-gradient(circle, #F59E0B, transparent 70%)" }}
-        />
         <div className="relative z-[1]">
           <div className="mb-6 flex h-12 w-12 items-center justify-center border border-[#c5c8c0] bg-[#f5f4f0] text-[#111412]">
             {icon}
