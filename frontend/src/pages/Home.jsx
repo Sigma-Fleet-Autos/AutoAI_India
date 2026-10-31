@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { api } from "../lib/api";
 import CarCard from "../components/CarCard";
-import { useI18n } from "../lib/i18n";
 
 const HERO_CAR =
   "https://images.unsplash.com/photo-1763165561886-a9391b2132c1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2MzR8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBjYXIlMjBzaG93cm9vbSUyMGRhcmt8ZW58MHx8fHwxNzc2Njg1NzQzfDA&ixlib=rb-4.1.0&q=85";
@@ -24,7 +23,6 @@ const stagger = {
 
 export default function Home() {
   const [cars, setCars] = useState([]);
-  const { t } = useI18n();
 
   useEffect(() => {
     let active = true;
@@ -36,7 +34,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="bg-[#050505] text-white overflow-hidden">
+    <div className="overflow-hidden bg-[#f5f4f0] text-[#111412]">
       <section className="autoai-atelier" aria-labelledby="atelier-discover-title">
         <div className="atelier-container py-16 md:py-24">
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(260px,.7fr)] lg:items-end">
@@ -196,7 +194,7 @@ export default function Home() {
       </section>
 
       {/* ============== CLOSING EDITORIAL CTA ============== */}
-      <section className="autoai-atelier border-t border-[#d9dad5] bg-[#111412] py-20 text-white md:py-28" aria-labelledby="home-closing-title">
+      <section className="autoai-atelier autoai-atelier--dark border-t border-[#d9dad5] py-20 md:py-28" aria-labelledby="home-closing-title">
         <div className="atelier-container grid gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-end">
           <div>
             <p className="mb-7 text-xs font-semibold uppercase tracking-[0.2em] text-[#b7bdb4]">05 / Your next move</p>
