@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Scale, Sparkles, Calculator, Newspaper, Gauge, ShieldCheck } from "lucide-react";
+import { ArrowRight, Scale, Sparkles, Calculator, Newspaper, Gauge } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { api } from "../lib/api";
@@ -132,59 +132,34 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* ============== UNBIASED PLEDGE ============== */}
-      <section className="relative border-y border-white/5 bg-[#07070A] overflow-hidden" data-testid="pledge-section">
-        <div className="absolute inset-0 dot-grid opacity-40 pointer-events-none" />
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#F59E0B]/8 blur-3xl rounded-full pointer-events-none" />
-
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-24 grid md:grid-cols-2 gap-14 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className="chip mb-5">/// the unbiased pledge</div>
-            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight font-light leading-[1.02]">
-              Look beyond
-              <br />
-              the headline.
-              <br />
-              <span className="text-gradient-amber italic font-semibold">Compare the details.</span>
+      {/* ============== BUYING PRINCIPLES ============== */}
+      <section className="autoai-atelier border-t border-[#d9dad5] bg-[#e9eae5] py-20 md:py-28" data-testid="pledge-section" aria-labelledby="home-principles-title">
+        <div className="atelier-container grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
+          <div>
+            <p className="atelier-eyebrow mb-6">03 / Beyond the headline</p>
+            <h2 id="home-principles-title" className="atelier-heading text-4xl sm:text-5xl lg:text-6xl leading-[1.06]">
+              The details make <span className="italic font-normal">the difference.</span>
             </h2>
-            <p className="mt-7 text-slate-400 leading-relaxed max-w-md">
-              Car buying decisions deserve clear specifications, transparent comparisons and realistic ownership considerations. Check critical details with manufacturers, lenders and dealers before committing.
+            <p className="mt-7 max-w-lg text-base leading-8 text-[#555a55]">
+              Buying a car involves more than a headline price. Explore specifications and ownership considerations,
+              then confirm critical details with manufacturers, lenders and dealers.
             </p>
-          </motion.div>
-
-          <motion.div
-            className="space-y-4"
-            variants={stagger}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-          >
+          </div>
+          <div className="divide-y divide-[#c5c8c0] border-y border-[#c5c8c0]">
             {[
-              { t: "Specification-led discovery", d: "Review listed safety, efficiency and ownership information alongside official sources." },
-              { t: "Understand trade-offs", d: "Consider practical compromises between features, budget and running costs." },
-              { t: "Verify before purchase", d: "Confirm offers, finance terms and vehicle availability with the relevant provider." },
-            ].map((x, i) => (
-              <motion.div
-                key={i}
-                variants={fadeUp}
-                custom={i}
-                className="glass border border-white/10 p-6 flex gap-4 hover:border-[#F59E0B]/50 transition-all group"
-              >
-                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center border border-[#F59E0B]/30 bg-[#F59E0B]/5 group-hover:bg-[#F59E0B]/15 transition-colors">
-                  <ShieldCheck size={18} className="text-[#F59E0B]" />
-                </div>
+              { number: "01", title: "Explore specifications", description: "Review available vehicle details and check safety, efficiency and equipment against official sources." },
+              { number: "02", title: "Understand trade-offs", description: "Consider your budget, daily usage, features and running costs before shortlisting." },
+              { number: "03", title: "Verify before purchase", description: "Confirm finance terms, on-road prices, waiting periods and availability with the relevant provider." },
+            ].map((item) => (
+              <div key={item.number} className="grid grid-cols-[3rem_1fr] gap-4 py-7 sm:grid-cols-[4rem_1fr]">
+                <span className="pt-1 text-xs font-semibold tracking-[0.15em] text-[#555a55]">{item.number}</span>
                 <div>
-                  <div className="font-display text-lg font-medium">{x.t}</div>
-                  <div className="text-sm text-slate-400 mt-1">{x.d}</div>
+                  <h3 className="font-display text-2xl font-medium text-[#111412]">{item.title}</h3>
+                  <p className="mt-2 max-w-lg text-sm leading-7 text-[#555a55]">{item.description}</p>
                 </div>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
