@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { api, formatINR, API } from "../lib/api";
 import {
-  ChevronLeft, Lock, Palette, DoorOpen, Lightbulb,
+  ChevronLeft, Palette, DoorOpen, Lightbulb,
   Package, Zap, Sparkles, Crown, Gauge, RotateCw, Car, Eye,
 } from "lucide-react";
 import { getCarImage } from "../lib/carImages";
@@ -24,74 +24,117 @@ export default function Showroom() {
   const { carId } = useParams();
   const [car, setCar] = useState(null);
   const [angle, setAngle] = useState(0);
-  const [autoSpin, setAutoSpin] = useState(true);
+  const [autoSpin, setAutoSpin] = useState(false);
   const [color, setColor] = useState(COLORS[0]);
   const [doors, setDoors] = useState(false);
   const [hood, setHood] = useState(false);
   const [boot, setBoot] = useState(false);
   const [lights, setLights] = useState(false);
   const [view, setView] = useState("exterior");
-  const [locked, setLocked] = useState(false);
-  const [trialSeconds, setTrialSeconds] = useState(180);
-  const dragRef = useRef({ active: false, startX: 0, startAngle: 0 });
+  const dragRef = useRef({ active: false, pointerId: null, startX: 0, startAngle: 0 });
 
+  const [loadError, setLoadError] = useState(false);
+  const [configuratorStatus, setConfiguratorStatus] = useState("loading");
+  const [verifiedVariantId, setVerifiedVariantId] = useState(null);
   useEffect(() => {
-    api.get(`/cars/${carId}`).then((r) => setCar(r.data));
+    let active = true;
+    const controller = new AbortController();
+    setCar(null);
+    setLoadError(false);
+    setAutoSpin(false);
+    setAngle(0);
+    setColor(COLORS[0]);
+    setDoors(false);
+    setHood(false);
+    setBoot(false);
+    setLights(false);
+    setView("exterior");
+    dragRef.current = { active: false, pointerId: null, startX: 0, startAngle: 0 };
+    setConfiguratorStatus("unavailable");
+    setVerifiedVariantId(null);
+    api.get(`/cars/${carId}`, { signal: controller.signal })
+      .then(async (response) => {
+        if (!active) return;
+        const vehicle = response.data;
+        setCar(vehicle);
+        // Catalogue IDs are not canonical variant IDs. Only use an explicit mapping.
+        const variantId = typeof vehicle?.variant_id === "string" && vehicle.variant_id.trim()
+          ? vehicle.variant_id.trim()
+          : null;
+        if (!variantId) return;
+        try {
+          const { configuratorApi } = await import("../services/configuratorApi");
+          // Require the canonical variant resource to exist and match the mapped ID.
+          const variantResponse = await configuratorApi.getVariant(variantId);
+          const canonicalId = variantResponse.data?.variant_id || variantResponse.data?.id;
+          if (String(canonicalId || "") !== variantId) return;
+          const availability = await configuratorApi.getAvailability(variantId);
+          if (active && availability.data?.configurator_status === "AVAILABLE") {
+            setVerifiedVariantId(variantId);
+            setConfiguratorStatus("available");
+          }
+        } catch {
+          if (active) setConfiguratorStatus("unavailable");
+        }
+      })
+      .catch((error) => { if (active && error?.code !== "ERR_CANCELED") setLoadError(true); });
+    return () => { active = false; controller.abort(); };
   }, [carId]);
 
   useEffect(() => {
-    if (!autoSpin || locked) return;
-    const id = setInterval(() => setAngle((a) => (a + 0.8) % 360), 40);
-    return () => clearInterval(id);
-  }, [autoSpin, locked]);
+    if (!autoSpin) return undefined;
+    const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (motionPreference.matches) {
+      setAutoSpin(false);
+      return undefined;
+    }
+    const id = window.setInterval(() => {
+      if (!document.hidden) setAngle((a) => (a + 0.8) % 360);
+    }, 40);
+    const onPreferenceChange = (event) => { if (event.matches) setAutoSpin(false); };
+    motionPreference.addEventListener("change", onPreferenceChange);
+    return () => {
+      window.clearInterval(id);
+      motionPreference.removeEventListener("change", onPreferenceChange);
+    };
+  }, [autoSpin]);
 
-  useEffect(() => {
-    const id = setInterval(() => {
-      setTrialSeconds((s) => {
-        if (s <= 1) { setLocked(true); return 0; }
-        return s - 1;
-      });
-    }, 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  const onMouseDown = (e) => {
-    if (locked) return;
-    dragRef.current = { active: true, startX: e.clientX, startAngle: angle };
+  const onPointerDown = (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    if (event.target instanceof Element && event.target.closest("button, a, input, select, textarea, [role=button]")) return;
+    if (dragRef.current.active) return;
+    dragRef.current = { active: true, pointerId: event.pointerId, startX: event.clientX, startAngle: angle };
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      dragRef.current.active = false;
+      dragRef.current.pointerId = null;
+      return;
+    }
     setAutoSpin(false);
   };
-  const onMouseMove = (e) => {
-    if (!dragRef.current.active) return;
-    const dx = e.clientX - dragRef.current.startX;
+  const onPointerMove = (event) => {
+    if (!dragRef.current.active || dragRef.current.pointerId !== event.pointerId) return;
+    const dx = event.clientX - dragRef.current.startX;
     setAngle((dragRef.current.startAngle + dx * 0.8 + 3600) % 360);
   };
-  const onMouseUp = () => { dragRef.current.active = false; };
-
-  // touch
-  const onTouchStart = (e) => {
-    if (locked) return;
-    dragRef.current = { active: true, startX: e.touches[0].clientX, startAngle: angle };
-    setAutoSpin(false);
+  const onPointerEnd = (event) => {
+    if (dragRef.current.pointerId !== event.pointerId) return;
+    dragRef.current.active = false;
+    dragRef.current.pointerId = null;
   };
-  const onTouchMove = (e) => {
-    if (!dragRef.current.active) return;
-    const dx = e.touches[0].clientX - dragRef.current.startX;
-    setAngle((dragRef.current.startAngle + dx * 0.8 + 3600) % 360);
-  };
-  const onTouchEnd = () => { dragRef.current.active = false; };
 
-  if (!car) return <div className="min-h-screen bg-black flex items-center justify-center text-slate-400">Loading showroom…</div>;
+  if (loadError) return <main role="alert" className="min-h-screen bg-[#050505] flex flex-col items-center justify-center gap-6 px-6 text-center text-slate-200"><p>Vehicle details are currently unavailable. Please return to the catalogue and try again.</p><Link to="/cars" className="border border-white/40 px-6 py-3 text-sm">Back to vehicles</Link></main>;
+  if (!car) return <main role="status" className="min-h-screen bg-black flex items-center justify-center text-slate-400">Loading showroom…</main>;
 
   const isLuxury = LUXURY_SEGMENTS.some((s) => (car.segment || "").includes(s.split(" ")[0]));
-  const trialMin = Math.floor(trialSeconds / 60);
-  const trialSec = String(trialSeconds % 60).padStart(2, "0");
 
   // Real OEM image via backend proxy
   const realUrl = getCarImage(car.id);
   const proxiedUrl = realUrl ? `${API}/image-proxy?url=${encodeURIComponent(realUrl)}` : null;
 
-  // 3D sway effect based on angle — creates the illusion of rotation
-  // Angle 0-180 = normal; 180-360 = mirrored (as if we rotated to back, showing reverse)
+  // Legacy photographic preview only; not genuine 3D geometry.
+  // The image is mirrored for part of the slider range; this does not reveal a rear vehicle photograph.
   const normAngle = angle % 360;
   const isBack = normAngle > 90 && normAngle < 270;
   const swayDeg = Math.sin((angle * Math.PI) / 180) * 18; // ±18deg rotation
@@ -108,28 +151,32 @@ export default function Showroom() {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] font-mono">
               <Crown size={12} className="text-[#F59E0B]" />
-              <span className="text-[#F59E0B]">Premium Preview</span>
+              <span className="text-[#F59E0B]">Photographic Preview</span>
               <span className="text-slate-500">·</span>
-              <span className={locked ? "text-[#EF4444]" : "text-slate-300"} data-testid="trial-timer">
-                {locked ? "EXPIRED" : `${trialMin}:${trialSec} left`}
-              </span>
+              <span className="text-slate-300" data-testid="trial-timer">No time limit</span>
             </div>
           </div>
         </div>
       </div>
 
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-6">
+        {configuratorStatus === "available" && verifiedVariantId && <Link to={`/configurator/${encodeURIComponent(verifiedVariantId)}`} data-testid="showroom-configurator-link" className="mb-4 inline-flex min-h-[44px] items-center border border-[#F59E0B] px-5 py-3 text-xs font-bold uppercase tracking-[0.15em] text-[#F59E0B] hover:bg-[#F59E0B] hover:text-black">Open verified 3D configurator →</Link>}
+        {configuratorStatus === "unavailable" && <p className="mb-4 text-xs text-slate-400" data-testid="showroom-configurator-unavailable">Verified 3D configuration is not available for this catalogue entry.</p>}
+        <p role="note" className="border-l-2 border-[#F59E0B] bg-[#151515] px-5 py-4 text-sm leading-6 text-slate-200" data-testid="showroom-photo-disclosure">This is an illustrative photographic preview, not a 3D configurator. Image movement, colours, interior and lighting effects do not represent verified manufacturer equipment or selectable production options.</p>
+      </div>
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-8 grid lg:grid-cols-12 gap-6">
         {/* Viewer */}
         <div className="lg:col-span-8">
           <div
-            className="relative border border-white/10 bg-gradient-to-b from-[#0A0A0A] to-[#050505] aspect-[16/10] overflow-hidden select-none cursor-grab active:cursor-grabbing corner-notch"
-            onMouseDown={onMouseDown}
-            onMouseMove={onMouseMove}
-            onMouseUp={onMouseUp}
-            onMouseLeave={onMouseUp}
-            onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
+            className="relative border border-white/10 bg-gradient-to-b from-[#0A0A0A] to-[#050505] aspect-[16/10] overflow-hidden select-none touch-none cursor-grab active:cursor-grabbing corner-notch"
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerEnd}
+            onPointerCancel={onPointerEnd}
+            onLostPointerCapture={onPointerEnd}
+            
+            
+            
             data-testid="showroom-viewer"
           >
             {/* Studio spotlight */}
@@ -150,7 +197,7 @@ export default function Showroom() {
             {/* THE ACTUAL CAR IMAGE — 3D sway */}
             <div className="absolute inset-0 flex items-center justify-center p-8" style={{ perspective: "1400px" }}>
               {view === "interior" ? (
-                <InteriorView accent={color.ring} locked={locked} />
+                <InteriorView accent={color.ring} />
               ) : (
                 <motion.div
                   className="relative w-[92%] h-[80%] transition-filter duration-300"
@@ -163,7 +210,7 @@ export default function Showroom() {
                   transition={{ type: "tween", duration: 0.05, ease: "linear" }}
                   style={{
                     transformStyle: "preserve-3d",
-                    filter: locked ? "blur(18px) brightness(0.5)" : `drop-shadow(0 30px 40px ${color.ring}70)`,
+                    filter: `drop-shadow(0 30px 40px ${color.ring}70)`,
                   }}
                 >
                   {proxiedUrl ? (
@@ -215,7 +262,7 @@ export default function Showroom() {
               <RotateCw size={11} className="text-[#F59E0B]" />
               {Math.round(angle)}°
               <span className="text-slate-600">·</span>
-              <span className="text-[#F59E0B]">{isBack ? "REAR" : "FRONT"}</span>
+              <span className="text-[#F59E0B]">{isBack ? "MIRRORED PHOTO" : "ORIGINAL PHOTO"}</span>
             </div>
 
             {/* Paint readout */}
@@ -233,7 +280,7 @@ export default function Showroom() {
               ].map((v) => (
                 <button
                   key={v.k}
-                  disabled={locked}
+                  
                   data-testid={`view-${v.k}-btn`}
                   onClick={() => setView(v.k)}
                   className={`flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] px-3 py-1.5 border transition-all ${
@@ -245,27 +292,12 @@ export default function Showroom() {
               ))}
             </div>
 
-            {/* Lock overlay */}
-            {locked && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/85 backdrop-blur-sm z-10" data-testid="showroom-lock-overlay">
-                <div className="text-center max-w-md p-8">
-                  <Lock size={48} className="text-[#F59E0B] mx-auto mb-4" />
-                  <div className="font-display text-3xl font-light">Preview Expired</div>
-                  <p className="text-slate-400 mt-2 text-sm">
-                    Unlock unlimited 360° showroom access for every car, full customization, and exclusive AI insights.
-                  </p>
-                  <Link to="/premium" className="mt-6 inline-block btn-shine bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black px-6 py-3 text-xs uppercase tracking-[0.25em] font-bold" data-testid="upgrade-cta-lock">
-                    Unlock Premium →
-                  </Link>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Drag hint + angle slider */}
           <div className="mt-3 flex flex-col gap-2">
             <div className="text-center text-[10px] uppercase tracking-[0.3em] text-slate-500 font-mono">
-              {locked ? "· preview ended ·" : "· drag image to rotate · swipe on mobile ·"}
+              · illustrative image movement · not a 360° model ·
             </div>
             <input
               type="range"
@@ -273,7 +305,7 @@ export default function Showroom() {
               max="359"
               value={Math.round(angle)}
               onChange={(e) => { setAutoSpin(false); setAngle(Number(e.target.value)); }}
-              disabled={locked}
+              
               data-testid="angle-slider"
               className="w-full accent-[#F59E0B]"
             />
@@ -287,7 +319,7 @@ export default function Showroom() {
             <div className="text-[10px] uppercase tracking-[0.3em] text-[#F59E0B] font-bold font-mono">{car.brand}</div>
             <div className="font-display text-3xl font-medium mt-1">{car.model}</div>
             <div className="text-sm text-slate-400 mt-0.5">{car.variant} · {car.segment}</div>
-            <div className="font-num text-4xl text-[#F59E0B] mt-3">{formatINR(car.price_ex_showroom)}</div>
+            <div className="font-num text-4xl text-[#F59E0B] mt-3">{typeof car.price_ex_showroom === "number" && Number.isFinite(car.price_ex_showroom) && car.price_ex_showroom > 0 ? formatINR(car.price_ex_showroom) : "Price unavailable"}</div>
             {isLuxury && (
               <div className="mt-3 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.25em] text-[#F59E0B] border border-[#F59E0B]/40 px-2 py-1">
                 <Crown size={10} /> Luxury Segment
@@ -295,12 +327,13 @@ export default function Showroom() {
             )}
           </div>
 
-          <Panel icon={<Palette size={14} />} title="Paint" disabled={locked}>
+          <p className="text-xs leading-5 text-slate-400">Visual effects below are illustrative only. For manufacturer-verified options, use a vehicle-specific configurator when available.</p>
+          <Panel icon={<Palette size={14} />} title="Illustrative colour effects" >
             <div className="grid grid-cols-7 gap-2">
               {COLORS.map((c) => (
                 <button
                   key={c.name}
-                  disabled={locked}
+                  
                   onClick={() => setColor(c)}
                   data-testid={`color-${c.name.toLowerCase().replace(" ", "-")}`}
                   title={c.name}
@@ -312,19 +345,19 @@ export default function Showroom() {
             <div className="text-xs text-slate-400 mt-3">{color.name}</div>
           </Panel>
 
-          <Panel icon={<Zap size={14} />} title="Live States" disabled={locked}>
+          <Panel icon={<Zap size={14} />} title="Simulated visual indicators (not vehicle controls)" >
             <div className="grid grid-cols-2 gap-2">
-              <Toggle active={doors} onClick={() => setDoors(!doors)} icon={<DoorOpen size={12} />} label="Doors" tid="toggle-doors" disabled={locked} />
-              <Toggle active={hood} onClick={() => setHood(!hood)} icon={<Package size={12} />} label="Hood" tid="toggle-hood" disabled={locked} />
-              <Toggle active={boot} onClick={() => setBoot(!boot)} icon={<Car size={12} />} label="Boot" tid="toggle-boot" disabled={locked} />
-              <Toggle active={lights} onClick={() => setLights(!lights)} icon={<Lightbulb size={12} />} label="Headlights" tid="toggle-lights" disabled={locked} />
+              <Toggle active={doors} onClick={() => setDoors(!doors)} icon={<DoorOpen size={12} />} label="Doors" tid="toggle-doors"  />
+              <Toggle active={hood} onClick={() => setHood(!hood)} icon={<Package size={12} />} label="Hood" tid="toggle-hood"  />
+              <Toggle active={boot} onClick={() => setBoot(!boot)} icon={<Car size={12} />} label="Boot" tid="toggle-boot"  />
+              <Toggle active={lights} onClick={() => setLights(!lights)} icon={<Lightbulb size={12} />} label="Headlights" tid="toggle-lights"  />
             </div>
           </Panel>
 
-          <Panel icon={<Gauge size={14} />} title="Rotation" disabled={locked}>
+          <Panel icon={<Gauge size={14} />} title="Image movement (not 3D rotation)" >
             <div className="flex items-center gap-2">
               <button
-                disabled={locked}
+                
                 onClick={() => setAutoSpin((s) => !s)}
                 data-testid="toggle-autospin"
                 className={`flex-1 py-2 text-[10px] uppercase tracking-[0.2em] font-bold border transition-colors ${
@@ -334,7 +367,7 @@ export default function Showroom() {
                 {autoSpin ? "Auto-spin ON" : "Paused"}
               </button>
               <button
-                disabled={locked}
+                
                 onClick={() => setAngle(0)}
                 data-testid="reset-angle"
                 className="py-2 px-3 border border-white/15 text-slate-300 hover:border-[#F59E0B]"
@@ -350,7 +383,7 @@ export default function Showroom() {
               <div className="text-[10px] uppercase tracking-[0.3em] text-[#F59E0B] font-bold font-mono">Loving it?</div>
             </div>
             <div className="text-sm text-slate-300 leading-relaxed mb-4">
-              Unlock unlimited showroom time, all 106 cars, and exclusive AI perks.
+              Explore premium membership features and available AI assistance.
             </div>
             <Link to="/premium" data-testid="upgrade-cta-panel" className="block btn-shine bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black text-center text-xs uppercase tracking-[0.25em] font-bold py-3">
               Go Premium →
@@ -406,9 +439,9 @@ function Toggle({ active, onClick, icon, label, tid, disabled }) {
   );
 }
 
-function InteriorView({ accent, locked }) {
+function InteriorView({ accent }) {
   return (
-    <div className="w-full h-full flex items-center justify-center" style={{ filter: locked ? "blur(18px) brightness(0.5)" : "none" }}>
+    <div className="w-full h-full flex items-center justify-center" >
       <svg viewBox="0 0 280 160" className="w-full h-full max-w-[600px]" preserveAspectRatio="xMidYMid meet">
         <defs>
           <linearGradient id="cabin" x1="0" x2="0" y1="0" y2="1">

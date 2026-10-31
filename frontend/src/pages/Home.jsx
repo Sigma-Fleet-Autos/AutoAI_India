@@ -1,29 +1,12 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Scale, Sparkles, Calculator, Newspaper, Gauge, ShieldCheck, Zap, Cpu, Radar } from "lucide-react";
+import { ArrowRight, Scale, Sparkles, Calculator, Newspaper, Gauge } from "lucide-react";
 import { useEffect, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { api, API } from "../lib/api";
+import { motion } from "framer-motion";
+import { api } from "../lib/api";
 import CarCard from "../components/CarCard";
-import { useI18n } from "../lib/i18n";
-
-const tickerItems = [
-  "Tata Nexon 5★ Safety",
-  "Maruti Brezza — 2 wk wait",
-  "Hyundai Creta — 6 wk",
-  "Mahindra Thar — 16 wk",
-  "Toyota Innova Hycross — 20 wk",
-  "Kia Seltos — 7 wk",
-  "BharatNCAP: Curvv 5★",
-  "Scorpio-N — 12 wk",
-  "Grand Vitara Hybrid — 27.9 kmpl",
-];
 
 const HERO_CAR =
   "https://images.unsplash.com/photo-1763165561886-a9391b2132c1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2MzR8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBjYXIlMjBzaG93cm9vbSUyMGRhcmt8ZW58MHx8fHwxNzc2Njg1NzQzfDA&ixlib=rb-4.1.0&q=85";
-
-// Indian highway / NH-48 style driving reel (Pexels — proxied through backend to avoid hotlink 403)
-const HERO_VIDEO_URL =
-  "https://videos.pexels.com/video-files/2034115/2034115-hd_1920_1080_30fps.mp4";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -40,390 +23,209 @@ const stagger = {
 
 export default function Home() {
   const [cars, setCars] = useState([]);
-  const { t } = useI18n();
-  const { scrollY } = useScroll();
-  const heroY = useTransform(scrollY, [0, 600], [0, 100]);
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0.4]);
+  const [catalogueStatus, setCatalogueStatus] = useState("loading");
+  const [catalogueRequest, setCatalogueRequest] = useState(0);
 
   useEffect(() => {
-    api.get("/cars").then((r) => setCars(r.data.slice(0, 6))).catch(() => {});
-  }, []);
+    let active = true;
+    const controller = new AbortController();
+    setCatalogueStatus("loading");
+    api.get("/cars", { signal: controller.signal })
+      .then(({ data }) => {
+        if (!active) return;
+        if (!Array.isArray(data)) {
+          setCatalogueStatus("error");
+          return;
+        }
+        setCars(data.filter((car) => car && car.id != null).slice(0, 6));
+        setCatalogueStatus("ready");
+      })
+      .catch(() => {
+        if (active) setCatalogueStatus("error");
+      });
+    return () => { active = false; controller.abort(); };
+  }, [catalogueRequest]);
 
   return (
-    <div className="bg-[#050505] text-white overflow-hidden">
-      {/* ============== HERO ============== */}
-      <section className="relative min-h-[100vh] overflow-hidden hero-grid" data-testid="hero-section">
-        {/* VIDEO BACKGROUND — Indian highway driving reel */}
-        <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="absolute inset-0 z-[0]"
-        >
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            poster={HERO_CAR}
-            data-testid="hero-video"
-            className="absolute inset-0 w-full h-full object-cover opacity-55"
-          >
-            <source src={`${API}/video-proxy?url=${encodeURIComponent(HERO_VIDEO_URL)}`} type="video/mp4" />
-          </video>
-          {/* darkening + warm tint overlays */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/55 to-[#050505]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/70 to-transparent" />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(1200px 600px at 78% 30%, rgba(245,158,11,0.28), transparent 55%), radial-gradient(800px 500px at 15% 75%, rgba(197,131,43,0.14), transparent 60%)",
-            }}
-          />
-        </motion.div>
-
-        {/* grain */}
-        <div className="absolute inset-0 grain pointer-events-none z-[1]" />
-
-        {/* scanning line */}
-        <div className="pointer-events-none absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#F59E0B]/40 to-transparent scan-line z-[2]" />
-
-        {/* hero car image — right side, large (overlays on video) */}
-        <motion.div
-          initial={{ opacity: 0, scale: 1.08, x: 40 }}
-          animate={{ opacity: 0.65, scale: 1, x: 0 }}
-          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute right-[-6%] top-[10%] w-[72%] md:w-[62%] lg:w-[58%] aspect-[16/10] z-[2] pointer-events-none"
-        >
-          <div
-            className="w-full h-full bg-cover bg-center mix-blend-screen"
-            style={{
-              backgroundImage: `url(${HERO_CAR})`,
-              maskImage:
-                "radial-gradient(circle at 60% 55%, #000 35%, transparent 72%)",
-              WebkitMaskImage:
-                "radial-gradient(circle at 60% 55%, #000 35%, transparent 72%)",
-            }}
-          />
-        </motion.div>
-
-        {/* content */}
-        <div className="relative z-[3] max-w-7xl mx-auto px-6 lg:px-10 pt-24 lg:pt-36 pb-24 grid lg:grid-cols-12 gap-10">
-          <motion.div
-            className="lg:col-span-8"
-            variants={stagger}
-            initial="hidden"
-            animate="show"
-          >
-            <motion.div variants={fadeUp} custom={0} className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-px bg-[#F59E0B]" />
-              <span className="chip">
-                <span className="w-1.5 h-1.5 bg-[#F59E0B] rounded-full animate-pulse" />
-                India's First Unbiased Car AI
-              </span>
-            </motion.div>
-
-            <motion.h1
-              variants={fadeUp}
-              custom={1}
-              className="font-display text-5xl md:text-7xl lg:text-[7.2rem] font-light tracking-tighter leading-[0.92] uppercase"
-            >
-              The <span className="text-gradient-amber font-semibold italic">True Verdict</span>
-              <br />
-              on every car
-              <br />
-              in <span className="relative inline-block">
-                India
-                <motion.span
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ delay: 1.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute left-0 right-0 -bottom-2 h-[3px] bg-[#F59E0B] origin-left"
-                />
-              </span>.
-            </motion.h1>
-
-            <motion.p
-              variants={fadeUp}
-              custom={2}
-              className="mt-10 text-slate-300 text-base md:text-lg max-w-xl leading-relaxed"
-            >
-              Zero promotions. Zero human bias. Zero waiting. Just an AI engine analysing real data
-              to tell you which car actually deserves your money — and which ones don't.
-            </motion.p>
-
-            <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row gap-3">
-              <Link
-                to="/compare"
-                data-testid="hero-cta-compare"
-                className="group btn-shine bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black px-7 py-4 font-semibold text-xs uppercase tracking-[0.22em] flex items-center gap-3 hover:shadow-[0_0_40px_-5px_rgba(245,158,11,0.6)] transition-all"
-              >
-                Start AI Comparison{" "}
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+    <div className="overflow-hidden bg-[#f5f4f0] text-[#111412]">
+      {/* ============== EDITORIAL HERO ============== */}
+      <section className="autoai-atelier relative overflow-hidden border-t border-[#d9dad5]" data-testid="hero-section" aria-labelledby="home-hero-title">
+        <div className="atelier-container grid gap-10 py-14 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-center lg:gap-16">
+          <div className="relative z-10">
+            <p className="atelier-eyebrow mb-6">India's automotive discovery platform · 01 / Discover</p>
+            <h1 id="home-hero-title" className="atelier-heading max-w-3xl text-5xl sm:text-6xl lg:text-[5.5rem] leading-[1.02]">
+              Your next car. <span className="italic font-normal">A clearer decision.</span>
+            </h1>
+            <p className="mt-7 max-w-lg text-base leading-8 text-[#555a55]">
+              Discover cars sold in India, compare available specifications and plan your budget.
+              Confirm current prices, delivery times and availability with your dealer.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link to="/compare" data-testid="hero-cta-compare" className="atelier-action">
+                Compare vehicles <ArrowRight size={17} className="ml-3" aria-hidden="true" />
               </Link>
-              <Link
-                to="/recommend"
-                data-testid="hero-cta-recommend"
-                className="group glass border border-white/15 px-7 py-4 font-semibold text-xs uppercase tracking-[0.22em] flex items-center gap-3 hover:border-[#F59E0B]/60 hover:text-[#F59E0B] transition-all"
-              >
-                <Sparkles size={14} /> Find My Perfect Car
+              <Link to="/recommend" data-testid="hero-cta-recommend" className="inline-flex min-h-12 items-center justify-center border border-[#111412] px-6 text-xs font-semibold uppercase tracking-[0.16em] text-[#111412] transition-colors hover:bg-[#e9eae5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#111412]">
+                Explore recommendations
               </Link>
-            </motion.div>
-
-            <motion.div variants={fadeUp} custom={4} className="mt-14 grid grid-cols-3 gap-6 max-w-lg">
-              <Metric k="106+" v={t("cars_indexed")} />
-              <Metric k="0%" v={t("brand_bias")} />
-              <Metric k="24/7" v={t("ai_expert")} />
-            </motion.div>
-          </motion.div>
-
-          {/* side HUD card */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="lg:col-span-4 relative"
-          >
-            <div className="relative glass border border-white/10 p-6 corner-notch">
-              <div className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-[#F59E0B]/60 to-transparent" />
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-2">
-                  <Radar size={14} className="text-[#F59E0B]" />
-                  <span className="text-[10px] uppercase tracking-[0.25em] text-slate-400 font-mono">
-                    Live · Zero-Wait Tracker
-                  </span>
-                </div>
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inset-0 rounded-full bg-[#10B981] opacity-70" />
-                  <span className="relative rounded-full h-2 w-2 bg-[#10B981]" />
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                {[
-                  { m: "Maruti Brezza", w: 2, c: "#10B981" },
-                  { m: "Hyundai Creta", w: 6, c: "#F59E0B" },
-                  { m: "Mahindra Thar", w: 16, c: "#EF4444" },
-                  { m: "Kia Seltos", w: 7, c: "#F59E0B" },
-                ].map((x, i) => (
-                  <motion.div
-                    key={x.m}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.9 + i * 0.1 }}
-                    className="flex items-center justify-between border-b border-white/10 pb-2.5"
-                  >
-                    <span className="text-sm text-slate-200">{x.m}</span>
-                    <span className="font-mono text-xs font-semibold" style={{ color: x.c }}>
-                      {x.w} weeks
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-
-              <div className="mt-6 text-[10px] text-slate-500 font-mono flex items-center gap-2">
-                <Cpu size={11} />
-                <span>$ {t("refresh_label")}</span>
-                <span className="text-[#F59E0B]">daily · 06:00 IST</span>
-              </div>
             </div>
-
-            {/* floating badge */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 1.4, duration: 0.5 }}
-              className="float-up absolute -top-5 -right-5 bg-gradient-to-br from-[#F59E0B] to-[#D97706] text-black px-4 py-2.5 amber-glow"
-            >
-              <div className="font-display text-xs font-bold uppercase tracking-[0.2em]">
-                <Zap size={12} className="inline mb-0.5 mr-1" strokeWidth={3} />
-                AI Live
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
-
-        {/* ticker */}
-        <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 py-3 overflow-hidden bg-black/70 backdrop-blur-sm ticker-mask z-[3]">
-          <div className="flex marquee gap-12 whitespace-nowrap">
-            {[...tickerItems, ...tickerItems].map((txt, i) => (
-              <span key={i} className="font-mono text-xs text-slate-400 uppercase tracking-widest">
-                <span className="text-[#F59E0B] mr-3">◆</span>
-                {txt}
-              </span>
-            ))}
+            <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-[#d9dad5] pt-5 text-xs uppercase tracking-[0.12em] text-[#555a55]">
+              <span>Vehicle catalogue</span><span>Specifications</span><span>Ownership tools</span>
+            </div>
           </div>
+          <div className="relative min-h-[340px] overflow-hidden bg-[#d7d8d2] sm:min-h-[480px] lg:min-h-[600px]">
+            <img src={HERO_CAR} alt="Automobile photographed in a showroom" className="absolute inset-0 h-full w-full object-cover" loading="eager" fetchPriority="high" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent p-7 pt-24 text-white">
+              <p className="text-xs uppercase tracking-[0.22em]">AutoAI India / The automotive edit</p>
+              <p className="mt-2 max-w-xs font-display text-2xl font-light">Explore the details before the drive.</p>
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-[#d9dad5]">
+          <nav className="atelier-container grid gap-0 sm:grid-cols-3" aria-label="Explore AutoAI tools">
+            <Link to="/cars" className="flex min-h-16 items-center justify-between border-b border-[#d9dad5] py-4 text-sm font-medium text-[#111412] hover:underline sm:border-b-0 sm:border-r sm:pr-6">Browse vehicles <ArrowRight size={16} aria-hidden="true" /></Link>
+            <Link to="/compare" className="flex min-h-16 items-center justify-between border-b border-[#d9dad5] py-4 text-sm font-medium text-[#111412] hover:underline sm:border-b-0 sm:border-r sm:px-6">Compare models <ArrowRight size={16} aria-hidden="true" /></Link>
+            <Link to="/emi" className="flex min-h-16 items-center justify-between py-4 text-sm font-medium text-[#111412] hover:underline sm:pl-6">Estimate EMI <ArrowRight size={16} aria-hidden="true" /></Link>
+          </nav>
         </div>
       </section>
 
       {/* ============== BENTO FEATURES ============== */}
-      <section className="relative max-w-7xl mx-auto px-6 lg:px-10 py-28" data-testid="features-section">
+      <section className="autoai-atelier border-t border-[#d9dad5] py-20 md:py-28" data-testid="features-section">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="max-w-2xl mb-14"
+          className="atelier-container mb-14"
         >
-          <div className="chip mb-5">/// the engine room</div>
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight font-light leading-[1.05]">
-            Five AI pillars.
+          <p className="atelier-eyebrow mb-5">02 / The buying toolkit</p>
+          <h2 className="atelier-heading max-w-4xl text-4xl md:text-6xl leading-[1.08]">
+            Tools for better decisions.
             <br />
-            <span className="text-gradient-amber italic font-semibold">One unbiased verdict.</span>
+            <span className="italic font-normal">Your next move, considered.</span>
           </h2>
         </motion.div>
 
         <motion.div
-          className="grid md:grid-cols-12 gap-4"
+          className="atelier-container grid md:grid-cols-12 gap-4"
           variants={stagger}
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-80px" }}
         >
-          <Feature to="/compare" span="md:col-span-7" icon={<Scale size={22} />} kicker="01 · AI Comparison" title="Two cars enter. One walks out." desc="Claude-powered engine analyses safety, mileage, power, space, waiting & real cost-of-ownership — and exposes the cons brands hide." />
-          <Feature to="/recommend" span="md:col-span-5" icon={<Sparkles size={22} />} kicker="02 · AI Recommender" title="Your budget. Your need. Our verdict." desc="Tell us what you want. Get a ranked top-3 with transparent 'why' and honest watchouts." />
-          <Feature to="/emi" span="md:col-span-4" icon={<Calculator size={22} />} kicker="03 · EMI Studio" title="Loan math, demystified." desc="Interactive slider. Instant eligibility. Total interest exposed." />
-          <Feature to="/cars" span="md:col-span-4" icon={<Gauge size={22} />} kicker="04 · Zero-Wait DB" title="Live availability tracker." desc="Waiting weeks across top models, refreshed daily." />
-          <Feature to="/news" span="md:col-span-4" icon={<Newspaper size={22} />} kicker="05 · Daily Intel" title="Launches. Price drops. Hidden changes." desc="AI-curated feed. No press-release fluff." />
+          <Feature to="/compare" span="md:col-span-7" icon={<Scale size={22} />} kicker="01 · AI Comparison" title="Two cars enter. One walks out." desc="Compare available vehicle specifications and buying considerations side by side. Verify safety ratings, pricing and delivery information with official sources." />
+          <Feature to="/recommend" span="md:col-span-5" icon={<Sparkles size={22} />} kicker="02 · AI Recommender" title="Your budget. Your need. Our verdict." desc="Explore recommendations based on your preferences, then review specifications and trade-offs before deciding." />
+          <Feature to="/emi" span="md:col-span-4" icon={<Calculator size={22} />} kicker="03 · EMI Studio" title="Understand the monthly cost." desc="Explore illustrative EMI and interest calculations. Loan approval and final terms depend on the lender." />
+          <Feature to="/cars" span="md:col-span-4" icon={<Gauge size={22} />} kicker="04 · Vehicle Catalogue" title="Discover available models." desc="Browse listed vehicles and specifications. Confirm stock, waiting periods and prices with dealers." />
+          <Feature to="/news" span="md:col-span-4" icon={<Newspaper size={22} />} kicker="05 · Automotive News" title="Stay informed." desc="Read automotive updates and check manufacturer announcements for current launch and pricing details." />
         </motion.div>
       </section>
 
-      {/* ============== UNBIASED PLEDGE ============== */}
-      <section className="relative border-y border-white/5 bg-[#07070A] overflow-hidden" data-testid="pledge-section">
-        <div className="absolute inset-0 dot-grid opacity-40 pointer-events-none" />
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#F59E0B]/8 blur-3xl rounded-full pointer-events-none" />
-
-        <div className="relative max-w-7xl mx-auto px-6 lg:px-10 py-24 grid md:grid-cols-2 gap-14 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className="chip mb-5">/// the unbiased pledge</div>
-            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight font-light leading-[1.02]">
-              No dealership
-              <br />
-              handshake.
-              <br />
-              No ad money.
-              <br />
-              <span className="text-gradient-amber italic font-semibold">Just math and truth.</span>
+      {/* ============== BUYING PRINCIPLES ============== */}
+      <section className="autoai-atelier border-t border-[#d9dad5] bg-[#e9eae5] py-20 md:py-28" data-testid="pledge-section" aria-labelledby="home-principles-title">
+        <div className="atelier-container grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
+          <div>
+            <p className="atelier-eyebrow mb-6">03 / Beyond the headline</p>
+            <h2 id="home-principles-title" className="atelier-heading text-4xl sm:text-5xl lg:text-6xl leading-[1.06]">
+              The details make <span className="italic font-normal">the difference.</span>
             </h2>
-            <p className="mt-7 text-slate-400 leading-relaxed max-w-md">
-              8 years on the dealership floor taught our founder one thing: Indian car buyers deserve
-              better than paid reviews. Auto-AI India is built to expose what brands hide.
+            <p className="mt-7 max-w-lg text-base leading-8 text-[#555a55]">
+              Buying a car involves more than a headline price. Explore specifications and ownership considerations,
+              then confirm critical details with manufacturers, lenders and dealers.
             </p>
-          </motion.div>
-
-          <motion.div
-            className="space-y-4"
-            variants={stagger}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-          >
+          </div>
+          <div className="divide-y divide-[#c5c8c0] border-y border-[#c5c8c0]">
             {[
-              { t: "Data-first verdicts", d: "Safety stars, mileage, waiting, TCO — not brand love." },
-              { t: "Hidden con exposure", d: "The AI surfaces real cons buyers discover 6 months later." },
-              { t: "Zero paid placement", d: "Rankings cannot be bought. Ever." },
-            ].map((x, i) => (
-              <motion.div
-                key={i}
-                variants={fadeUp}
-                custom={i}
-                className="glass border border-white/10 p-6 flex gap-4 hover:border-[#F59E0B]/50 transition-all group"
-              >
-                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center border border-[#F59E0B]/30 bg-[#F59E0B]/5 group-hover:bg-[#F59E0B]/15 transition-colors">
-                  <ShieldCheck size={18} className="text-[#F59E0B]" />
-                </div>
+              { number: "01", title: "Explore specifications", description: "Review available vehicle details and check safety, efficiency and equipment against official sources." },
+              { number: "02", title: "Understand trade-offs", description: "Consider your budget, daily usage, features and running costs before shortlisting." },
+              { number: "03", title: "Verify before purchase", description: "Confirm finance terms, on-road prices, waiting periods and availability with the relevant provider." },
+            ].map((item) => (
+              <div key={item.number} className="grid grid-cols-[3rem_1fr] gap-4 py-7 sm:grid-cols-[4rem_1fr]">
+                <span className="pt-1 text-xs font-semibold tracking-[0.15em] text-[#555a55]">{item.number}</span>
                 <div>
-                  <div className="font-display text-lg font-medium">{x.t}</div>
-                  <div className="text-sm text-slate-400 mt-1">{x.d}</div>
+                  <h3 className="font-display text-2xl font-medium text-[#111412]">{item.title}</h3>
+                  <p className="mt-2 max-w-lg text-sm leading-7 text-[#555a55]">{item.description}</p>
                 </div>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* ============== TRENDING CARS ============== */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-28" data-testid="trending-section">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="flex items-end justify-between mb-12 flex-wrap gap-4"
-        >
-          <div>
-            <div className="chip mb-5">/// trending right now</div>
-            <h2 className="font-display text-4xl md:text-5xl tracking-tight font-light">
-              Most searched <span className="text-[#F59E0B]">in India</span>
-            </h2>
-          </div>
-          <Link
-            to="/cars"
-            className="group text-xs uppercase tracking-[0.2em] text-slate-400 hover:text-[#F59E0B] flex items-center gap-2 border border-white/10 hover:border-[#F59E0B]/40 px-4 py-2.5 transition-all"
-          >
-            See all cars{" "}
-            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </motion.div>
-
-        <motion.div
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-4"
-          variants={stagger}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-60px" }}
-        >
-          {cars.map((c, i) => (
-            <motion.div key={c.id} variants={fadeUp} custom={i}>
-              <CarCard car={c} />
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
-
-      {/* ============== CTA FINAL (tracing beam) ============== */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="tracing-beam p-12 lg:p-20 relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-80 h-80 bg-[#F59E0B]/15 blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#C5832B]/10 blur-3xl pointer-events-none" />
-          <div className="relative">
-            <div className="chip mb-6">/// final word</div>
-            <h2 className="font-display text-4xl md:text-6xl lg:text-7xl tracking-tighter font-light uppercase max-w-4xl leading-[0.95]">
-              Buying a car in India
-              <br />
-              just got{" "}
-              <span className="text-gradient-amber italic font-semibold">honest.</span>
-            </h2>
-            <Link
-              to="/compare"
-              data-testid="footer-cta-compare"
-              className="mt-10 btn-shine inline-flex bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black px-8 py-4 font-semibold text-xs uppercase tracking-[0.22em] items-center gap-3 hover:shadow-[0_0_40px_-5px_rgba(245,158,11,0.6)] transition-all"
-            >
-              Get Your First Verdict <ArrowRight size={16} />
+      {/* ============== FEATURED VEHICLES ============== */}
+      <section className="autoai-atelier border-t border-[#d9dad5] py-20 md:py-28" data-testid="trending-section" aria-labelledby="home-featured-title">
+        <div className="atelier-container">
+          <div className="mb-12 flex flex-wrap items-end justify-between gap-7">
+            <div>
+              <p className="atelier-eyebrow mb-5">04 / From the catalogue</p>
+              <h2 id="home-featured-title" className="atelier-heading text-4xl sm:text-5xl lg:text-6xl">
+                Featured <span className="italic font-normal">vehicles.</span>
+              </h2>
+              <p className="mt-4 max-w-lg text-sm leading-7 text-[#555a55]">
+                A selection from the current catalogue. Listings are not ranked by popularity or sales.
+              </p>
+            </div>
+            <Link to="/cars" className="inline-flex min-h-12 items-center gap-3 border border-[#111412] px-5 text-xs font-semibold uppercase tracking-[0.15em] text-[#111412] transition-colors hover:bg-[#e9eae5]">
+              Browse catalogue <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </div>
-        </motion.div>
+          <div aria-live="polite" aria-busy={catalogueStatus === "loading"}>
+            {catalogueStatus === "loading" ? (
+              <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3" role="status" aria-label="Loading featured vehicles">
+                {[1, 2, 3].map((item) => (
+                  <div key={item} className="min-h-[340px] border border-[#d9dad5] bg-white">
+                    <div className="h-48 bg-[#e9eae5]" />
+                    <div className="space-y-4 p-6">
+                      <div className="h-5 w-2/3 bg-[#e9eae5]" />
+                      <div className="h-4 w-1/2 bg-[#e9eae5]" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : catalogueStatus === "ready" && cars.length > 0 ? (
+              <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+                {cars.map((car) => <CarCard key={car.id} car={car} />)}
+              </div>
+            ) : (
+              <div className="border border-[#d9dad5] bg-white px-6 py-12 text-center">
+                <p className="text-base text-[#555a55]">
+                  {catalogueStatus === "error" ? "We couldn't load featured vehicles." : "No featured vehicles are listed right now."}
+                </p>
+                <div className="mt-5 flex flex-wrap items-center justify-center gap-5">
+                  {catalogueStatus === "error" && (
+                    <button type="button" onClick={() => setCatalogueRequest((request) => request + 1)} className="min-h-12 border border-[#111412] px-5 font-semibold text-[#111412] hover:bg-[#e9eae5]">
+                      Try again
+                    </button>
+                  )}
+                  <Link to="/cars" className="inline-flex min-h-12 items-center gap-2 font-semibold text-[#111412] underline underline-offset-4">
+                    Explore the catalogue <ArrowRight size={16} aria-hidden="true" />
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </section>
-    </div>
-  );
-}
 
-function Metric({ k, v }) {
-  return (
-    <div>
-      <div className="font-num text-4xl md:text-5xl text-white leading-none">{k}</div>
-      <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mt-2">{v}</div>
+      {/* ============== CLOSING EDITORIAL CTA ============== */}
+      <section className="autoai-atelier autoai-atelier--dark border-t border-[#d9dad5] py-20 md:py-28" aria-labelledby="home-closing-title">
+        <div className="atelier-container grid gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-end">
+          <div>
+            <p className="mb-7 text-xs font-semibold uppercase tracking-[0.2em] text-[#b7bdb4]">05 / Your next move</p>
+            <h2 id="home-closing-title" className="font-display max-w-4xl text-5xl font-light leading-[1.04] tracking-tight sm:text-6xl lg:text-7xl">
+              Find the right car. <span className="italic text-[#cbd1c6]">On your terms.</span>
+            </h2>
+          </div>
+          <div>
+            <p className="max-w-md text-base leading-8 text-[#cbd1c6]">
+              Compare specifications, weigh your priorities and explore the choices that fit your life in India.
+            </p>
+            <Link to="/compare" data-testid="footer-cta-compare" className="mt-8 inline-flex min-h-12 items-center justify-center gap-3 border border-white bg-white px-7 text-xs font-semibold uppercase tracking-[0.16em] text-[#111412] transition-colors hover:bg-[#e9eae5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+              Compare vehicles <ArrowRight size={17} aria-hidden="true" />
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
@@ -434,24 +236,20 @@ function Feature({ to, span, icon, kicker, title, desc }) {
       <Link
         to={to}
         data-testid={`feature-${kicker.split("·")[0].trim()}`}
-        className="group relative h-full block border border-white/10 bg-[#0A0A0A]/70 backdrop-blur-md p-8 hover:border-[#F59E0B]/60 transition-all duration-500 overflow-hidden tilt-card corner-notch"
+        className="group relative h-full block border border-[#d9dad5] bg-white p-8 text-[#111412] transition-colors hover:border-[#777a75] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#111412]"
       >
-        <div
-          className="absolute -right-20 -top-20 w-80 h-80 rounded-full opacity-0 group-hover:opacity-30 transition-opacity duration-700 blur-3xl"
-          style={{ background: "radial-gradient(circle, #F59E0B, transparent 70%)" }}
-        />
         <div className="relative z-[1]">
-          <div className="w-12 h-12 flex items-center justify-center border border-[#F59E0B]/30 bg-[#F59E0B]/5 text-[#F59E0B] mb-6 group-hover:bg-[#F59E0B]/15 group-hover:scale-105 transition-all duration-300">
+          <div className="mb-6 flex h-12 w-12 items-center justify-center border border-[#c5c8c0] bg-[#f5f4f0] text-[#111412]">
             {icon}
           </div>
-          <div className="text-[10px] uppercase tracking-[0.3em] text-slate-500 font-mono mb-3">
+          <div className="mb-3 text-[10px] uppercase tracking-[0.2em] text-[#555a55]">
             {kicker}
           </div>
           <div className="font-display text-2xl lg:text-3xl font-medium mb-3 max-w-xs leading-[1.15]">
             {title}
           </div>
-          <p className="text-sm text-slate-400 max-w-md leading-relaxed">{desc}</p>
-          <div className="mt-6 flex items-center gap-2 text-[10px] uppercase tracking-[0.25em] text-[#F59E0B] font-bold">
+          <p className="max-w-md text-sm leading-relaxed text-[#555a55]">{desc}</p>
+          <div className="mt-6 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#111412]">
             Enter{" "}
             <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
           </div>
