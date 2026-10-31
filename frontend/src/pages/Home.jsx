@@ -195,34 +195,24 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ============== CTA FINAL (tracing beam) ============== */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-24">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="tracing-beam p-12 lg:p-20 relative overflow-hidden"
-        >
-          <div className="absolute top-0 right-0 w-80 h-80 bg-[#F59E0B]/15 blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#C5832B]/10 blur-3xl pointer-events-none" />
-          <div className="relative">
-            <div className="chip mb-6">/// final word</div>
-            <h2 className="font-display text-4xl md:text-6xl lg:text-7xl tracking-tighter font-light uppercase max-w-4xl leading-[0.95]">
-              Find your next car
-              <br />
-              with{" "}
-              <span className="text-gradient-amber italic font-semibold">clarity.</span>
+      {/* ============== CLOSING EDITORIAL CTA ============== */}
+      <section className="autoai-atelier border-t border-[#d9dad5] bg-[#111412] py-20 text-white md:py-28" aria-labelledby="home-closing-title">
+        <div className="atelier-container grid gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-end">
+          <div>
+            <p className="mb-7 text-xs font-semibold uppercase tracking-[0.2em] text-[#b7bdb4]">05 / Your next move</p>
+            <h2 id="home-closing-title" className="font-display max-w-4xl text-5xl font-light leading-[1.04] tracking-tight sm:text-6xl lg:text-7xl">
+              Find the right car. <span className="italic text-[#cbd1c6]">On your terms.</span>
             </h2>
-            <Link
-              to="/compare"
-              data-testid="footer-cta-compare"
-              className="mt-10 btn-shine inline-flex bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black px-8 py-4 font-semibold text-xs uppercase tracking-[0.22em] items-center gap-3 hover:shadow-[0_0_40px_-5px_rgba(245,158,11,0.6)] transition-all"
-            >
-              Compare Vehicles <ArrowRight size={16} />
+          </div>
+          <div>
+            <p className="max-w-md text-base leading-8 text-[#cbd1c6]">
+              Compare specifications, weigh your priorities and explore the choices that fit your life in India.
+            </p>
+            <Link to="/compare" data-testid="footer-cta-compare" className="mt-8 inline-flex min-h-12 items-center justify-center gap-3 border border-white bg-white px-7 text-xs font-semibold uppercase tracking-[0.16em] text-[#111412] transition-colors hover:bg-[#e9eae5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+              Compare vehicles <ArrowRight size={17} aria-hidden="true" />
             </Link>
           </div>
-        </motion.div>
+        </div>
       </section>
     </div>
   );
