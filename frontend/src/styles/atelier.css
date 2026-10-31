@@ -107,3 +107,9 @@
 @media (prefers-reduced-motion: reduce) {
   .autoai-atelier .animate-pulse { animation: none !important; }
 }
+
+/* Explicit dark editorial finale; override the default atelier paper surface. */
+.autoai-atelier.autoai-atelier--dark {
+  background: #111412;
+  color: #fff;
+}
