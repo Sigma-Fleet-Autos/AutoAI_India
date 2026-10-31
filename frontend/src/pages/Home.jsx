@@ -163,43 +163,36 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ============== TRENDING CARS ============== */}
-      <section className="max-w-7xl mx-auto px-6 lg:px-10 py-28" data-testid="trending-section">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="flex items-end justify-between mb-12 flex-wrap gap-4"
-        >
-          <div>
-            <div className="chip mb-5">/// featured catalogue</div>
-            <h2 className="font-display text-4xl md:text-5xl tracking-tight font-light">
-              Explore <span className="text-[#F59E0B]">featured vehicles</span>
-            </h2>
+      {/* ============== FEATURED VEHICLES ============== */}
+      <section className="autoai-atelier border-t border-[#d9dad5] py-20 md:py-28" data-testid="trending-section" aria-labelledby="home-featured-title">
+        <div className="atelier-container">
+          <div className="mb-12 flex flex-wrap items-end justify-between gap-7">
+            <div>
+              <p className="atelier-eyebrow mb-5">04 / From the catalogue</p>
+              <h2 id="home-featured-title" className="atelier-heading text-4xl sm:text-5xl lg:text-6xl">
+                Featured <span className="italic font-normal">vehicles.</span>
+              </h2>
+              <p className="mt-4 max-w-lg text-sm leading-7 text-[#555a55]">
+                A selection from the current catalogue. Listings are not ranked by popularity or sales.
+              </p>
+            </div>
+            <Link to="/cars" className="inline-flex min-h-12 items-center gap-3 border border-[#111412] px-5 text-xs font-semibold uppercase tracking-[0.15em] text-[#111412] transition-colors hover:bg-[#e9eae5]">
+              Browse catalogue <ArrowRight size={16} aria-hidden="true" />
+            </Link>
           </div>
-          <Link
-            to="/cars"
-            className="group text-xs uppercase tracking-[0.2em] text-slate-400 hover:text-[#F59E0B] flex items-center gap-2 border border-white/10 hover:border-[#F59E0B]/40 px-4 py-2.5 transition-all"
-          >
-            See all cars{" "}
-            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </motion.div>
-
-        <motion.div
-          className="grid md:grid-cols-2 lg:grid-cols-3 gap-4"
-          variants={stagger}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: "-60px" }}
-        >
-          {cars.map((c, i) => (
-            <motion.div key={c.id} variants={fadeUp} custom={i}>
-              <CarCard car={c} />
-            </motion.div>
-          ))}
-        </motion.div>
+          {cars.length > 0 ? (
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {cars.map((car) => <CarCard key={car.id} car={car} />)}
+            </div>
+          ) : (
+            <div className="border border-[#d9dad5] bg-white px-6 py-12 text-center">
+              <p className="text-base text-[#555a55]">Featured vehicles are not available right now.</p>
+              <Link to="/cars" className="mt-5 inline-flex min-h-12 items-center gap-2 font-semibold text-[#111412] underline underline-offset-4">
+                Explore the catalogue <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* ============== CTA FINAL (tracing beam) ============== */}
