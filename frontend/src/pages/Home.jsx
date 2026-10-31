@@ -273,9 +273,9 @@ export default function Home() {
         >
           <Feature to="/compare" span="md:col-span-7" icon={<Scale size={22} />} kicker="01 · AI Comparison" title="Two cars enter. One walks out." desc="Compare available vehicle specifications and buying considerations side by side. Verify safety ratings, pricing and delivery information with official sources." />
           <Feature to="/recommend" span="md:col-span-5" icon={<Sparkles size={22} />} kicker="02 · AI Recommender" title="Your budget. Your need. Our verdict." desc="Explore recommendations based on your preferences, then review specifications and trade-offs before deciding." />
-          <Feature to="/emi" span="md:col-span-4" icon={<Calculator size={22} />} kicker="03 · EMI Studio" title="Loan math, demystified." desc="Interactive slider. Instant eligibility. Total interest exposed." />
-          <Feature to="/cars" span="md:col-span-4" icon={<Gauge size={22} />} kicker="04 · Zero-Wait DB" title="Live availability tracker." desc="Waiting weeks across top models, refreshed daily." />
-          <Feature to="/news" span="md:col-span-4" icon={<Newspaper size={22} />} kicker="05 · Daily Intel" title="Launches. Price drops. Hidden changes." desc="AI-curated feed. No press-release fluff." />
+          <Feature to="/emi" span="md:col-span-4" icon={<Calculator size={22} />} kicker="03 · EMI Studio" title="Understand the monthly cost." desc="Explore illustrative EMI and interest calculations. Loan approval and final terms depend on the lender." />
+          <Feature to="/cars" span="md:col-span-4" icon={<Gauge size={22} />} kicker="04 · Vehicle Catalogue" title="Discover available models." desc="Browse listed vehicles and specifications. Confirm stock, waiting periods and prices with dealers." />
+          <Feature to="/news" span="md:col-span-4" icon={<Newspaper size={22} />} kicker="05 · Automotive News" title="Stay informed." desc="Read automotive updates and check manufacturer announcements for current launch and pricing details." />
         </motion.div>
       </section>
 
@@ -293,17 +293,14 @@ export default function Home() {
           >
             <div className="chip mb-5">/// the unbiased pledge</div>
             <h2 className="font-display text-4xl md:text-5xl lg:text-6xl tracking-tight font-light leading-[1.02]">
-              No dealership
+              Look beyond
               <br />
-              handshake.
+              the headline.
               <br />
-              No ad money.
-              <br />
-              <span className="text-gradient-amber italic font-semibold">Just math and truth.</span>
+              <span className="text-gradient-amber italic font-semibold">Compare the details.</span>
             </h2>
             <p className="mt-7 text-slate-400 leading-relaxed max-w-md">
-              8 years on the dealership floor taught our founder one thing: Indian car buyers deserve
-              better than paid reviews. Auto-AI India is built to expose what brands hide.
+              Car buying decisions deserve clear specifications, transparent comparisons and realistic ownership considerations. Check critical details with manufacturers, lenders and dealers before committing.
             </p>
           </motion.div>
 
@@ -315,9 +312,9 @@ export default function Home() {
             viewport={{ once: true }}
           >
             {[
-              { t: "Data-first verdicts", d: "Safety stars, mileage, waiting, TCO — not brand love." },
-              { t: "Hidden con exposure", d: "The AI surfaces real cons buyers discover 6 months later." },
-              { t: "Zero paid placement", d: "Rankings cannot be bought. Ever." },
+              { t: "Specification-led discovery", d: "Review listed safety, efficiency and ownership information alongside official sources." },
+              { t: "Understand trade-offs", d: "Consider practical compromises between features, budget and running costs." },
+              { t: "Verify before purchase", d: "Confirm offers, finance terms and vehicle availability with the relevant provider." },
             ].map((x, i) => (
               <motion.div
                 key={i}
