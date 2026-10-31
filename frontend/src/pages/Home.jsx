@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Scale, Sparkles, Calculator, Newspaper, Gauge, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { api, API } from "../lib/api";
+import { motion } from "framer-motion";
+import { api } from "../lib/api";
 import CarCard from "../components/CarCard";
 import { useI18n } from "../lib/i18n";
 
@@ -17,10 +17,6 @@ const tickerItems = [
 
 const HERO_CAR =
   "https://images.unsplash.com/photo-1763165561886-a9391b2132c1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2MzR8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBjYXIlMjBzaG93cm9vbSUyMGRhcmt8ZW58MHx8fHwxNzc2Njg1NzQzfDA&ixlib=rb-4.1.0&q=85";
-
-// Indian highway / NH-48 style driving reel (Pexels — proxied through backend to avoid hotlink 403)
-const HERO_VIDEO_URL =
-  "https://videos.pexels.com/video-files/2034115/2034115-hd_1920_1080_30fps.mp4";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -38,10 +34,6 @@ const stagger = {
 export default function Home() {
   const [cars, setCars] = useState([]);
   const { t } = useI18n();
-  const prefersReducedMotion = useReducedMotion();
-  const { scrollY } = useScroll();
-  const heroY = useTransform(scrollY, [0, 600], [0, 100]);
-  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0.4]);
 
   useEffect(() => {
     let active = true;
@@ -76,174 +68,44 @@ export default function Home() {
           </div>
         </div>
       </section>
-      {/* ============== HERO ============== */}
-      <section className="relative min-h-[100vh] overflow-hidden hero-grid" data-testid="hero-section">
-        {/* VIDEO BACKGROUND — Indian highway driving reel */}
-        <motion.div
-          style={prefersReducedMotion ? undefined : { y: heroY, opacity: heroOpacity }}
-          className="absolute inset-0 z-[0]"
-        >
-          {!prefersReducedMotion && (
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="metadata"
-              poster={HERO_CAR}
-              data-testid="hero-video"
-              className="absolute inset-0 w-full h-full object-cover opacity-55"
-            >
-              <source src={`${API}/video-proxy?url=${encodeURIComponent(HERO_VIDEO_URL)}`} type="video/mp4" />
-            </video>
-          )}
-          {prefersReducedMotion && (
-            <div
-              className="absolute inset-0 bg-cover bg-center opacity-55"
-              style={{ backgroundImage: `url(${HERO_CAR})` }}
-              role="img"
-              aria-label="Automotive showroom photograph"
-            />
-          )}
-          {/* darkening + warm tint overlays */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/55 to-[#050505]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/70 to-transparent" />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(1200px 600px at 78% 30%, rgba(245,158,11,0.28), transparent 55%), radial-gradient(800px 500px at 15% 75%, rgba(197,131,43,0.14), transparent 60%)",
-            }}
-          />
-        </motion.div>
-
-        {/* grain */}
-        <div className="absolute inset-0 grain pointer-events-none z-[1]" />
-
-        {/* scanning line */}
-        <div className="pointer-events-none absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#F59E0B]/40 to-transparent scan-line z-[2]" />
-
-        {/* hero car image — right side, large (overlays on video) */}
-        <motion.div
-          initial={prefersReducedMotion ? false : { opacity: 0, scale: 1.08, x: 40 }}
-          animate={prefersReducedMotion ? { opacity: 0.65 } : { opacity: 0.65, scale: 1, x: 0 }}
-          transition={prefersReducedMotion ? { duration: 0 } : { duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute right-[-6%] top-[10%] w-[72%] md:w-[62%] lg:w-[58%] aspect-[16/10] z-[2] pointer-events-none"
-        >
-          <div
-            className="w-full h-full bg-cover bg-center mix-blend-screen"
-            style={{
-              backgroundImage: `url(${HERO_CAR})`,
-              maskImage:
-                "radial-gradient(circle at 60% 55%, #000 35%, transparent 72%)",
-              WebkitMaskImage:
-                "radial-gradient(circle at 60% 55%, #000 35%, transparent 72%)",
-            }}
-          />
-        </motion.div>
-
-        {/* content */}
-        <div className="relative z-[3] max-w-7xl mx-auto px-6 lg:px-10 pt-24 lg:pt-36 pb-24 grid lg:grid-cols-12 gap-10">
-          <motion.div
-            className="lg:col-span-8"
-            variants={stagger}
-            initial={prefersReducedMotion ? false : "hidden"}
-            animate="show"
-          >
-            <motion.div variants={fadeUp} custom={0} className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-px bg-[#F59E0B]" />
-              <span className="chip">
-                <span className="w-1.5 h-1.5 bg-[#F59E0B] rounded-full motion-safe:animate-pulse" />
-                Independent car discovery for India
-              </span>
-            </motion.div>
-
-            <motion.h1
-              variants={fadeUp}
-              custom={1}
-              className="font-display text-5xl md:text-7xl lg:text-[7.2rem] font-light tracking-tighter leading-[0.92] uppercase"
-            >
-              Find <span className="text-gradient-amber font-semibold italic">your next car</span>
-              <br />
-              with clarity
-              <br />
-              in <span className="relative inline-block">
-                India
-                <motion.span
-                  initial={prefersReducedMotion ? false : { scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={prefersReducedMotion ? { duration: 0 } : { delay: 1.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute left-0 right-0 -bottom-2 h-[3px] bg-[#F59E0B] origin-left"
-                />
-              </span>.
-            </motion.h1>
-
-            <motion.p
-              variants={fadeUp}
-              custom={2}
-              className="mt-10 text-slate-300 text-base md:text-lg max-w-xl leading-relaxed"
-            >
-              Explore vehicle specifications, comparisons and buying tools to make a more informed decision.
-              Confirm current prices, availability and delivery timelines with your dealer.
-            </motion.p>
-
-            <motion.div variants={fadeUp} custom={3} className="mt-10 flex flex-col sm:flex-row gap-3">
-              <Link
-                to="/compare"
-                data-testid="hero-cta-compare"
-                className="group btn-shine bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black px-7 py-4 font-semibold text-xs uppercase tracking-[0.22em] flex items-center gap-3 hover:shadow-[0_0_40px_-5px_rgba(245,158,11,0.6)] transition-all"
-              >
-                Start AI Comparison{" "}
-                <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                to="/recommend"
-                data-testid="hero-cta-recommend"
-                className="group glass border border-white/15 px-7 py-4 font-semibold text-xs uppercase tracking-[0.22em] flex items-center gap-3 hover:border-[#F59E0B]/60 hover:text-[#F59E0B] transition-all"
-              >
-                <Sparkles size={14} /> Find My Perfect Car
-              </Link>
-            </motion.div>
-
-            <motion.div variants={fadeUp} custom={4} className="mt-14 grid grid-cols-3 gap-6 max-w-lg">
-              <Metric k={cars.length ? String(cars.length) : "—"} v="Featured vehicles" />
-              <Metric k="Compare" v="Vehicle specifications" />
-              <Metric k="Explore" v="Indian car choices" />
-            </motion.div>
-          </motion.div>
-
-          {/* Editorial navigation: no fabricated live inventory or waiting-time claims. */}
-          <aside className="lg:col-span-4 self-center border border-white/20 bg-black/60 p-6 backdrop-blur-md" aria-label="Explore AutoAI tools">
-            <p className="text-[10px] uppercase tracking-[0.25em] text-white/60">Your buying journey</p>
-            <h2 className="mt-4 font-display text-2xl font-light text-white">Explore with clarity.</h2>
-            <p className="mt-3 text-sm leading-6 text-white/70">
-              Compare specifications, browse the vehicle catalogue and estimate your budget.
-              Dealer waiting times and availability must be confirmed directly.
+      {/* ============== EDITORIAL HERO ============== */}
+      <section className="autoai-atelier relative overflow-hidden border-t border-[#d9dad5]" data-testid="hero-section" aria-labelledby="home-hero-title">
+        <div className="atelier-container grid gap-10 py-14 md:py-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-center lg:gap-16">
+          <div className="relative z-10">
+            <p className="atelier-eyebrow mb-6">India's automotive discovery platform · 01 / Discover</p>
+            <h1 id="home-hero-title" className="atelier-heading max-w-3xl text-5xl sm:text-6xl lg:text-[5.5rem] leading-[1.02]">
+              Your next car. <span className="italic font-normal">A clearer decision.</span>
+            </h1>
+            <p className="mt-7 max-w-lg text-base leading-8 text-[#555a55]">
+              Discover cars sold in India, compare available specifications and plan your budget.
+              Confirm current prices, delivery times and availability with your dealer.
             </p>
-            <div className="mt-6 divide-y divide-white/15 border-y border-white/15">
-              <Link to="/cars" className="flex min-h-12 items-center justify-between text-sm text-white hover:text-amber-200">
-                Browse vehicles <ArrowRight size={16} aria-hidden="true" />
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link to="/compare" data-testid="hero-cta-compare" className="atelier-action">
+                Compare vehicles <ArrowRight size={17} className="ml-3" aria-hidden="true" />
               </Link>
-              <Link to="/compare" className="flex min-h-12 items-center justify-between text-sm text-white hover:text-amber-200">
-                Compare models <ArrowRight size={16} aria-hidden="true" />
-              </Link>
-              <Link to="/emi" className="flex min-h-12 items-center justify-between text-sm text-white hover:text-amber-200">
-                Estimate EMI <ArrowRight size={16} aria-hidden="true" />
+              <Link to="/recommend" data-testid="hero-cta-recommend" className="inline-flex min-h-12 items-center justify-center border border-[#111412] px-6 text-xs font-semibold uppercase tracking-[0.16em] text-[#111412] transition-colors hover:bg-[#e9eae5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#111412]">
+                Explore recommendations
               </Link>
             </div>
-          </aside>
-        </div>
-
-        {/* ticker */}
-        <div className="absolute bottom-0 left-0 right-0 border-t border-white/10 py-3 overflow-hidden bg-black/70 backdrop-blur-sm ticker-mask z-[3]">
-          <div className="flex motion-safe:marquee gap-12 whitespace-nowrap">
-            {[...tickerItems, ...tickerItems].map((txt, i) => (
-              <span key={i} className="font-mono text-xs text-slate-400 uppercase tracking-widest">
-                <span className="text-[#F59E0B] mr-3">◆</span>
-                {txt}
-              </span>
-            ))}
+            <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 border-t border-[#d9dad5] pt-5 text-xs uppercase tracking-[0.12em] text-[#555a55]">
+              <span>Vehicle catalogue</span><span>Specifications</span><span>Ownership tools</span>
+            </div>
           </div>
+          <div className="relative min-h-[340px] overflow-hidden bg-[#d7d8d2] sm:min-h-[480px] lg:min-h-[600px]">
+            <img src={HERO_CAR} alt="Automobile photographed in a showroom" className="absolute inset-0 h-full w-full object-cover" loading="eager" fetchPriority="high" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent p-7 pt-24 text-white">
+              <p className="text-xs uppercase tracking-[0.22em]">AutoAI India / The automotive edit</p>
+              <p className="mt-2 max-w-xs font-display text-2xl font-light">Explore the details before the drive.</p>
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-[#d9dad5]">
+          <nav className="atelier-container grid gap-0 sm:grid-cols-3" aria-label="Explore AutoAI tools">
+            <Link to="/cars" className="flex min-h-16 items-center justify-between border-b border-[#d9dad5] py-4 text-sm font-medium text-[#111412] hover:underline sm:border-b-0 sm:border-r sm:pr-6">Browse vehicles <ArrowRight size={16} aria-hidden="true" /></Link>
+            <Link to="/compare" className="flex min-h-16 items-center justify-between border-b border-[#d9dad5] py-4 text-sm font-medium text-[#111412] hover:underline sm:border-b-0 sm:border-r sm:px-6">Compare models <ArrowRight size={16} aria-hidden="true" /></Link>
+            <Link to="/emi" className="flex min-h-16 items-center justify-between py-4 text-sm font-medium text-[#111412] hover:underline sm:pl-6">Estimate EMI <ArrowRight size={16} aria-hidden="true" /></Link>
+          </nav>
         </div>
       </section>
 
