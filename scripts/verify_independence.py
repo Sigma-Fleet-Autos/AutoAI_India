@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 RETIRED_MARKER = b"emer" + b"gent"
-FORBIDDEN = re.compile(re.escape(RETIRED_MARKER) + rb"(?:[._/-]|\\b)", re.IGNORECASE)
+FORBIDDEN = re.compile(re.escape(RETIRED_MARKER) + rb"(?:[._/-]|\b)", re.IGNORECASE)
 TEXT_EXTENSIONS = frozenset({
     ".py", ".js", ".jsx", ".ts", ".tsx", ".json", ".yaml", ".yml",
     ".toml", ".ini", ".cfg", ".env", ".sh", ".html", ".css", ".xml",
