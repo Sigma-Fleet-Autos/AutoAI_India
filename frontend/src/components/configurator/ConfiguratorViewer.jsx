@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Bounds, ContactShadows, Environment } from '@react-three/drei';
-import { Maximize2, Minimize2, Share2, Camera, Info, RotateCw, Play, Pause, ChevronUp, ChevronDown } from 'lucide-react';
+import { Maximize2, Minimize2, Share2, Camera, Info, RotateCw, Play, Pause, ChevronUp, ChevronDown, CarFront, Armchair, ScanEye } from 'lucide-react';
 
 import VehicleModel from '../../three/VehicleModel';
 import { AssetSuspense, AssetUnavailable } from '../../three/AssetLoader';
@@ -42,6 +42,29 @@ function ConfiguratorScene({ asset, purchasable, interaction, paintColorHex, sce
     {renderProfile.contactShadows && <ContactShadows position={[0, -1, 0]} opacity={0.5} scale={14} blur={2.5} far={5} />}
     <ConfiguratorControls autoRotate={interaction.autoRotate} onInteract={onManualInteraction} controlsRef={controlsRef} />
   </>;
+}
+
+const CAMERA_VIEWS = [
+  { preset: 'exterior', label: 'Exterior', icon: CarFront },
+  { preset: 'front', label: 'Front', icon: CarFront },
+  { preset: 'rear', label: 'Rear', icon: CarFront },
+  { preset: 'interior', label: 'Interior', icon: Armchair },
+  { preset: 'cockpit', label: 'Cockpit', icon: Armchair },
+  { preset: 'wheel', label: 'Wheels', icon: ScanEye },
+];
+
+function CameraViewTiles({ available, current, onSelect }) {
+  const views = CAMERA_VIEWS.filter(({ preset }) => available.includes(preset));
+  if (!views.length) return null;
+  return <nav className="absolute left-3 top-16 z-10 flex max-w-[calc(100%-24px)] gap-2 overflow-x-auto rounded-xl border border-white/10 bg-black/60 p-2 backdrop-blur-xl md:left-5 md:top-auto md:bottom-5" aria-label="Vehicle camera viewpoints">
+    {views.map(({ preset, label, icon: Icon }) => (
+      <button key={preset} type="button" aria-label={`View vehicle ${label.toLowerCase()}`} aria-pressed={current === preset} onClick={() => onSelect(preset)}
+        className={`group flex min-w-[64px] flex-col items-center gap-1.5 rounded-lg border px-2 py-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-400 ${current === preset ? 'border-amber-400 bg-amber-400/15 text-amber-200' : 'border-white/10 bg-white/5 text-white/70 hover:border-white/40'}`}>
+        <span className="flex h-10 w-12 items-center justify-center rounded-md bg-gradient-to-br from-white/15 to-transparent" aria-hidden="true"><Icon size={25} strokeWidth={1.2}/></span>
+        <span className="text-[9px] font-semibold uppercase tracking-wider">{label}</span>
+      </button>
+    ))}
+  </nav>;
 }
 
 function optionLabel(options, id) {
@@ -216,10 +239,11 @@ export default function ConfiguratorViewer({ style, options, variant }) {
     setCameraPreset(preset);
   };
 
-  return <div ref={canvasRef} style={style} className={`configurator-viewer${cinematic ? ' cinematic' : ''}`}>
+  return <div ref={canvasRef} style={style} className={`configurator-viewer relative h-[390px] w-full overflow-hidden rounded-2xl sm:h-[480px] lg:h-[min(77vh,750px)]${cinematic ? ' cinematic' : ''}`}>
     <Canvas dpr={renderProfile.dpr} gl={{ preserveDrawingBuffer: true, powerPreference: 'high-performance' }} camera={{ position: [5, 2.5, 5], fov: 35 }}>
       <ConfiguratorScene asset={asset} purchasable={purchasable} interaction={interaction} paintColorHex={paintColorHex} sceneRef={sceneRef} onManualInteraction={takeManualControl} renderProfile={renderProfile} />
     </Canvas>
+    <CameraViewTiles available={asset.available ? asset.cameraPresetNames : []} current={interaction.cameraPreset} onSelect={(preset) => { takeManualControl(); setCameraPreset(preset); }} />
     <div className="configurator-viewer-controls">
       <button type="button" onClick={toggleShowroom} disabled={!cinematicSequence.length} aria-label={!showroom.active || showroom.paused ? 'Play cinematic showroom' : 'Pause cinematic showroom'}>{showroom.active && !showroom.paused ? <Pause /> : <Play />}</button>
       <button type="button" onClick={toggleCinematic} aria-label={cinematic ? 'Exit cinematic mode' : 'Enter cinematic mode'}>{cinematic ? <Minimize2 /> : <Maximize2 />}</button>
