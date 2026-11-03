@@ -4,11 +4,12 @@ import { ArrowRight, ArrowUpRight, BrainCircuit, Calculator, GitCompareArrows, S
 import { api, formatINR } from "../lib/api";
 import CarVisual from "../components/CarVisual";
 import "../styles/home-cinematic.css";
+import "../styles/home-editorial-v2.css";
 
-const HERO_IMAGE = "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=2200&q=85";
+const HERO_IMAGE = "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=2400&q=88";
 const CATEGORY_IMAGES = [
   { label: "SUV", image: "https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=850&q=80" },
-  { label: "Sedan", image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=850&q=80" },
+  { label: "Sedan", image: "https://images.unsplash.com/photo-1485291571150-772bcfc10da5?auto=format&fit=crop&w=850&q=80" },
   { label: "Hatchback", image: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=850&q=80" },
 ];
 
@@ -39,12 +40,12 @@ export default function Home() {
   return <div className="cin-home" id="home-content">
     <CinematicHeader />
     <section className="cin-hero" aria-labelledby="cin-hero-title" data-testid="hero-section">
-      <div className="cin-hero-image" style={{ backgroundImage: `url("${HERO_IMAGE}")` }} role="img" aria-label="Luxury production sedan in cinematic lighting" />
+      <div className="cin-hero-image" style={{ backgroundImage: `url("${HERO_IMAGE}")` }} role="img" aria-label="Luxury sports car on an open road" />
       <div className="cin-hero-shade" />
       <div className="cin-hero-content cin-container">
-        <span className="cin-eyebrow">A NEW STANDARD IN CAR BUYING</span>
-        <h1 id="cin-hero-title">The True Verdict<br />for <strong>Every Car</strong><br />in India.</h1>
-        <p>Independent insights. Intelligent comparisons. Confident decisions.<br/>Discover the right car for the roads ahead.</p>
+        <span className="cin-eyebrow">AUTOAI INDIA / A NEW PERSPECTIVE</span>
+        <h1 id="cin-hero-title">Beyond the<br /><strong>ordinary drive.</strong></h1>
+        <p>Discover extraordinary cars. Compare with clarity.<br/>Find the drive that feels like yours.</p>
         <div className="cin-actions">
           <Link className="cin-btn cin-btn-light" to="/cars" data-testid="hero-cta-cars">Explore cars <ArrowRight size={18}/></Link>
           <Link className="cin-btn cin-btn-outline" to="/recommend" data-testid="hero-cta-recommend">Ask AutoAI <ArrowUpRight size={18}/></Link>
@@ -61,7 +62,7 @@ export default function Home() {
     </div></section>
 
     <section className="cin-section cin-container" data-testid="features-section">
-      <SectionHeading eyebrow="01 / EXPLORE THE MARKET" title="Find your perfect car." description="Explore body styles and discover the choices that fit your priorities." />
+      <SectionHeading eyebrow="01 / EXPLORE THE MARKET" title="Find your kind of drive." description="Explore body styles and discover the choices that fit your priorities." />
       <div className="cin-category-grid">{CATEGORY_IMAGES.map(({ label, image }) => <Link className="cin-category" key={label} to="/cars" aria-label={`Explore ${label} cars in the catalogue`}>
         <span className="cin-category-photo"><img src={image} alt={`${label} vehicle photograph`} loading="lazy" /></span>
         <span className="cin-category-caption"><span>{label}</span><ArrowUpRight size={22} aria-hidden="true" /></span>
