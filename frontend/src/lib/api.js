@@ -16,6 +16,17 @@ export const api = axios.create({
   timeout: 60000,
 });
 
+export const PREVIEW_READ_ONLY = process.env.REACT_APP_PREVIEW_READ_ONLY === "true";
+
+function enforcePreviewReadOnly(config) {
+  if (PREVIEW_READ_ONLY && !["get", "head", "options"].includes((config.method || "get").toLowerCase())) {
+    return Promise.reject(new Error("This private preview is read-only until its staging backend is verified."));
+  }
+  return config;
+}
+
+api.interceptors.request.use(enforcePreviewReadOnly);
+
 export const USER_TOKEN_KEY = "autoai_token";
 export const ADMIN_TOKEN_KEY = "autoai_admin_token";
 
@@ -39,6 +50,7 @@ export const adminApi = axios.create({
 });
 
 // Dealer dashboards read lead data that is admin-gated on the server.
+adminApi.interceptors.request.use(enforcePreviewReadOnly);
 adminApi.interceptors.request.use((config) => {
   const token = localStorage.getItem(ADMIN_TOKEN_KEY);
   if (token) {
