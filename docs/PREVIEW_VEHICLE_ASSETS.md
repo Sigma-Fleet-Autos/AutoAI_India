@@ -9,7 +9,7 @@ The following three body-style photographs and hero are original third-party pho
 | Hero: black luxury grand tourer, side profile | Oli Woodman | https://unsplash.com/photos/a-black-car-parked-in-front-of-a-white-building-2e07u8GXe3I |
 | SUV: silver Genesis GV80, side profile | Hyundai Motor Group | https://unsplash.com/photos/a-light-gray-suv-parked-by-the-ocean-LF4FiHABjE4 |
 | Sedan: black Mercedes, studio side profile | Samuele Errico Piccarini | https://unsplash.com/photos/black-sedan-FMbWFDiVRPs |
-| Hatchback: white Fiat 500, side profile | Oli Woodman | https://unsplash.com/photos/white-5-door-hatchback-parked-beside-brown-concrete-building-during-daytime-fTDYvXNjAKU |
+| Hatchback: blue Fiat 500, clean side profile | Oli Woodman | https://unsplash.com/photos/teal-3-door-hatchback-on-road-fwYZ3B_QQco |
 
 License scope: image copyright only. The Unsplash License does **not** grant trademark rights in brands/logos or third-party publicity/property rights. This is editorial category illustration, not manufacturer sponsorship, endorsement, or official model marketing. Confirm the final crops show no readable registration plates; obscure them or replace the asset before release. Visual plate clearance is **pending**.
 
