@@ -24,7 +24,7 @@ const HERO_CAR = "https://images.unsplash.com/photo-1730302551882-99cb98b4adc4?a
 const BODY_STYLES = [
   { label: 'SUV', image: 'https://images.unsplash.com/photo-1768363341895-74756d1fc99d?auto=format&fit=crop&w=1200&q=82', alt: 'Silver luxury SUV in profile by the coast' },
   { label: 'Sedan', image: 'https://images.unsplash.com/photo-1485291571150-772bcfc10da5?auto=format&fit=crop&w=1200&q=82', alt: 'Black luxury sedan photographed in profile against a dark studio backdrop' },
-  { label: 'Hatchback', image: 'https://images.unsplash.com/photo-1604410869154-3c16714cd476?auto=format&fit=crop&w=1200&q=82', alt: 'White compact hatchback parked on a city street' },
+  { label: 'Hatchback', image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=82', alt: 'Blue compact hatchback photographed from the side' },
 ];
 
 const fadeUp = {
