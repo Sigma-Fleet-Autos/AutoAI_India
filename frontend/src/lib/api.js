@@ -16,7 +16,7 @@ export const api = axios.create({
   timeout: 60000,
 });
 
-export const PREVIEW_READ_ONLY = process.env.REACT_APP_PREVIEW_READ_ONLY === "true";
+export const PREVIEW_READ_ONLY = process.env.REACT_APP_PREVIEW_READ_ONLY === "true" || BACKEND_URL === "https://auto-ai-staging-backend.onrender.com";
 
 function enforcePreviewReadOnly(config) {
   if (PREVIEW_READ_ONLY && !["get", "head", "options"].includes((config.method || "get").toLowerCase())) {
