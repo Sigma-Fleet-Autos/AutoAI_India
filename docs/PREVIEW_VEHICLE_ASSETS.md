@@ -2,18 +2,22 @@
 
 ## Homepage photography
 
-The following three body-style photographs and hero are original third-party photographs published on Unsplash under the [Unsplash License](https://unsplash.com/license). Attribution is recorded although not mandatory under the photo copyright license.
+The restored private-preview homepage uses the earlier reviewed cinematic layout with the following
+Unsplash image IDs. Photograph copyright reuse is governed by the
+[Unsplash License](https://unsplash.com/license), which permits broad reuse but does **not** clear
+visible vehicle trademarks, people or third-party property rights.
 
-| Use | Photographer / publisher | Source |
-| --- | --- | --- |
-| Hero: black luxury grand tourer, side profile | Oli Woodman | https://unsplash.com/photos/a-black-car-parked-in-front-of-a-white-building-2e07u8GXe3I |
-| SUV: silver Genesis GV80, side profile | Hyundai Motor Group | https://unsplash.com/photos/a-light-gray-suv-parked-by-the-ocean-LF4FiHABjE4 |
-| Sedan: black Mercedes, studio side profile | Samuele Errico Piccarini | https://unsplash.com/photos/black-sedan-FMbWFDiVRPs |
-| Hatchback: blue Fiat 500, clean side profile | Oli Woodman | https://unsplash.com/photos/teal-3-door-hatchback-on-road-fwYZ3B_QQco |
+| Placement | Unsplash photo ID |
+| --- | --- |
+| Hero and editorial production luxury sedan | `photo-1555215695-3004980ad54e` |
+| SUV category | `photo-1519641471654-76ce0107ad1b` |
+| Sedan category | `photo-1555215695-3004980ad54e` |
+| Hatchback category | `photo-1549317661-bd32c8ce0db2` |
 
-License scope: image copyright only. The Unsplash License does **not** grant trademark rights in brands/logos or third-party publicity/property rights. This is editorial category illustration, not manufacturer sponsorship, endorsement, or official model marketing. Confirm the final crops show no readable registration plates; obscure them or replace the asset before release. Visual plate clearance is **pending**.
-
-The visual styling was independently authored; the external automotive benchmark was used only for creative direction. No borrowed brand photography, markup, shaders, or code is included.
+Source delivery: `https://images.unsplash.com/{photo-id}`. Do not invent photographer names
+or imply rights to automaker logos. Plate visibility, crop, and brand/trademark use require a
+final manual inspection before any public release. No imagery or source code from the design
+benchmark is included.
 
 ## Production vehicle 3D assets
 
