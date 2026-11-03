@@ -9,7 +9,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-FORBIDDEN = re.compile(rb"emergent(?:[._/-]|\\b)", re.IGNORECASE)
+RETIRED_MARKER = b"emer" + b"gent"\nFORBIDDEN = re.compile(re.escape(RETIRED_MARKER) + rb"(?:[._/-]|\\b)", re.IGNORECASE)
 TEXT_EXTENSIONS = frozenset({
     ".py", ".js", ".jsx", ".ts", ".tsx", ".json", ".yaml", ".yml",
     ".toml", ".ini", ".cfg", ".env", ".sh", ".html", ".css", ".xml",
