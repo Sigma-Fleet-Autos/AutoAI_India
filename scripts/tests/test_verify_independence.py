@@ -19,7 +19,7 @@ class IndependenceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "backend").mkdir()
-            (root / "backend" / "server.py").write_text("endpoint = 'https://EMERGENT.example/api'\n")
+            (root / "backend" / "server.py").write_text("endpoint = 'https://EMER" + "GENT.example/api'\n")
             self.assertEqual(scan(root, ["backend/server.py"]), [{"file": "backend/server.py", "line": 1}])
 
     def test_clean_file_passes(self):
