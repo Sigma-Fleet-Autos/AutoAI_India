@@ -1,6 +1,11 @@
 name: Read-only deployment smoke
 
 on:
+  pull_request:
+    paths:
+      - 'scripts/verify_live_stack.py'
+      - 'scripts/tests/test_verify_live_stack.py'
+      - '.github/workflows/read-only-deployment-smoke.yml'
   workflow_dispatch:
     inputs:
       frontend_origin:
@@ -29,6 +34,7 @@ jobs:
       - name: Unit tests
         run: python -m unittest discover -s scripts/tests -p 'test_*.py' -v
       - name: Read-only live checks
+        if: github.event_name == 'workflow_dispatch'
         env:
           FRONTEND_ORIGIN: ${{ inputs.frontend_origin }}
           BACKEND_ORIGIN: ${{ inputs.backend_origin }}
