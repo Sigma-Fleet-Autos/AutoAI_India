@@ -28,7 +28,7 @@ function normalizeWheelMappings(wheelMeshNames) {
   return Object.fromEntries(Object.entries(wheelMeshNames || {}).map(([optionId, meshName]) => [optionId, [meshName]]));
 }
 
-function LoadedVehicle({ asset, runtime, purchasable, interaction }) {
+function LoadedVehicle({ asset, runtime, purchasable, interaction, paintColorHex }) {
   const { scene, animations } = useGLTF(asset.url);
   const groupRef = useRef();
   const previousInteractionRef = useRef(null);
@@ -59,7 +59,7 @@ function LoadedVehicle({ asset, runtime, purchasable, interaction }) {
   const loadedRuntimeValid = useMemo(() => canRenderLoadedRuntime(runtime, clonedScene, animations), [runtime, clonedScene, animations]);
   const { play, verifiedAnimationMappings } = useVehicleAnimations(animations, groupRef, runtime.interactionAnimationNames);
 
-  useEffect(() => applyPaintColor(runtimeMaterialIndex, asset.paintColorHex, runtime.paintMaterialNames), [asset.paintColorHex, runtime.paintMaterialNames, runtimeMaterialIndex]);
+  useEffect(() => applyPaintColor(runtimeMaterialIndex, paintColorHex, runtime.paintMaterialNames), [paintColorHex, runtime.paintMaterialNames, runtimeMaterialIndex]);
   useEffect(() => {
     applyRuntimeMeshVisibility(runtimeNodeIndex, [visualConfiguration.wheelId], normalizeWheelMappings(runtime.wheelMeshNames));
     applyRuntimeMeshVisibility(
@@ -108,11 +108,11 @@ function LoadedVehicle({ asset, runtime, purchasable, interaction }) {
   return <primitive ref={groupRef} object={clonedScene} />;
 }
 
-export default function VehicleModel({ asset, purchasable, interaction }) {
+export default function VehicleModel({ asset, purchasable, interaction, paintColorHex }) {
   const runtimeAsset = useMemo(() => resolveRuntimeAsset(asset), [asset]);
   if (!runtimeAsset) {
     console.error('[VehicleModel] Rejected unavailable or invalid verified runtime asset.');
     return null;
   }
-  return <LoadedVehicle asset={runtimeAsset} runtime={runtimeAsset} purchasable={purchasable} interaction={interaction} />;
+  return <LoadedVehicle asset={runtimeAsset} runtime={runtimeAsset} purchasable={purchasable} interaction={interaction} paintColorHex={paintColorHex} />;
 }
