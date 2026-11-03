@@ -1,0 +1,36 @@
+name: Read-only deployment smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      frontend_origin:
+        description: HTTPS frontend origin
+        required: true
+        default: https://autoaiindia.com
+        type: string
+      backend_origin:
+        description: HTTPS backend origin
+        required: true
+        default: https://auto-ai-api.onrender.com
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Unit tests
+        run: python -m unittest discover -s scripts/tests -p 'test_*.py' -v
+      - name: Read-only live checks
+        env:
+          FRONTEND_ORIGIN: ${{ inputs.frontend_origin }}
+          BACKEND_ORIGIN: ${{ inputs.backend_origin }}
+        run: |
+          python -m scripts.verify_live_stack --frontend "$FRONTEND_ORIGIN" --backend "$BACKEND_ORIGIN"
