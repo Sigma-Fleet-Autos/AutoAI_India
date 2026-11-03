@@ -1,68 +1,51 @@
 import { useEffect, useMemo, useState } from "react";
-import { api } from "../lib/api";
-import CarCard from "../components/CarCard";
-import { Search } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { ArrowRight, ArrowUpRight, Search } from "lucide-react";
+import { api, formatINR } from "../lib/api";
+import CarVisual from "../components/CarVisual";
+import { CinematicHeader } from "./Home";
+import "../styles/home-cinematic.css";
+
+const BODY_STYLES = ["All", "SUV", "Hatchback", "Sedan", "MPV", "Pickup", "Coupe", "Convertible", "Other"];
+function bodyStyle(segment) {
+ const value = String(segment || "").toLowerCase();
+ if (/suv|crossover/.test(value)) return "SUV";
+ if (/hatch/.test(value)) return "Hatchback";
+ if (/sedan|saloon/.test(value)) return "Sedan";
+ if (/mpv|muv|people mover|van/.test(value)) return "MPV";
+ if (/pickup|pick-up|truck/.test(value)) return "Pickup";
+ if (/coupe|coupé/.test(value)) return "Coupe";
+ if (/convertible|cabriolet|roadster/.test(value)) return "Convertible";
+ return "Other";
+}
 
 export default function Cars() {
-  const [cars, setCars] = useState([]);
-  const [q, setQ] = useState("");
-  const [segment, setSegment] = useState("All");
-  const [fuel, setFuel] = useState("All");
-
-  useEffect(() => {
-    api.get("/cars").then((r) => setCars(r.data));
-  }, []);
-
-  const segments = useMemo(() => ["All", ...new Set(cars.map((c) => c.segment))], [cars]);
-  const fuels = useMemo(() => ["All", ...new Set(cars.map((c) => c.fuel))], [cars]);
-
-  const filtered = cars.filter((c) => {
-    if (segment !== "All" && c.segment !== segment) return false;
-    if (fuel !== "All" && c.fuel !== fuel) return false;
-    if (q && !`${c.brand} ${c.model}`.toLowerCase().includes(q.toLowerCase())) return false;
-    return true;
-  });
-
-  return (
-    <div className="bg-[#050505] min-h-screen" data-testid="cars-page">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-px bg-[#F59E0B]" />
-          <span className="text-[10px] uppercase tracking-[0.35em] text-[#F59E0B] font-bold font-mono">
-            /// car intelligence database
-          </span>
-        </div>
-        <h1 className="font-display text-5xl lg:text-6xl tracking-tighter font-light uppercase">
-          Every car. <span className="text-[#F59E0B]">Zero fluff.</span>
-        </h1>
-
-        <div className="mt-10 grid md:grid-cols-12 gap-3">
-          <div className="md:col-span-6 relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search brand or model…"
-              data-testid="cars-search-input"
-              className="w-full ai-input pl-10 pr-3 py-3 text-sm"
-            />
-          </div>
-          <select value={segment} onChange={(e) => setSegment(e.target.value)} data-testid="cars-segment-filter" className="md:col-span-3 ai-input px-3 py-3 text-sm">
-            {segments.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <select value={fuel} onChange={(e) => setFuel(e.target.value)} data-testid="cars-fuel-filter" className="md:col-span-3 ai-input px-3 py-3 text-sm">
-            {fuels.map((f) => <option key={f} value={f}>{f}</option>)}
-          </select>
-        </div>
-
-        <div className="mt-4 text-xs uppercase tracking-[0.2em] text-slate-500 font-mono">
-          <span className="text-[#F59E0B]">{filtered.length}</span> cars · live
-        </div>
-
-        <div className="mt-8 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((c) => <CarCard key={c.id} car={c} />)}
-        </div>
-      </div>
-    </div>
-  );
+ const [cars,setCars]=useState([]);
+ const [status,setStatus]=useState("loading");
+ const [retry,setRetry]=useState(0);
+ const [params]=useSearchParams();
+ const [q,setQ]=useState("");
+ const [segment,setSegment]=useState(()=>{const requested=params.get("segment")||"All";return BODY_STYLES.includes(requested)?requested:bodyStyle(requested);});
+ const [fuel,setFuel]=useState("All");
+ useEffect(()=>{let active=true;api.get("/cars",{timeout:15000}).then(({data})=>{if(!active)return;if(!Array.isArray(data)){setStatus("error");return;}setCars(data);setStatus("ready");}).catch(()=>{if(active)setStatus("error");});return()=>{active=false;};},[retry]);
+ const segments=BODY_STYLES.filter(style=>style==="All"||cars.some(car=>bodyStyle(car.segment)===style));
+ const fuels=useMemo(()=>["All",...new Set(cars.map(c=>c.fuel).filter(Boolean))],[cars]);
+ const filtered=cars.filter(c=>(segment==="All"||bodyStyle(c.segment)===segment)&&(fuel==="All"||c.fuel===fuel)&&(!q||(`${c.brand} ${c.model}`).toLowerCase().includes(q.toLowerCase())));
+ return <div className="cin-home cin-catalogue" data-testid="cars-page">
+  <CinematicHeader/>
+  <main className="cin-container cin-section">
+   <span className="cin-eyebrow">AUTOAI INDIA / VEHICLE DISCOVERY</span>
+   <div className="cin-catalogue-heading"><h1>Discover your <span>next car.</span></h1><p>Explore the Indian automotive market with clarity. Search, filter and compare vehicles without the sales pitch.</p></div>
+   <div className="cin-filter-grid">
+    <label className="cin-search-field"><Search size={18}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search brand or model…" data-testid="cars-search-input" aria-label="Search cars"/></label>
+    <select value={segment} onChange={e=>setSegment(e.target.value)} data-testid="cars-segment-filter" aria-label="Filter body style">{!segments.includes(segment)&&<option value={segment}>{segment}</option>}{segments.map(s=><option key={s}>{s}</option>)}</select>
+    <select value={fuel} onChange={e=>setFuel(e.target.value)} data-testid="cars-fuel-filter" aria-label="Filter fuel type">{fuels.map(s=><option key={s}>{s}</option>)}</select>
+   </div>
+   <div className="cin-catalogue-count" role="status">{status==="ready" ? `${filtered.length} vehicles found` : status==="loading" ? "Connecting to vehicle catalogue…" : "Catalogue connection unavailable"}</div>
+   {status==="error"&&<div className="cin-state cin-state-recovery"><div><strong>We couldn't connect to the vehicle catalogue.</strong><p>The service may be temporarily unavailable. Try again, or explore our comparison tools.</p></div><div className="cin-state-actions"><button type="button" onClick={()=>{setStatus("loading");setRetry(k=>k+1);}}>Retry loading</button><Link to="/compare">Compare cars <ArrowUpRight size={16}/></Link></div></div>}
+   {status==="ready"&&filtered.length===0&&<div className="cin-state">{cars.length===0?"No vehicles are currently listed.":"No vehicles match your filters."} {cars.length>0&&<button className="cin-reset" onClick={()=>{setQ("");setSegment("All");setFuel("All");}}>Clear filters</button>}</div>}
+   {status==="ready"&&filtered.length>0&&<div className="cin-cars-grid">{filtered.map(car=><article className="cin-vehicle" key={car.id} data-testid={`car-card-${car.id}`}><div className="cin-vehicle-photo"><CarVisual car={car} className="w-full h-full" showLabel={false}/></div><div className="cin-vehicle-details"><span className="cin-eyebrow">{car.brand} / {car.segment}</span><h3>{car.model}</h3><p>{car.variant}</p><div className="cin-vehicle-bottom"><span>{formatINR(car.price_ex_showroom)}<small>Ex-showroom</small></span><Link to={`/showroom/${car.id}`} aria-label={`Explore ${car.brand} ${car.model}`}><ArrowUpRight size={20}/></Link></div></div></article>)}</div>}
+  </main>
+  <footer className="cin-footer"><div className="cin-container cin-footer-inner"><div><strong>AUTOAI INDIA</strong><p>Intelligence for every drive.</p></div><nav><Link to="/">Home</Link><Link to="/compare">Compare</Link><Link to="/recommend">AI advisor</Link></nav><span>© {new Date().getFullYear()} AutoAI India</span></div></footer>
+ </div>;
 }
