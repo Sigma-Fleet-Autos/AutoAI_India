@@ -18,12 +18,14 @@ const tickerItems = [
   "Grand Vitara Hybrid — 27.9 kmpl",
 ];
 
-const HERO_CAR =
-  "https://images.unsplash.com/photo-1763165561886-a9391b2132c1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2MzR8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBjYXIlMjBzaG93cm9vbSUyMGRhcmt8ZW58MHx8fHwxNzc2Njg1NzQzfDA&ixlib=rb-4.1.0&q=85";
-
-// Indian highway / NH-48 style driving reel (Pexels — proxied through backend to avoid hotlink 403)
-const HERO_VIDEO_URL =
-  "https://videos.pexels.com/video-files/2034115/2034115-hd_1920_1080_30fps.mp4";
+// Photography: individually verified as free-to-use under the Unsplash License.
+// See docs/PREVIEW_VEHICLE_ASSETS.md for attribution and source records.
+const HERO_CAR = "https://images.unsplash.com/photo-1730302551882-99cb98b4adc4?auto=format&fit=crop&w=2200&q=85";
+const BODY_STYLES = [
+  { label: 'SUV', image: 'https://images.unsplash.com/photo-1768363341895-74756d1fc99d?auto=format&fit=crop&w=1200&q=82', alt: 'Silver luxury SUV in profile by the coast' },
+  { label: 'Sedan', image: 'https://images.unsplash.com/photo-1485291571150-772bcfc10da5?auto=format&fit=crop&w=1200&q=82', alt: 'Black luxury sedan photographed in profile against a dark studio backdrop' },
+  { label: 'Hatchback', image: 'https://images.unsplash.com/photo-1604410869154-3c16714cd476?auto=format&fit=crop&w=1200&q=82', alt: 'White compact hatchback parked on a city street' },
+];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -53,33 +55,11 @@ export default function Home() {
     <div className="bg-[#050505] text-white overflow-hidden">
       {/* ============== HERO ============== */}
       <section className="relative min-h-[100vh] overflow-hidden hero-grid" data-testid="hero-section">
-        {/* VIDEO BACKGROUND — Indian highway driving reel */}
-        <motion.div
-          style={{ y: heroY, opacity: heroOpacity }}
-          className="absolute inset-0 z-[0]"
-        >
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            poster={HERO_CAR}
-            data-testid="hero-video"
-            className="absolute inset-0 w-full h-full object-cover opacity-55"
-          >
-            <source src={`${API}/video-proxy?url=${encodeURIComponent(HERO_VIDEO_URL)}`} type="video/mp4" />
-          </video>
-          {/* darkening + warm tint overlays */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/55 to-[#050505]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/70 to-transparent" />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(1200px 600px at 78% 30%, rgba(245,158,11,0.28), transparent 55%), radial-gradient(800px 500px at 15% 75%, rgba(197,131,43,0.14), transparent 60%)",
-            }}
-          />
+        {/* Licensed production-car photography; restrained scroll parallax. */}
+        <motion.div style={{ y: heroY, opacity: heroOpacity }} className="absolute inset-0 z-0" aria-hidden="true">
+          <img src={HERO_CAR} alt="" fetchPriority="high" decoding="async" className="h-full w-full object-cover object-[60%_center] scale-[1.04]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#050505]/95 via-[#050505]/65 to-[#050505]/15" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505]/45" />
         </motion.div>
 
         {/* grain */}
@@ -87,25 +67,6 @@ export default function Home() {
 
         {/* scanning line */}
         <div className="pointer-events-none absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#F59E0B]/40 to-transparent scan-line z-[2]" />
-
-        {/* hero car image — right side, large (overlays on video) */}
-        <motion.div
-          initial={{ opacity: 0, scale: 1.08, x: 40 }}
-          animate={{ opacity: 0.65, scale: 1, x: 0 }}
-          transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute right-[-6%] top-[10%] w-[72%] md:w-[62%] lg:w-[58%] aspect-[16/10] z-[2] pointer-events-none"
-        >
-          <div
-            className="w-full h-full bg-cover bg-center mix-blend-screen"
-            style={{
-              backgroundImage: `url(${HERO_CAR})`,
-              maskImage:
-                "radial-gradient(circle at 60% 55%, #000 35%, transparent 72%)",
-              WebkitMaskImage:
-                "radial-gradient(circle at 60% 55%, #000 35%, transparent 72%)",
-            }}
-          />
-        </motion.div>
 
         {/* content */}
         <div className="relative z-[3] max-w-7xl mx-auto px-6 lg:px-10 pt-24 lg:pt-36 pb-24 grid lg:grid-cols-12 gap-10">
@@ -253,6 +214,29 @@ export default function Home() {
               </span>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Body styles: labels deliberately sit below the photographs. */}
+      <section className="relative mx-auto max-w-7xl px-6 py-20 lg:px-10 lg:py-28" aria-labelledby="body-styles-title" data-testid="body-styles-section">
+        <motion.div initial={{ opacity: 0, y: 32 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.18 }} transition={{ duration: 0.8 }} className="mb-10">
+          <span className="chip">/// find your silhouette</span>
+          <h2 id="body-styles-title" className="mt-5 font-display text-4xl font-light tracking-tight md:text-6xl">Choose your <span className="text-gradient-amber italic">kind of drive.</span></h2>
+        </motion.div>
+        <div className="grid gap-5 md:grid-cols-3">
+          {BODY_STYLES.map((item, index) => (
+            <motion.div key={item.label} initial={{ opacity: 0, y: 48 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.18 }} transition={{ duration: 0.75, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }} className="group">
+              <Link to="/cars" className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-400" aria-label={`Browse ${item.label} cars`}>
+                <div className="aspect-[4/3] overflow-hidden rounded-xl border border-white/10 bg-[#141414]">
+                  <img src={item.image} alt={item.alt} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.06] motion-reduce:transition-none" />
+                </div>
+                <div className="mt-5 flex items-center justify-between border-b border-white/15 pb-4">
+                  <h3 className="font-display text-2xl tracking-tight text-white md:text-3xl">{item.label}</h3>
+                  <ArrowRight size={20} className="text-amber-400 transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none" aria-hidden="true" />
+                </div>
+              </Link>
+            </motion.div>
+          ))}
         </div>
       </section>
 
