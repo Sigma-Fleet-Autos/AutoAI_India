@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Scale, Sparkles, Calculator, Newspaper, Gauge, ShieldCheck, Zap, Cpu, Radar } from "lucide-react";
 import { useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { api, API } from "../lib/api";
+import { api } from "../lib/api";
 import CarCard from "../components/CarCard";
 import { useI18n } from "../lib/i18n";
 
