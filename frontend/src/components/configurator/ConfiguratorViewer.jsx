@@ -18,10 +18,11 @@ import { buildConfiguratorShareCard } from './shareCard';
 import { buildCinematicSequence, getNextCinematicPreset } from './cinematicShowroom';
 import { getSupportedInteractionControls } from './interactionControls';
 import { getConfiguratorRenderProfile } from '../../three/configuratorPerformance';
+import { resolveSelectedPaintHex } from './selectedPaintColor';
 
 const CINEMATIC_INTERVAL_MS = 4200;
 
-function ConfiguratorScene({ asset, purchasable, interaction, sceneRef, onManualInteraction, renderProfile }) {
+function ConfiguratorScene({ asset, purchasable, interaction, paintColorHex, sceneRef, onManualInteraction, renderProfile }) {
   const controlsRef = useRef();
   useCameraPreset(interaction.cameraPreset, controlsRef, asset.cameraPresetNames);
   useLightingController(sceneRef, interaction.lighting, asset.supportedInteractions);
@@ -34,7 +35,7 @@ function ConfiguratorScene({ asset, purchasable, interaction, sceneRef, onManual
     <Bounds fit clip observe margin={1.3}>
       <AssetSuspense>
         <group ref={sceneRef} position={[0, -0.5, 0]}>
-          <VehicleModel asset={asset} purchasable={purchasable} interaction={interaction} />
+          <VehicleModel asset={asset} purchasable={purchasable} interaction={interaction} paintColorHex={paintColorHex} />
         </group>
       </AssetSuspense>
     </Bounds>
@@ -110,6 +111,8 @@ export default function ConfiguratorViewer({ style, options, variant }) {
       reducedMotion,
     });
   }, []);
+
+  const paintColorHex = resolveSelectedPaintHex(options?.colors, purchasable.paintId);
 
   const cinematicSequence = useMemo(
     () => buildCinematicSequence(asset.supportedInteractions, asset.cameraPresetNames),
@@ -215,7 +218,7 @@ export default function ConfiguratorViewer({ style, options, variant }) {
 
   return <div ref={canvasRef} style={style} className={`configurator-viewer${cinematic ? ' cinematic' : ''}`}>
     <Canvas dpr={renderProfile.dpr} gl={{ preserveDrawingBuffer: true, powerPreference: 'high-performance' }} camera={{ position: [5, 2.5, 5], fov: 35 }}>
-      <ConfiguratorScene asset={asset} purchasable={purchasable} interaction={interaction} sceneRef={sceneRef} onManualInteraction={takeManualControl} renderProfile={renderProfile} />
+      <ConfiguratorScene asset={asset} purchasable={purchasable} interaction={interaction} paintColorHex={paintColorHex} sceneRef={sceneRef} onManualInteraction={takeManualControl} renderProfile={renderProfile} />
     </Canvas>
     <div className="configurator-viewer-controls">
       <button type="button" onClick={toggleShowroom} disabled={!cinematicSequence.length} aria-label={!showroom.active || showroom.paused ? 'Play cinematic showroom' : 'Pause cinematic showroom'}>{showroom.active && !showroom.paused ? <Pause /> : <Play />}</button>
