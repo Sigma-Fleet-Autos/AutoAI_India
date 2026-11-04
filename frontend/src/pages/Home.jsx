@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, ArrowUpRight, BrainCircuit, Calculator, GitCompareArrows, ShieldCheck, Sparkles, Menu, X } from "lucide-react";
 import { api, formatINR } from "../lib/api";
@@ -26,6 +26,23 @@ export default function Home() {
   const [cars, setCars] = useState([]);
   const [carsStatus, setCarsStatus] = useState("loading");
   const [retryKey, setRetryKey] = useState(0);
+  const rootRef = useRef(null);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || typeof IntersectionObserver === "undefined") return;
+    const sections = Array.from(root.querySelectorAll("[data-cinematic-reveal]"));
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("cin-is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -37,7 +54,7 @@ export default function Home() {
     return () => { active = false; };
   }, [retryKey]);
 
-  return <div className="cin-home" id="home-content">
+  return <div className="cin-home cin-immersive" id="home-content" ref={rootRef}>
     <CinematicHeader />
     <section className="cin-hero" aria-labelledby="cin-hero-title" data-testid="hero-section">
       <div className="cin-hero-image" style={{ backgroundImage: `url("${HERO_IMAGE}")` }} role="img" aria-label="Luxury sports car on an open road" />
@@ -54,14 +71,15 @@ export default function Home() {
       
     </section>
 
-    <section className="cin-service-band" aria-label="AutoAI services"><div className="cin-container cin-service-grid">
-      <Link to="/cars"><BrainCircuit size={21}/><span>AI CAR ANALYSIS</span><ArrowUpRight size={15}/></Link>
-      <Link to="/compare"><GitCompareArrows size={21}/><span>SMART COMPARISON</span><ArrowUpRight size={15}/></Link>
-      <Link to="/emi"><Calculator size={21}/><span>OWNERSHIP COSTS</span><ArrowUpRight size={15}/></Link>
-      <Link to="/recommend"><Sparkles size={21}/><span>PERSONAL AI ADVISOR</span><ArrowUpRight size={15}/></Link>
-    </div></section>
+    <section className="cin-immersive-intro" aria-label="Explore the AutoAI experience" data-cinematic-reveal>
+      <div className="cin-immersive-intro-inner">
+        <span className="cin-eyebrow">01 / THE EXPERIENCE</span>
+        <p>Every drive begins with <em>a feeling.</em><br/>Every decision deserves clarity.</p>
+        <Link to="/recommend">Discover your next drive <ArrowUpRight size={22} /></Link>
+      </div>
+    </section>
 
-    <section className="cin-section cin-container" data-testid="features-section">
+    <section className="cin-section cin-container cin-discover" data-testid="features-section" data-cinematic-reveal>
       <SectionHeading eyebrow="01 / EXPLORE THE MARKET" title="Find your kind of drive." description="Explore body styles and discover the choices that fit your priorities." />
       <div className="cin-category-grid">{CATEGORY_IMAGES.map(({ label, image }) => <Link className="cin-category" key={label} to="/cars" aria-label={`Explore ${label} cars in the catalogue`}>
         <span className="cin-category-photo"><img src={image} alt={`${label} vehicle photograph`} loading="lazy" /></span>
@@ -70,19 +88,19 @@ export default function Home() {
       <div className="cin-section-action"><Link to="/cars">View all cars <ArrowRight size={17}/></Link></div>
     </section>
 
-    <section className="cin-editorial" data-testid="comparison-section"><div className="cin-container cin-editorial-grid">
+    <section className="cin-editorial" data-testid="comparison-section" data-cinematic-reveal><div className="cin-container cin-editorial-grid">
       <div className="cin-editorial-photo" role="img" aria-label="Performance car photographed in natural evening light" />
       <div className="cin-editorial-content"><span className="cin-eyebrow">02 / THE CLARITY TO CHOOSE</span><h2>Every detail.<br />Side by side.</h2><p>Compare specifications, safety, practicality and ownership costs. Understand the trade-offs before you commit.</p><Link className="cin-btn cin-btn-light" to="/compare" data-testid="hero-cta-compare">Compare cars <ArrowRight size={18}/></Link></div>
     </div></section>
 
-    <section className="cin-section cin-container" data-testid="trending-section">
+    <section className="cin-section cin-container cin-catalogue" data-testid="trending-section" data-cinematic-reveal>
       <SectionHeading eyebrow="03 / VEHICLE DISCOVERY" title="Cars worth considering." description="Explore vehicles from the AutoAI India catalogue." />
       {carsStatus === "loading" && <div className="cin-state" role="status">Loading vehicles…</div>}
-      {carsStatus === "error" && <div className="cin-state cin-state-recovery" role="status"><div><strong>Our vehicle catalogue could not be loaded.</strong><p>Check back shortly, or retry the connection. You can still explore car comparisons and personalised recommendations.</p></div><div className="cin-state-actions"><button type="button" onClick={() => { setCarsStatus("loading"); setRetryKey(k => k + 1); }}>Retry loading</button><Link to="/compare">Compare cars <ArrowUpRight size={16}/></Link></div></div>}
+      {carsStatus === "error" && <div className="cin-catalogue-fallback" role="status"><span>Explore the collection</span><p>Browse vehicle categories and comparisons while the live catalogue is unavailable.</p><div><Link to="/cars">Browse cars <ArrowRight size={18}/></Link><Link to="/compare">Compare models <ArrowUpRight size={18}/></Link></div></div>}
       {carsStatus === "ready" && (cars.length ? <div className="cin-cars-grid">{cars.map(car => <article className="cin-vehicle" key={car.id} data-testid={`car-card-${car.id}`}><div className="cin-vehicle-photo"><CarVisual car={car} className="w-full h-full" /></div><div className="cin-vehicle-details"><span className="cin-eyebrow">{car.brand} / {car.segment}</span><h3>{car.model}</h3><p>{car.variant}</p><div className="cin-vehicle-bottom"><span>{formatINR(car.price_ex_showroom)} <small>ex-showroom</small></span><Link to={`/showroom/${car.id}`} aria-label={`Explore ${car.brand} ${car.model}`}><ArrowUpRight size={20}/></Link></div></div></article>)}</div> : <div className="cin-state">No vehicles are available yet. <Link to="/cars">Explore all cars</Link>.</div>)}
     </section>
 
-    <section className="cin-advisor" data-testid="advisor-section"><div className="cin-container cin-advisor-inner"><span className="cin-eyebrow">04 / AUTOAI INTELLIGENCE</span><h2>Your next car.<br /><span>A smarter decision.</span></h2><p>Tell AutoAI about your budget, driving habits and priorities. Get tailored suggestions and understand why each car fits.</p><Link className="cin-btn cin-btn-light" to="/recommend">Get AI recommendations <ArrowRight size={18}/></Link></div></section>
+    <section className="cin-advisor" data-testid="advisor-section" data-cinematic-reveal><div className="cin-container cin-advisor-inner"><span className="cin-eyebrow">04 / AUTOAI INTELLIGENCE</span><h2>Your next car.<br /><span>A smarter decision.</span></h2><p>Tell AutoAI about your budget, driving habits and priorities. Get tailored suggestions and understand why each car fits.</p><Link className="cin-btn cin-btn-light" to="/recommend">Get AI recommendations <ArrowRight size={18}/></Link></div></section>
     <section className="cin-promise cin-container"><ShieldCheck size={24}/><p>Recommendations are decision-support tools. Confirm specifications, prices and availability with current sources before purchasing.</p></section>
     <footer className="cin-footer"><div className="cin-container cin-footer-inner"><div><strong>AutoAI <small>INDIA</small></strong><p>Intelligence for every drive.</p></div><nav aria-label="Footer navigation"><Link to="/cars">Cars</Link><Link to="/compare">Compare</Link><Link to="/recommend">AI advisor</Link><Link to="/about">About</Link><Link to="/news">News</Link><Link to="/dealers/apply">Partner with us</Link></nav><span>© {new Date().getFullYear()} AutoAI India</span></div></footer>
   </div>;
