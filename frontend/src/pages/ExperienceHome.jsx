@@ -6,17 +6,17 @@ import '../styles/experience-home.css';
 // Individually sourced, free-to-use photographs. Copyright licensing is documented
 // in docs/PREVIEW_VEHICLE_ASSETS.md; visible brand and plate clearance is pending.
 const PHOTOS = Object.freeze({
-  hero: 'https://images.unsplash.com/photo-1663789817527-fac970beabbb?auto=format&fit=crop&w=2400&q=88',
-  detail: 'https://images.unsplash.com/photo-1703609645513-9c7b5a965add?auto=format&fit=crop&w=2000&q=85',
-  suv: 'https://images.unsplash.com/photo-1633359064754-804ba55e733f?auto=format&fit=crop&w=1100&q=82',
-  sedan: 'https://images.unsplash.com/photo-1650029379321-b83f9faa2c76?auto=format&fit=crop&w=1100&q=82',
-  hatchback: 'https://images.unsplash.com/photo-1663433340126-1868f62ca7a8?auto=format&fit=crop&w=1100&q=82',
+  hero: 'https://images.unsplash.com/photo-1668248835473-c2f28c752663?auto=format&fit=crop&w=2400&q=88',
+  detail: 'https://images.unsplash.com/photo-1652946950814-25f52bb0ebfc?auto=format&fit=crop&w=2000&q=85',
+  suv: 'https://images.unsplash.com/photo-1723306975792-f5a053a59dd3?auto=format&fit=crop&w=1100&q=82',
+  sedan: 'https://images.unsplash.com/photo-1623994518372-2211dc3afb29?auto=format&fit=crop&w=1100&q=82',
+  hatchback: 'https://images.unsplash.com/photo-1650029380425-7fbfbd9b2b68?auto=format&fit=crop&w=1100&q=82',
 });
 
 const BODY_STYLES = [
-  { title: 'SUV', eyebrow: '01 / ADVENTURE', image: PHOTOS.suv, description: 'Space to go further.' },
-  { title: 'Sedan', eyebrow: '02 / PRECISION', image: PHOTOS.sedan, description: 'Refinement in motion.' },
-  { title: 'Hatchback', eyebrow: '03 / EVERYDAY', image: PHOTOS.hatchback, description: 'Made for the city.' },
+  { title: 'SUV', eyebrow: '01 / ADVENTURE', image: PHOTOS.suv, description: 'Mahindra Thar · Built for adventure.' },
+  { title: 'Sedan', eyebrow: '02 / PRECISION', image: PHOTOS.sedan, description: 'BMW 2 Series Gran Coupé · Precision in motion.' },
+  { title: 'Hatchback', eyebrow: '03 / EVERYDAY', image: PHOTOS.hatchback, description: 'Hyundai i20 · Made for the city.' },
 ];
 
 function useMotionReveal(root) {
@@ -67,7 +67,7 @@ export default function ExperienceHome() {
     <main>
       <section className="xp-hero" aria-labelledby="xp-title" data-testid="hero-section">
         <div className="xp-hero-photo">
-          <img src={PHOTOS.hero} alt="Premium vehicle photographed in an automotive setting" fetchPriority="high" decoding="async"/>
+          <img src={PHOTOS.hero} alt="Mercedes-Benz EQS luxury electric sedan at an Indian automotive event" fetchPriority="high" decoding="async"/>
           <span className="xp-hero-image-caption">AUTOAI INDIA / THE ART OF DRIVING</span>
           <a href="#xp-intro" className="xp-image-scroll" aria-label="Scroll to the next chapter"><ArrowDown size={21}/></a>
         </div>
@@ -95,7 +95,7 @@ export default function ExperienceHome() {
       </section>
 
       <section className="xp-detail" aria-labelledby="xp-detail-title">
-        <div className="xp-detail-photo"><img src={PHOTOS.detail} alt="Premium vehicle in a separate editorial photograph" loading="lazy" decoding="async"/></div>
+        <div className="xp-detail-photo"><img src={PHOTOS.detail} alt="Audi sedan photographed on a wet road in Kolkata" loading="lazy" decoding="async"/></div>
         <Reveal className="xp-detail-copy">
           <span className="xp-eyebrow">02 — INTELLIGENT COMPARISON</span>
           <h2 id="xp-detail-title">Every detail.<br/><em>Considered.</em></h2>
@@ -112,7 +112,7 @@ export default function ExperienceHome() {
         <div className="xp-category-grid">
           {BODY_STYLES.map(({ title, eyebrow, image, description }) => <Reveal className="xp-category-item" key={title}>
             <Link to="/cars" className="xp-category-link" aria-label={`Explore ${title} cars`}>
-              <span className="xp-category-image"><img src={image} alt={`Modern ${title.toLowerCase()} vehicle`} loading="lazy" decoding="async"/></span>
+              <span className="xp-category-image"><img src={image} alt={description} loading="lazy" decoding="async"/></span>
               <span className="xp-category-label"><span><small>{eyebrow}</small><strong>{title}</strong><span className="xp-category-description">{description}</span></span><ArrowUpRight size={23} aria-hidden="true"/></span>
             </Link>
           </Reveal>)}
