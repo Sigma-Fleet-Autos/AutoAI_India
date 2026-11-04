@@ -36,6 +36,22 @@ describe('isolated automotive experience', () => {
     });
   });
 
+  it('uses five approved India-market vehicle photo identities', () => {
+    const html = markup();
+    const approved = [
+      'photo-1668248835473-c2f28c752663',
+      'photo-1652946950814-25f52bb0ebfc',
+      'photo-1723306975792-f5a053a59dd3',
+      'photo-1623994518372-2211dc3afb29',
+      'photo-1650029380425-7fbfbd9b2b68',
+    ];
+    const photoIds = [...html.matchAll(/images\\.unsplash\\.com\\/(photo-\\d{13}-[a-f0-9]+)/g)].map((match) => match[1]);
+    expect(photoIds).toEqual(approved);
+    expect(html).toContain('Mahindra Thar');
+    expect(html).toContain('BMW 2 Series Gran Coupé');
+    expect(html).toContain('Hyundai i20');
+  });
+
   it('has navigation, accessible section headings and reduced-motion-safe structure', () => {
     const html = markup();
     expect(html).toContain('aria-label="Main navigation"');
