@@ -19,6 +19,20 @@ verified against the original photo-page `<img>` elements, not search thumbnails
 | Sedan | BMW 2 Series Gran Coupé | Original photo · https://unsplash.com/photos/blue-car-in-a-parking-lot-1blmJ3x496I | `photo-1623994518372-2211dc3afb29` |
 | Hatchback | Hyundai i20 | Vignesh Rajendran · https://unsplash.com/photos/a-white-car-driving-down-a-forest-road-idjb6DfLP28 | `photo-1650029380425-7fbfbd9b2b68` |
 
+### India-market verification
+
+The named models are independently represented on current official India websites:
+[Mercedes-Benz EQS](https://www.mercedes-benz.co.in/passengercars/models/saloon/eqs/overview.html),
+[BMW 2 Series Gran Coupé](https://www.bmw.in/en/all-models/2-series/2-series-gran-coupe/bmw-2-series-gran-coupe.html),
+[Hyundai i20](https://www.hyundai.com/in/en/find-a-car/i20/price), and
+[Mahindra Thar](https://www.mahindra.com/news-room/press-release/en/mahindra-launches-thar-og-built-on-legacy-engineered-for-a-new-era-introductory-price-starting-at-rupees-10.32-lakh).
+The Audi photo is labelled only by marque, not an unverified model/trim.
+
+**Important:** Model availability is verified at the nameplate level. The
+photographs may depict earlier generations or model years, not necessarily the
+latest India-specification facelift. Do not label the photos as current
+model-year manufacturer renders without additional evidence.
+
 ### Release limitations
 
 Unsplash copyright permission does **not** independently clear vehicle trademarks,
