@@ -4,7 +4,7 @@ import { ArrowDown, ArrowRight, ArrowUpRight, Menu, X } from 'lucide-react';
 import '../styles/experience-home.css';
 
 const MEDIA = Object.freeze({
-  hero: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=2400&q=88',
+  hero: 'https://images.unsplash.com/photo-1649869241460-c1b4c977ed85?auto=format&fit=crop&w=2400&q=88',
   grandTour: 'https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=2000&q=86',
   suv: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=1200&q=85',
   sedan: 'https://images.unsplash.com/photo-1485291571150-772bcfc10da5?auto=format&fit=crop&w=1200&q=85',
@@ -93,7 +93,7 @@ export default function ExperienceHome() {
     <div className="xp-progress" aria-hidden="true"><span style={{ transform: `scaleX(${progress})` }}/></div>
 
     <section className="xp-hero" aria-labelledby="xp-hero-heading" data-testid="hero-section">
-      <div className="xp-hero-media" role="img" aria-label="Luxury sports car in an atmospheric landscape" style={{ backgroundImage: `url("${MEDIA.hero}")` }}/>
+      <div className="xp-hero-media" role="img" aria-label="Grey Mercedes-AMG grand touring car outside a modern building" style={{ backgroundImage: `url("${MEDIA.hero}")` }}/>
       <div className="xp-hero-vignette"/>
       <div className="xp-hero-topline"><span>AUTOAI INDIA</span><span>THE ART OF CHOOSING</span></div>
       <div className="xp-hero-bottom">
