@@ -3,7 +3,8 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ChatDrawer from "./components/ChatDrawerFixed";
-import Home, { CinematicHeader } from "./pages/Home";
+import { CinematicHeader } from "./pages/Home";
+import ExperienceHome from "./pages/ExperienceHome";
 import "./styles/home-cinematic.css";
 import Compare from "./pages/Compare";
 import Recommend from "./pages/Recommend";
@@ -39,7 +40,7 @@ function AppLayout() {
             {isPublicCinematicRoute && <CinematicHeader />}
             <main className={isPublicCinematicRoute ? "cin-route-shell" : ""}>
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/" element={<ExperienceHome />} />
                 <Route path="/compare" element={<Compare />} />
                 <Route path="/recommend" element={<Recommend />} />
                 <Route path="/cars" element={<Cars />} />
