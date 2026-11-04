@@ -34,7 +34,7 @@ describe('isolated cinematic automotive experience', () => {
       expect(photo).toBeGreaterThan(-1);
       expect(label).toBeGreaterThan(photo);
       expect(card).toContain(`<strong>${name}</strong>`);
-      expect(card).toContain(`/cars?segment=${name}`);
+      expect(html).toContain(`href="/cars?segment=${name}"`);
     });
   });
 
