@@ -45,7 +45,7 @@ describe('isolated automotive experience', () => {
       'photo-1623994518372-2211dc3afb29',
       'photo-1650029380425-7fbfbd9b2b68',
     ];
-    const photoIds = [...html.matchAll(/images\\.unsplash\\.com\\/(photo-\\d{13}-[a-f0-9]+)/g)].map((match) => match[1]);
+    const photoIds = [...html.matchAll(/images\.unsplash\.com\/(photo-\d{13}-[a-f0-9]+)/g)].map((match) => match[1]);
     expect(photoIds).toEqual(approved);
     expect(html).toContain('Mahindra Thar');
     expect(html).toContain('BMW 2 Series Gran Coupé');
