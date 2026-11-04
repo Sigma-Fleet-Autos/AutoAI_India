@@ -3,142 +3,127 @@ import { Link } from 'react-router-dom';
 import { ArrowDown, ArrowRight, ArrowUpRight, Menu, X } from 'lucide-react';
 import '../styles/experience-home.css';
 
-const MEDIA = Object.freeze({
-  hero: 'https://images.unsplash.com/photo-1649869241460-c1b4c977ed85?auto=format&fit=crop&w=2400&q=88',
-  grandTour: 'https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=2000&q=86',
-  suv: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=1200&q=85',
-  sedan: 'https://images.unsplash.com/photo-1485291571150-772bcfc10da5?auto=format&fit=crop&w=1200&q=85',
-  hatchback: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=85',
+// Individually sourced, free-to-use photographs. Copyright licensing is documented
+// in docs/PREVIEW_VEHICLE_ASSETS.md; visible brand and plate clearance is pending.
+const PHOTOS = Object.freeze({
+  hero: 'https://images.unsplash.com/photo-1774066811800-448b846647a2?auto=format&fit=crop&w=2400&q=88',
+  detail: 'https://images.unsplash.com/photo-1758563920563-0c9d7378058c?auto=format&fit=crop&w=2000&q=85',
+  suv: 'https://images.unsplash.com/photo-1771904488909-9137431615c5?auto=format&fit=crop&w=1100&q=82',
+  sedan: 'https://images.unsplash.com/photo-1741014154802-ecd803813064?auto=format&fit=crop&w=1100&q=82',
+  hatchback: 'https://images.unsplash.com/photo-1765891628083-cbabd2a0c3a8?auto=format&fit=crop&w=1100&q=82',
 });
 
-const CATEGORIES = [
-  { label: 'SUV', image: MEDIA.suv, descriptor: 'Adventure, refined.', index: '01' },
-  { label: 'Sedan', image: MEDIA.sedan, descriptor: 'Elegance in motion.', index: '02' },
-  { label: 'Hatchback', image: MEDIA.hatchback, descriptor: 'Made for the city.', index: '03' },
+const BODY_STYLES = [
+  { title: 'SUV', eyebrow: '01 / ADVENTURE', image: PHOTOS.suv, description: 'Space to go further.' },
+  { title: 'Sedan', eyebrow: '02 / PRECISION', image: PHOTOS.sedan, description: 'Refinement in motion.' },
+  { title: 'Hatchback', eyebrow: '03 / EVERYDAY', image: PHOTOS.hatchback, description: 'Made for the city.' },
 ];
 
-function useReducedMotion() {
-  const [reduced, setReduced] = useState(false);
+function useMotionReveal(root) {
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
-    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const sync = () => setReduced(query.matches);
-    sync();
-    query.addEventListener?.('change', sync);
-    return () => query.removeEventListener?.('change', sync);
-  }, []);
-  return reduced;
-}
-
-function ExperienceNavigation() {
-  const [open, setOpen] = useState(false);
-  return <header className="xp-nav">
-    <Link className="xp-wordmark" to="/" aria-label="AutoAI India home">AUTOAI<span>INDIA</span></Link>
-    <nav className={`xp-nav-links ${open ? 'xp-nav-links-open' : ''}`} aria-label="Main navigation">
-      <Link to="/cars" onClick={() => setOpen(false)}>Explore cars</Link>
-      <Link to="/compare" onClick={() => setOpen(false)}>Compare</Link>
-      <Link to="/recommend" onClick={() => setOpen(false)}>Discover your car</Link>
-      <Link to="/about" onClick={() => setOpen(false)}>Our story</Link>
-    </nav>
-    <Link className="xp-nav-action" to="/recommend">Find your drive <ArrowUpRight size={16}/></Link>
-    <button className="xp-menu" type="button" aria-label={open ? 'Close navigation' : 'Open navigation'} aria-expanded={open} onClick={() => setOpen((value) => !value)}>{open ? <X/> : <Menu/>}</button>
-  </header>;
-}
-
-function Reveal({ children, className = '', ...props }) {
-  return <div className={`xp-reveal ${className}`} data-xp-reveal {...props}>{children}</div>;
-}
-
-export default function ExperienceHome() {
-  const root = useRef(null);
-  const [progress, setProgress] = useState(0);
-  const reduced = useReducedMotion();
-
-  useEffect(() => {
-    const el = root.current;
-    if (!el) return undefined;
-    const nodes = el.querySelectorAll('[data-xp-reveal]');
-    if (typeof IntersectionObserver === 'undefined') {
+    const host = root.current;
+    if (!host) return undefined;
+    const nodes = host.querySelectorAll('[data-xp-reveal]');
+    if (!window.IntersectionObserver) {
       nodes.forEach((node) => node.classList.add('xp-visible'));
       return undefined;
     }
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(({ target, isIntersecting }) => {
-        if (isIntersecting) { target.classList.add('xp-visible'); observer.unobserve(target); }
+        if (!isIntersecting) return;
+        target.classList.add('xp-visible');
+        observer.unobserve(target);
       });
-    }, { threshold: 0.1, rootMargin: '0px 0px -5% 0px' });
+    }, { threshold: 0.06, rootMargin: '0px 0px -3% 0px' });
     nodes.forEach((node) => observer.observe(node));
     return () => observer.disconnect();
-  }, []);
+  }, [root]);
+}
 
-  useEffect(() => {
-    if (reduced || typeof window === 'undefined') return undefined;
-    let frame = 0;
-    const update = () => {
-      if (frame) return;
-      frame = window.requestAnimationFrame(() => {
-        frame = 0;
-        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-        setProgress(scrollable > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollable)) : 0);
-      });
-    };
-    update();
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-    return () => { window.removeEventListener('scroll', update); window.removeEventListener('resize', update); if (frame) window.cancelAnimationFrame(frame); };
-  }, [reduced]);
+function ExperienceNav() {
+  const [open, setOpen] = useState(false);
+  return <header className="xp-nav">
+    <Link to="/" className="xp-logo" aria-label="AutoAI India home">AUTOAI<span>INDIA</span></Link>
+    <nav className={`xp-links${open ? ' xp-links-open' : ''}`} aria-label="Main navigation">
+      <Link to="/cars" onClick={() => setOpen(false)}>Discover</Link>
+      <Link to="/compare" onClick={() => setOpen(false)}>Compare</Link>
+      <Link to="/recommend" onClick={() => setOpen(false)}>AI Advisor</Link>
+      <Link to="/about" onClick={() => setOpen(false)}>About</Link>
+    </nav>
+    <Link className="xp-nav-cta" to="/recommend">Find your drive <ArrowUpRight size={16} /></Link>
+    <button className="xp-menu" type="button" aria-expanded={open} aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen((value) => !value)}>{open ? <X size={24}/> : <Menu size={24}/>}</button>
+  </header>;
+}
 
-  return <div className="xp-root" ref={root} data-testid="experience-home">
-    <ExperienceNavigation/>
-    <div className="xp-progress" aria-hidden="true"><span style={{ transform: `scaleX(${progress})` }}/></div>
+function Reveal({ children, className = '' }) {
+  return <div data-xp-reveal className={`xp-reveal ${className}`}>{children}</div>;
+}
 
-    <section className="xp-hero" aria-labelledby="xp-hero-heading" data-testid="hero-section">
-      <div className="xp-hero-media" role="img" aria-label="Grey Mercedes-AMG grand touring car outside a modern building" style={{ backgroundImage: `url("${MEDIA.hero}")` }}/>
-      <div className="xp-hero-vignette"/>
-      <div className="xp-hero-topline"><span>AUTOAI INDIA</span><span>THE ART OF CHOOSING</span></div>
-      <div className="xp-hero-bottom">
-        <div className="xp-hero-copy"><span className="xp-kicker">AN EXTRAORDINARY WAY TO DISCOVER CARS</span><h1 id="xp-hero-heading">Feel the<br/><em>difference.</em></h1><p>Every great drive starts with a choice. Make yours extraordinary.</p>
-          <Link to="/cars" className="xp-pill xp-pill-light">Explore the collection <ArrowUpRight size={18}/></Link>
+export default function ExperienceHome() {
+  const root = useRef(null);
+  useMotionReveal(root);
+  return <div ref={root} className="xp-root" data-testid="experience-home">
+    <ExperienceNav />
+    <main>
+      <section className="xp-hero" aria-labelledby="xp-title" data-testid="hero-section">
+        <div className="xp-hero-photo">
+          <img src={PHOTOS.hero} alt="Contemporary Mercedes-AMG GT photographed outside a modern building" fetchPriority="high" decoding="async"/>
+          <span className="xp-hero-image-caption">AUTOAI INDIA / THE ART OF DRIVING</span>
+          <a href="#xp-intro" className="xp-image-scroll" aria-label="Scroll to the next chapter"><ArrowDown size={21}/></a>
         </div>
-        <a className="xp-scroll-cue" href="#xp-philosophy" aria-label="Scroll to discover more"><span>SCROLL TO EXPLORE</span><ArrowDown size={20}/></a>
-      </div>
-      <span className="xp-hero-index">01 / 04</span>
-    </section>
+        <div className="xp-hero-copy">
+          <div className="xp-hero-heading">
+            <span className="xp-eyebrow">AN INDEPENDENT AUTOMOTIVE EXPERIENCE</span>
+            <h1 id="xp-title">Drive <em>different.</em></h1>
+          </div>
+          <div className="xp-hero-description">
+            <p>Discover extraordinary cars. Compare with clarity. Choose with confidence.</p>
+            <Link className="xp-inline-link" to="/cars">Explore the collection <ArrowUpRight size={19}/></Link>
+          </div>
+        </div>
+      </section>
 
-    <section className="xp-manifesto" id="xp-philosophy" aria-label="Our philosophy">
-      <Reveal className="xp-manifesto-inner">
-        <span className="xp-kicker">THE EXPERIENCE / 01</span>
-        <h2>Not just a car.<br/><span>A feeling.</span></h2>
-        <p>Design. Performance. Purpose. Find the car that moves you — with independent insight that brings every detail into focus.</p>
-        <Link to="/recommend" className="xp-text-link">Discover your perfect match <ArrowUpRight size={19}/></Link>
-      </Reveal>
-      <span className="xp-side-note" aria-hidden="true">AUTOAI INDIA / REIMAGINING DISCOVERY</span>
-    </section>
+      <section className="xp-intro" id="xp-intro" aria-labelledby="xp-intro-title">
+        <Reveal className="xp-intro-layout">
+          <div className="xp-intro-index"><span>01 — THE PHILOSOPHY</span><span>BEYOND THE EXPECTED</span></div>
+          <div className="xp-intro-copy">
+            <h2 id="xp-intro-title">A car is more<br/>than a <em>machine.</em></h2>
+            <p>It is the way the road feels. The details you notice. The confidence behind every choice. Discover the cars worth your attention.</p>
+            <Link className="xp-inline-link" to="/recommend">Find your perfect match <ArrowUpRight size={19}/></Link>
+          </div>
+        </Reveal>
+      </section>
 
-    <section className="xp-feature" aria-labelledby="xp-feature-heading">
-      <div className="xp-feature-image" role="img" aria-label="Performance vehicle photographed on the road" style={{ backgroundImage: `url("${MEDIA.grandTour}")` }}/>
-      <div className="xp-feature-shade"/>
-      <Reveal className="xp-feature-content"><span className="xp-kicker">THE CLARITY TO CHOOSE / 02</span><h2 id="xp-feature-heading">Every angle.<br/>Every detail.</h2><p>Compare the cars you love. Discover what matters beyond the first impression.</p><Link className="xp-pill xp-pill-light" to="/compare">Compare cars <ArrowUpRight size={18}/></Link></Reveal>
-      <span className="xp-feature-number" aria-hidden="true">02</span>
-    </section>
+      <section className="xp-detail" aria-labelledby="xp-detail-title">
+        <div className="xp-detail-photo"><img src={PHOTOS.detail} alt="Contemporary orange Mercedes-AMG GT performance car in daylight" loading="lazy" decoding="async"/></div>
+        <Reveal className="xp-detail-copy">
+          <span className="xp-eyebrow">02 — INTELLIGENT COMPARISON</span>
+          <h2 id="xp-detail-title">Every detail.<br/><em>Considered.</em></h2>
+          <p>Design and engineering are only the beginning. Compare performance, practicality and ownership on your terms.</p>
+          <Link className="xp-inline-link" to="/compare">Compare vehicles <ArrowUpRight size={19}/></Link>
+        </Reveal>
+      </section>
 
-    <section className="xp-categories" aria-labelledby="xp-categories-heading" data-testid="features-section">
-      <Reveal className="xp-categories-head"><div><span className="xp-kicker">THE COLLECTION / 03</span><h2 id="xp-categories-heading">Find your<br/><em>kind of drive.</em></h2></div><p>From city streets to open roads. Discover the body style that feels right for you.</p></Reveal>
-      <div className="xp-category-grid">
-        {CATEGORIES.map((category) => <Reveal className="xp-category-wrap" key={category.label}>
-          <Link to="/cars" className="xp-category" aria-label={`Explore ${category.label} cars`}>
-            <span className="xp-category-photo"><img src={category.image} alt={`${category.label} car`} loading="lazy" decoding="async"/></span>
-            <span className="xp-category-info"><span><small>{category.index} / {category.descriptor}</small><strong>{category.label}</strong></span><ArrowUpRight size={25}/></span>
-          </Link>
-        </Reveal>)}
-      </div>
-      <Link to="/cars" className="xp-collection-link">Explore all cars <ArrowRight size={20}/></Link>
-    </section>
+      <section className="xp-collection" aria-labelledby="xp-collection-title" data-testid="features-section">
+        <Reveal className="xp-collection-heading">
+          <div><span className="xp-eyebrow">03 — THE COLLECTION</span><h2 id="xp-collection-title">Find your<br/><em>kind of drive.</em></h2></div>
+          <p>Three ways to move. One way to choose with confidence.</p>
+        </Reveal>
+        <div className="xp-category-grid">
+          {BODY_STYLES.map(({ title, eyebrow, image, description }) => <Reveal className="xp-category-item" key={title}>
+            <Link to="/cars" className="xp-category-link" aria-label={`Explore ${title} cars`}>
+              <span className="xp-category-image"><img src={image} alt={`Modern ${title.toLowerCase()} vehicle`} loading="lazy" decoding="async"/></span>
+              <span className="xp-category-label"><span><small>{eyebrow}</small><strong>{title}</strong><span className="xp-category-description">{description}</span></span><ArrowUpRight size={23} aria-hidden="true"/></span>
+            </Link>
+          </Reveal>)}
+        </div>
+        <Link className="xp-collection-all" to="/cars">Explore all cars <ArrowRight size={19}/></Link>
+      </section>
 
-    <section className="xp-closing" aria-labelledby="xp-closing-heading">
-      <Reveal><span className="xp-kicker">YOUR JOURNEY / 04</span><h2 id="xp-closing-heading">The road is yours.</h2><p>Less uncertainty. More confidence. Your next car, chosen with intelligence.</p><Link className="xp-pill xp-pill-dark" to="/recommend">Find my next car <ArrowUpRight size={18}/></Link></Reveal>
-    </section>
-
-    <footer className="xp-footer"><Link className="xp-wordmark" to="/">AUTOAI<span>INDIA</span></Link><span>Independent intelligence for every drive.</span><nav aria-label="Footer links"><Link to="/cars">Cars</Link><Link to="/compare">Compare</Link><Link to="/recommend">AI advisor</Link><Link to="/about">About</Link></nav><small>© {new Date().getFullYear()} AutoAI India</small></footer>
+      <section className="xp-end" aria-labelledby="xp-end-title">
+        <Reveal className="xp-end-inner"><span className="xp-eyebrow">04 — YOUR NEXT CHAPTER</span><h2 id="xp-end-title">Your next drive<br/>starts <em>here.</em></h2><p>Independent insights for an extraordinary decision.</p><Link to="/recommend" className="xp-end-button">Discover your car <ArrowUpRight size={19}/></Link></Reveal>
+      </section>
+    </main>
+    <footer className="xp-footer"><Link to="/" className="xp-logo">AUTOAI<span>INDIA</span></Link><p>Intelligence for every drive.</p><nav aria-label="Footer navigation"><Link to="/cars">Cars</Link><Link to="/compare">Compare</Link><Link to="/about">About</Link></nav><small>© {new Date().getFullYear()} AutoAI India</small></footer>
   </div>;
 }
