@@ -1,39 +1,39 @@
-# Private preview: vehicle asset provenance and release gates
+# Private preview — asset provenance and release gates
 
-## Standalone homepage rebuild (PR #91)
+## Current editorial homepage (PR #91)
 
-The active homepage route is now `frontend/src/pages/ExperienceHome.jsx` with the
-independent `frontend/src/styles/experience-home.css` stylesheet. Previous homepage
-CSS is not used by this route. No manufacturer reference-site code or photographs
-are included.
+Active route: `frontend/src/pages/ExperienceHome.jsx`.
+Styles: `frontend/src/styles/experience-home.css`.
 
-The current hero image is an Unsplash-licensed photograph of a Mercedes-AMG GT
-four-door by Sven Ciupka:
-https://unsplash.com/photos/a-grey-mercedes-benz-coupe-parked-in-front-of-a-building-Q5DMh_kDQKM
-(Unsplash image ID `photo-1649869241460-c1b4c977ed85`).
+Vehicle photographs are visually separated from all major headings and body copy;
+captions and body-style labels are rendered below the media region.
 
-The other editorial and category images retain their existing Unsplash identifiers.
-Copyright permission is not a substitute for trademark, property, or number-plate
-clearance. Final manual crop/plate inspection remains pending.
+The photographs below are published on Unsplash as free to use under the
+[Unsplash License](https://unsplash.com/license). Copyright permission does
+not clear third-party brand logos, vehicle trademarks, identifiable persons,
+or registration plates. Final visual and legal clearance remains pending.
 
-## Homepage photography
+| Placement | Photographer / publisher | Original photo | CDN ID |
+| --- | --- | --- | --- |
+| Hero — contemporary AMG GT | Rana Singh | https://unsplash.com/photos/a-dark-grey-mercedes-amg-gt-parked-outside-a-building-B1h8eJCK6g8 | `photo-1774066811800-448b846647a2` |
+| Editorial — orange AMG GT | Madeline Liu | https://unsplash.com/photos/a-bright-orange-mercedes-amg-gt-sports-car-parked-outside-PxsKpeYBxiE | `photo-1758563920563-0c9d7378058c` |
+| SUV — modern black luxury SUV | Wesley Shen | https://unsplash.com/photos/a-black-luxury-suv-parked-outside-a-modern-building-lTWuQD6Kzg8 | `photo-1771904488909-9137431615c5` |
+| Sedan — modern grey AMG GT | Gleb Paniotov | https://unsplash.com/photos/a-sleek-gray-mercedes-amg-gt-sport-car-qGzFSFyFSN0 | `photo-1741014154802-ecd803813064` |
+| Hatchback — Hyundai i30 N | Autotrader UK | https://unsplash.com/photos/a-light-blue-performance-hatchback-parked-on-a-wet-road-ckdXbtSez5c | `photo-1765891628083-cbabd2a0c3a8` |
 
-The restored private-preview homepage uses the earlier reviewed cinematic layout with the following
-Unsplash image IDs. Photograph copyright reuse is governed by the
-[Unsplash License](https://unsplash.com/license), which permits broad reuse but does **not** clear
-visible vehicle trademarks, people or third-party property rights.
+Each image is unique within this homepage. No photography or code from the
+benchmark manufacturer is included. This is editorial illustration, not
+manufacturer affiliation or endorsement.
 
-| Placement | Unsplash photo ID |
-| --- | --- |
-| Hero and editorial production luxury sedan | `photo-1555215695-3004980ad54e` |
-| SUV category | `photo-1519641471654-76ce0107ad1b` |
-| Sedan category | `photo-1555215695-3004980ad54e` |
-| Hatchback category | `photo-1549317661-bd32c8ce0db2` |
+## Visual acceptance gates
 
-Source delivery: `https://images.unsplash.com/{photo-id}`. Do not invent photographer names
-or imply rights to automaker logos. Plate visibility, crop, and brand/trademark use require a
-final manual inspection before any public release. No imagery or source code from the design
-benchmark is included.
+- Desktop 1440px, tablet 768px, mobile 390px and 320px: no heading/photo overlap,
+  clipping, horizontal scroll, or invisible menu.
+- Hero car fully legible at responsive crops; image load and alt text verified.
+- SUV, Sedan, Hatchback labels all below photography.
+- Scroll reveals visible, with reduced-motion fallback.
+- Preview sign-in protection and read-only staging mode retained.
+- Blank or obscured number plates and logo/trademark use cleared before public release.
 
 ## Production vehicle 3D assets
 
