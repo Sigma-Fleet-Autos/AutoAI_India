@@ -1,10 +1,13 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { MemoryRouter } from 'react-router-dom';
 import ExperienceHome from './ExperienceHome';
 
+jest.mock('react-router-dom', () => ({
+  Link: ({ children, to, ...props }) => require('react').createElement('a', { href: to, ...props }, children),
+}));
+
 function markup() {
-  return renderToStaticMarkup(<MemoryRouter><ExperienceHome /></MemoryRouter>);
+  return renderToStaticMarkup(<ExperienceHome />);
 }
 
 describe('isolated automotive experience', () => {
