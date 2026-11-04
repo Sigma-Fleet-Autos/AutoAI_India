@@ -5,25 +5,31 @@
 Active route: `frontend/src/pages/ExperienceHome.jsx`.
 Styles: `frontend/src/styles/experience-home.css`.
 
-Vehicle photographs are visually separated from all major headings and body copy;
-captions and body-style labels are rendered below the media region.
+All five active images are **different photographs of five different vehicles available
+in the Indian market**. Their original Unsplash pages identify the vehicle or marque,
+and explicitly state that the photograph is free to use under the
+[Unsplash License](https://unsplash.com/license). The primary CDN IDs below were
+verified against the original photo-page `<img>` elements, not search thumbnails.
 
-The photographs below are published on Unsplash as free to use under the
-[Unsplash License](https://unsplash.com/license). Copyright permission does
-not clear third-party brand logos, vehicle trademarks, identifiable persons,
-or registration plates. Final visual and legal clearance remains pending.
-
-| Placement | Photographer / publisher | Original photo | CDN ID |
+| Placement | Vehicle | Original photographer / source | Verified primary CDN ID |
 | --- | --- | --- | --- |
-| Hero — contemporary AMG GT | Rana Singh | https://unsplash.com/photos/a-dark-grey-mercedes-amg-gt-parked-outside-a-building-B1h8eJCK6g8 | `photo-1774066811800-448b846647a2` |
-| Editorial — orange AMG GT | Madeline Liu | https://unsplash.com/photos/a-bright-orange-mercedes-amg-gt-sports-car-parked-outside-PxsKpeYBxiE | `photo-1758563920563-0c9d7378058c` |
-| SUV — modern black luxury SUV | Wesley Shen | https://unsplash.com/photos/a-black-luxury-suv-parked-outside-a-modern-building-lTWuQD6Kzg8 | `photo-1771904488909-9137431615c5` |
-| Sedan — modern grey AMG GT | Gleb Paniotov | https://unsplash.com/photos/a-sleek-gray-mercedes-amg-gt-sport-car-qGzFSFyFSN0 | `photo-1741014154802-ecd803813064` |
-| Hatchback — Hyundai i30 N | Autotrader UK | https://unsplash.com/photos/a-light-blue-performance-hatchback-parked-on-a-wet-road-ckdXbtSez5c | `photo-1765891628083-cbabd2a0c3a8` |
+| Hero | Mercedes-Benz EQS (Made in India) | Aditya Panchal · https://unsplash.com/photos/a-car-parked-in-a-room-XShcvS-o8gA | `photo-1668248835473-c2f28c752663` |
+| Editorial | Audi passenger car photographed in Kolkata | Joy Lakra · https://unsplash.com/photos/b1DzEounjIs | `photo-1652946950814-25f52bb0ebfc` |
+| SUV | Mahindra Thar | Amjith S · https://unsplash.com/photos/a-black-jeep-driving-down-a-rural-road-8G4hNKdu60M | `photo-1723306975792-f5a053a59dd3` |
+| Sedan | BMW 2 Series Gran Coupé | Original photo · https://unsplash.com/photos/blue-car-in-a-parking-lot-1blmJ3x496I | `photo-1623994518372-2211dc3afb29` |
+| Hatchback | Hyundai i20 | Vignesh Rajendran · https://unsplash.com/photos/a-white-car-driving-down-a-forest-road-idjb6DfLP28 | `photo-1650029380425-7fbfbd9b2b68` |
 
-Each image is unique within this homepage. No photography or code from the
-benchmark manufacturer is included. This is editorial illustration, not
-manufacturer affiliation or endorsement.
+### Release limitations
+
+Unsplash copyright permission does **not** independently clear vehicle trademarks,
+recognisable persons, number plates, or manufacturer endorsement. A complete
+image-by-image visual inspection and plate masking is still required before
+any public publishing. The photographs are editorial representations of cars
+available in India; they are not proof of current inventory or a specific trim.
+
+The earlier candidate batch was rejected: its image IDs had not been mapped to
+their actual source photographs and one supposed SUV image was indexed as a
+Hyundai Verna sedan. Do not reintroduce that batch.
 
 ## Visual acceptance gates
 
