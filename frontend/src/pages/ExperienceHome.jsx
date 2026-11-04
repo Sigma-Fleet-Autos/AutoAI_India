@@ -6,11 +6,11 @@ import '../styles/experience-home.css';
 // Individually sourced, free-to-use photographs. Copyright licensing is documented
 // in docs/PREVIEW_VEHICLE_ASSETS.md; visible brand and plate clearance is pending.
 const PHOTOS = Object.freeze({
-  hero: 'https://images.unsplash.com/photo-1774066811800-448b846647a2?auto=format&fit=crop&w=2400&q=88',
-  detail: 'https://images.unsplash.com/photo-1758563920563-0c9d7378058c?auto=format&fit=crop&w=2000&q=85',
-  suv: 'https://images.unsplash.com/photo-1771904488909-9137431615c5?auto=format&fit=crop&w=1100&q=82',
-  sedan: 'https://images.unsplash.com/photo-1741014154802-ecd803813064?auto=format&fit=crop&w=1100&q=82',
-  hatchback: 'https://images.unsplash.com/photo-1765891628083-cbabd2a0c3a8?auto=format&fit=crop&w=1100&q=82',
+  hero: 'https://images.unsplash.com/photo-1663789817527-fac970beabbb?auto=format&fit=crop&w=2400&q=88',
+  detail: 'https://images.unsplash.com/photo-1703609645513-9c7b5a965add?auto=format&fit=crop&w=2000&q=85',
+  suv: 'https://images.unsplash.com/photo-1633359064754-804ba55e733f?auto=format&fit=crop&w=1100&q=82',
+  sedan: 'https://images.unsplash.com/photo-1650029379321-b83f9faa2c76?auto=format&fit=crop&w=1100&q=82',
+  hatchback: 'https://images.unsplash.com/photo-1663433340126-1868f62ca7a8?auto=format&fit=crop&w=1100&q=82',
 });
 
 const BODY_STYLES = [
@@ -67,7 +67,7 @@ export default function ExperienceHome() {
     <main>
       <section className="xp-hero" aria-labelledby="xp-title" data-testid="hero-section">
         <div className="xp-hero-photo">
-          <img src={PHOTOS.hero} alt="Contemporary Mercedes-AMG GT photographed outside a modern building" fetchPriority="high" decoding="async"/>
+          <img src={PHOTOS.hero} alt="Premium vehicle photographed in an automotive setting" fetchPriority="high" decoding="async"/>
           <span className="xp-hero-image-caption">AUTOAI INDIA / THE ART OF DRIVING</span>
           <a href="#xp-intro" className="xp-image-scroll" aria-label="Scroll to the next chapter"><ArrowDown size={21}/></a>
         </div>
@@ -95,7 +95,7 @@ export default function ExperienceHome() {
       </section>
 
       <section className="xp-detail" aria-labelledby="xp-detail-title">
-        <div className="xp-detail-photo"><img src={PHOTOS.detail} alt="Contemporary orange Mercedes-AMG GT performance car in daylight" loading="lazy" decoding="async"/></div>
+        <div className="xp-detail-photo"><img src={PHOTOS.detail} alt="Premium vehicle in a separate editorial photograph" loading="lazy" decoding="async"/></div>
         <Reveal className="xp-detail-copy">
           <span className="xp-eyebrow">02 — INTELLIGENT COMPARISON</span>
           <h2 id="xp-detail-title">Every detail.<br/><em>Considered.</em></h2>
