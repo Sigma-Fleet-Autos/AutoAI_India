@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDown, ArrowRight, ArrowUpRight, Menu, X } from 'lucide-react';
+import { ArrowDownRight, ArrowRight, ArrowUpRight, Menu, X } from 'lucide-react';
 import '../styles/experience-home.css';
 
-// Individually sourced, free-to-use photographs. Copyright licensing is documented
-// in docs/PREVIEW_VEHICLE_ASSETS.md; visible brand and plate clearance is pending.
+// Preview-only editorial photography; rights and visible branding require clearance.
+// Each photograph is unique. These images do not constitute verified inventory.
 const PHOTOS = Object.freeze({
   hero: 'https://images.unsplash.com/photo-1668248835473-c2f28c752663?auto=format&fit=crop&w=2400&q=88',
   detail: 'https://images.unsplash.com/photo-1652946950814-25f52bb0ebfc?auto=format&fit=crop&w=2000&q=85',
@@ -13,45 +13,52 @@ const PHOTOS = Object.freeze({
   hatchback: 'https://images.unsplash.com/photo-1650029380425-7fbfbd9b2b68?auto=format&fit=crop&w=1100&q=82',
 });
 
-const BODY_STYLES = [
-  { title: 'SUV', eyebrow: '01 / ADVENTURE', image: PHOTOS.suv, description: 'Mahindra Thar · Built for adventure.' },
-  { title: 'Sedan', eyebrow: '02 / PRECISION', image: PHOTOS.sedan, description: 'BMW 2 Series Gran Coupé · Precision in motion.' },
-  { title: 'Hatchback', eyebrow: '03 / EVERYDAY', image: PHOTOS.hatchback, description: 'Hyundai i20 · Made for the city.' },
-];
+const COLLECTION = Object.freeze([
+  { title: 'SUV', number: '01', image: PHOTOS.suv, caption: 'Explore a different perspective.', segment: 'SUV', alt: 'Premium SUV in a distinct editorial photograph' },
+  { title: 'Sedan', number: '02', image: PHOTOS.sedan, caption: 'The art of arriving.', segment: 'Sedan', alt: 'Premium sedan in a distinct editorial photograph' },
+  { title: 'Hatchback', number: '03', image: PHOTOS.hatchback, caption: 'Everyday, elevated.', segment: 'Hatchback', alt: 'Premium hatchback in a distinct editorial photograph' },
+]);
 
-function useMotionReveal(root) {
+function useReveal(root) {
   useEffect(() => {
     const host = root.current;
     if (!host) return undefined;
-    const nodes = host.querySelectorAll('[data-xp-reveal]');
-    if (!window.IntersectionObserver) {
-      nodes.forEach((node) => node.classList.add('xp-visible'));
+    const sections = host.querySelectorAll('[data-xp-reveal]');
+    if (typeof IntersectionObserver === 'undefined') {
+      sections.forEach((section) => section.classList.add('xp-visible'));
       return undefined;
     }
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(({ target, isIntersecting }) => {
+      entries.forEach(({ isIntersecting, target }) => {
         if (!isIntersecting) return;
         target.classList.add('xp-visible');
         observer.unobserve(target);
       });
-    }, { threshold: 0.06, rootMargin: '0px 0px -3% 0px' });
-    nodes.forEach((node) => observer.observe(node));
+    }, { rootMargin: '0px 0px -5% 0px', threshold: 0.05 });
+    sections.forEach((section) => observer.observe(section));
     return () => observer.disconnect();
   }, [root]);
 }
 
 function ExperienceNav() {
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return undefined;
+    const onEscape = (event) => { if (event.key === 'Escape') setOpen(false); };
+    window.addEventListener('keydown', onEscape);
+    return () => window.removeEventListener('keydown', onEscape);
+  }, [open]);
+
   return <header className="xp-nav">
-    <Link to="/" className="xp-logo" aria-label="AutoAI India home">AUTOAI<span>INDIA</span></Link>
-    <nav className={`xp-links${open ? ' xp-links-open' : ''}`} aria-label="Main navigation">
+    <Link to="/" className="xp-logo" aria-label="AutoAI India — home">AUTOAI<span>INDIA</span></Link>
+    <nav id="xp-primary-menu" className={`xp-links${open ? ' xp-links-open' : ''}`} aria-label="Primary navigation">
       <Link to="/cars" onClick={() => setOpen(false)}>Discover</Link>
       <Link to="/compare" onClick={() => setOpen(false)}>Compare</Link>
       <Link to="/recommend" onClick={() => setOpen(false)}>AI Advisor</Link>
-      <Link to="/about" onClick={() => setOpen(false)}>About</Link>
+      <Link to="/about" onClick={() => setOpen(false)}>Our story</Link>
     </nav>
-    <Link className="xp-nav-cta" to="/recommend">Find your drive <ArrowUpRight size={16} /></Link>
-    <button className="xp-menu" type="button" aria-expanded={open} aria-label={open ? 'Close menu' : 'Open menu'} onClick={() => setOpen((value) => !value)}>{open ? <X size={24}/> : <Menu size={24}/>}</button>
+    <Link className="xp-nav-cta" to="/recommend">Find your drive <ArrowUpRight size={16} aria-hidden="true" /></Link>
+    <button className="xp-menu" type="button" aria-controls="xp-primary-menu" aria-expanded={open} aria-label={open ? 'Close navigation' : 'Open navigation'} onClick={() => setOpen((value) => !value)}>{open ? <X size={23} /> : <Menu size={23} />}</button>
   </header>;
 }
 
@@ -61,68 +68,44 @@ function Reveal({ children, className = '' }) {
 
 export default function ExperienceHome() {
   const root = useRef(null);
-  useMotionReveal(root);
-  return <div ref={root} className="xp-root" data-testid="experience-home">
+  useReveal(root);
+  return <div className="xp-root" ref={root} data-testid="experience-home">
     <ExperienceNav />
     <main>
       <section className="xp-hero" aria-labelledby="xp-title" data-testid="hero-section">
-        <div className="xp-hero-photo">
-          <img src={PHOTOS.hero} alt="Mercedes-Benz EQS luxury electric sedan at an Indian automotive event" fetchPriority="high" decoding="async"/>
-          <span className="xp-hero-image-caption">AUTOAI INDIA / THE ART OF DRIVING</span>
-          <a href="#xp-intro" className="xp-image-scroll" aria-label="Scroll to the next chapter"><ArrowDown size={21}/></a>
+        <div className="xp-hero-scene">
+          <img className="xp-hero-car" src={PHOTOS.hero} alt="Luxury electric sedan photographed at an automotive event" fetchPriority="high" decoding="async" />
+          <div className="xp-hero-scene-caption"><span>INDEPENDENT AUTOMOTIVE INTELLIGENCE</span><span>INDIA / 2026</span></div>
         </div>
-        <div className="xp-hero-copy">
-          <div className="xp-hero-heading">
-            <span className="xp-eyebrow">AN INDEPENDENT AUTOMOTIVE EXPERIENCE</span>
-            <h1 id="xp-title">Drive <em>different.</em></h1>
-          </div>
-          <div className="xp-hero-description">
-            <p>Discover extraordinary cars. Compare with clarity. Choose with confidence.</p>
-            <Link className="xp-inline-link" to="/cars">Explore the collection <ArrowUpRight size={19}/></Link>
-          </div>
+        <div className="xp-hero-dock">
+          <div className="xp-hero-titles"><span className="xp-kicker"><span className="xp-kicker-mark" />THE ART OF THE DRIVE</span><h1 id="xp-title">Beyond the <em>ordinary.</em></h1></div>
+          <div className="xp-hero-side"><p>Explore extraordinary cars. Understand every detail. Find the one that moves you.</p><Link to="/cars" className="xp-hero-explore">Explore cars <ArrowUpRight size={20} /></Link></div>
         </div>
+        <a className="xp-scroll-cue" href="#xp-philosophy" aria-label="Continue to the next chapter"><span>SCROLL TO EXPLORE</span><ArrowDownRight size={21} /></a>
       </section>
 
-      <section className="xp-intro" id="xp-intro" aria-labelledby="xp-intro-title">
-        <Reveal className="xp-intro-layout">
-          <div className="xp-intro-index"><span>01 — THE PHILOSOPHY</span><span>BEYOND THE EXPECTED</span></div>
-          <div className="xp-intro-copy">
-            <h2 id="xp-intro-title">A car is more<br/>than a <em>machine.</em></h2>
-            <p>It is the way the road feels. The details you notice. The confidence behind every choice. Discover the cars worth your attention.</p>
-            <Link className="xp-inline-link" to="/recommend">Find your perfect match <ArrowUpRight size={19}/></Link>
-          </div>
+      <section id="xp-philosophy" className="xp-philosophy" aria-labelledby="xp-philosophy-title">
+        <Reveal className="xp-philosophy-body">
+          <div className="xp-section-index"><span>01 / A NEW PERSPECTIVE</span><span>AUTOAI INDIA</span></div>
+          <h2 id="xp-philosophy-title">A car is never<br/>just <em>a car.</em></h2>
+          <div className="xp-philosophy-bottom"><p>It is a feeling. A statement. A thousand small decisions that become one extraordinary drive. We bring the detail and intelligence into focus.</p><Link className="xp-text-link" to="/recommend">Discover your match <ArrowUpRight size={19}/></Link></div>
         </Reveal>
       </section>
 
-      <section className="xp-detail" aria-labelledby="xp-detail-title">
-        <div className="xp-detail-photo"><img src={PHOTOS.detail} alt="Audi sedan photographed on a wet road in Kolkata" loading="lazy" decoding="async"/></div>
-        <Reveal className="xp-detail-copy">
-          <span className="xp-eyebrow">02 — INTELLIGENT COMPARISON</span>
-          <h2 id="xp-detail-title">Every detail.<br/><em>Considered.</em></h2>
-          <p>Design and engineering are only the beginning. Compare performance, practicality and ownership on your terms.</p>
-          <Link className="xp-inline-link" to="/compare">Compare vehicles <ArrowUpRight size={19}/></Link>
-        </Reveal>
+      <section className="xp-feature" aria-labelledby="xp-feature-title">
+        <div className="xp-feature-media"><img src={PHOTOS.detail} alt="Premium sedan photographed in an atmospheric street scene" loading="lazy" decoding="async"/></div>
+        <Reveal className="xp-feature-copy"><span className="xp-kicker">02 / THE POWER OF CLARITY</span><h2 id="xp-feature-title">Every detail.<br/><em>Considered.</em></h2><p>Compare design, performance, safety and the true cost of ownership in one considered experience.</p><Link className="xp-text-link" to="/compare">Compare cars <ArrowUpRight size={19}/></Link></Reveal>
       </section>
 
       <section className="xp-collection" aria-labelledby="xp-collection-title" data-testid="features-section">
-        <Reveal className="xp-collection-heading">
-          <div><span className="xp-eyebrow">03 — THE COLLECTION</span><h2 id="xp-collection-title">Find your<br/><em>kind of drive.</em></h2></div>
-          <p>Three ways to move. One way to choose with confidence.</p>
-        </Reveal>
-        <div className="xp-category-grid">
-          {BODY_STYLES.map(({ title, eyebrow, image, description }) => <Reveal className="xp-category-item" key={title}>
-            <Link to="/cars" className="xp-category-link" aria-label={`Explore ${title} cars`}>
-              <span className="xp-category-image"><img src={image} alt={description} loading="lazy" decoding="async"/></span>
-              <span className="xp-category-label"><span><small>{eyebrow}</small><strong>{title}</strong><span className="xp-category-description">{description}</span></span><ArrowUpRight size={23} aria-hidden="true"/></span>
-            </Link>
-          </Reveal>)}
+        <Reveal className="xp-collection-head"><div><span className="xp-kicker">03 / FIND YOUR DIRECTION</span><h2 id="xp-collection-title">Your kind<br/>of <em>drive.</em></h2></div><p>Explore the shapes that define the Indian road. Every discovery starts somewhere.</p></Reveal>
+        <div className="xp-collection-grid">
+          {COLLECTION.map((item) => <Reveal className="xp-collection-card" key={item.title}><Link to={`/cars?segment=${encodeURIComponent(item.segment)}`} aria-label={`Explore ${item.title} vehicles`}><span className="xp-card-photo"><img src={item.image} alt={item.alt} loading="lazy" decoding="async" /></span><span className="xp-card-meta"><span className="xp-card-name"><small>{item.number} / COLLECTION</small><strong>{item.title}</strong><span>{item.caption}</span></span><ArrowUpRight size={24} aria-hidden="true"/></span></Link></Reveal>)}
         </div>
-        <Link className="xp-collection-all" to="/cars">Explore all cars <ArrowRight size={19}/></Link>
+        <Link className="xp-collection-more" to="/cars">Explore the full collection <ArrowRight size={20}/></Link>
       </section>
 
-      <section className="xp-end" aria-labelledby="xp-end-title">
-        <Reveal className="xp-end-inner"><span className="xp-eyebrow">04 — YOUR NEXT CHAPTER</span><h2 id="xp-end-title">Your next drive<br/>starts <em>here.</em></h2><p>Independent insights for an extraordinary decision.</p><Link to="/recommend" className="xp-end-button">Discover your car <ArrowUpRight size={19}/></Link></Reveal>
-      </section>
+      <section className="xp-finale" aria-labelledby="xp-finale-title"><Reveal className="xp-finale-inner"><span className="xp-kicker">04 / INTELLIGENCE MEETS INSTINCT</span><h2 id="xp-finale-title">The next chapter<br/>is <em>yours.</em></h2><p>Know what matters. Choose with confidence.</p><Link to="/recommend" className="xp-finale-cta">Find your drive <ArrowUpRight size={20}/></Link></Reveal></section>
     </main>
     <footer className="xp-footer"><Link to="/" className="xp-logo">AUTOAI<span>INDIA</span></Link><p>Intelligence for every drive.</p><nav aria-label="Footer navigation"><Link to="/cars">Cars</Link><Link to="/compare">Compare</Link><Link to="/about">About</Link></nav><small>© {new Date().getFullYear()} AutoAI India</small></footer>
   </div>;
