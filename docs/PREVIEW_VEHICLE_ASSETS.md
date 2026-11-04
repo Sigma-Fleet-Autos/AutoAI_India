@@ -1,5 +1,21 @@
 # Private preview: vehicle asset provenance and release gates
 
+## Standalone homepage rebuild (PR #91)
+
+The active homepage route is now `frontend/src/pages/ExperienceHome.jsx` with the
+independent `frontend/src/styles/experience-home.css` stylesheet. Previous homepage
+CSS is not used by this route. No manufacturer reference-site code or photographs
+are included.
+
+The current hero image is an Unsplash-licensed photograph of a Mercedes-AMG GT
+four-door by Sven Ciupka:
+https://unsplash.com/photos/a-grey-mercedes-benz-coupe-parked-in-front-of-a-building-Q5DMh_kDQKM
+(Unsplash image ID `photo-1649869241460-c1b4c977ed85`).
+
+The other editorial and category images retain their existing Unsplash identifiers.
+Copyright permission is not a substitute for trademark, property, or number-plate
+clearance. Final manual crop/plate inspection remains pending.
+
 ## Homepage photography
 
 The restored private-preview homepage uses the earlier reviewed cinematic layout with the following
