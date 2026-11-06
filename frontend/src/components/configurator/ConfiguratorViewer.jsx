@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Bounds, ContactShadows, Environment } from '@react-three/drei';
-import { Maximize2, Minimize2, Share2, Camera, Info, RotateCw, Play, Pause, ChevronUp, ChevronDown } from 'lucide-react';
+import { Maximize2, Minimize2, Share2, Camera, Info, RotateCw, Play, Pause, ChevronUp, ChevronDown, CarFront, Armchair, ScanEye } from 'lucide-react';
 
 import VehicleModel from '../../three/VehicleModel';
 import { AssetSuspense, AssetUnavailable } from '../../three/AssetLoader';
@@ -16,12 +16,13 @@ import { configuratorApi } from '../../services/configuratorApi';
 import { normalizeHotspots } from './premiumShowroom';
 import { buildConfiguratorShareCard } from './shareCard';
 import { buildCinematicSequence, getNextCinematicPreset } from './cinematicShowroom';
-import { getSupportedInteractionControls } from './interactionControls';
+import { getSupportedInteractionControls, hasVerifiedPartAnimations } from './interactionControls';
 import { getConfiguratorRenderProfile } from '../../three/configuratorPerformance';
+import { resolveSelectedPaintHex } from './selectedPaintColor';
 
 const CINEMATIC_INTERVAL_MS = 4200;
 
-function ConfiguratorScene({ asset, purchasable, interaction, sceneRef, onManualInteraction, renderProfile }) {
+function ConfiguratorScene({ asset, purchasable, interaction, paintColorHex, sceneRef, onManualInteraction, renderProfile }) {
   const controlsRef = useRef();
   useCameraPreset(interaction.cameraPreset, controlsRef, asset.cameraPresetNames);
   useLightingController(sceneRef, interaction.lighting, asset.supportedInteractions);
@@ -34,7 +35,7 @@ function ConfiguratorScene({ asset, purchasable, interaction, sceneRef, onManual
     <Bounds fit clip observe margin={1.3}>
       <AssetSuspense>
         <group ref={sceneRef} position={[0, -0.5, 0]}>
-          <VehicleModel asset={asset} purchasable={purchasable} interaction={interaction} />
+          <VehicleModel asset={asset} purchasable={purchasable} interaction={interaction} paintColorHex={paintColorHex} />
         </group>
       </AssetSuspense>
     </Bounds>
@@ -43,25 +44,49 @@ function ConfiguratorScene({ asset, purchasable, interaction, sceneRef, onManual
   </>;
 }
 
+const CAMERA_VIEWS = [
+  { preset: 'exterior', label: 'Exterior', icon: CarFront },
+  { preset: 'front', label: 'Front', icon: CarFront },
+  { preset: 'rear', label: 'Rear', icon: CarFront },
+  { preset: 'interior', label: 'Interior', icon: Armchair },
+  { preset: 'cockpit', label: 'Cockpit', icon: Armchair },
+  { preset: 'wheel', label: 'Wheels', icon: ScanEye },
+];
+
+function CameraViewTiles({ available, current, onSelect }) {
+  const views = CAMERA_VIEWS.filter(({ preset }) => available.includes(preset));
+  if (!views.length) return null;
+  return <nav className="absolute left-3 top-16 z-10 flex max-w-[calc(100%-24px)] gap-2 overflow-x-auto rounded-xl border border-white/10 bg-black/60 p-2 backdrop-blur-xl md:left-5 md:top-auto md:bottom-5" aria-label="Vehicle camera viewpoints">
+    {views.map(({ preset, label, icon: Icon }) => (
+      <button key={preset} type="button" aria-label={`View vehicle ${label.toLowerCase()}`} aria-pressed={current === preset} onClick={() => onSelect(preset)}
+        className={`group flex min-w-[64px] flex-col items-center gap-1.5 rounded-lg border px-2 py-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-400 ${current === preset ? 'border-amber-400 bg-amber-400/15 text-amber-200' : 'border-white/10 bg-white/5 text-white/70 hover:border-white/40'}`}>
+        <span className="flex h-10 w-12 items-center justify-center rounded-md bg-gradient-to-br from-white/15 to-transparent" aria-hidden="true"><Icon size={25} strokeWidth={1.2}/></span>
+        <span className="text-[9px] font-semibold uppercase tracking-wider">{label}</span>
+      </button>
+    ))}
+  </nav>;
+}
+
 function optionLabel(options, id) {
   const option = options?.find((item) => (item.option_id || item.color_id || item.wheel_id || item.interior_id || item.roof_id) === id);
   return option?.display_name || option?.name || option?.color_name || option?.wheel_name || option?.interior_name || id || 'Not selected';
 }
 
-function InteractionControls({ supportedInteractions, interaction, onManualInteraction }) {
+function InteractionControls({ supportedInteractions, interactionAnimationNames, interaction, onManualInteraction }) {
   const store = useConfiguratorStore();
   const controls = useMemo(() => getSupportedInteractionControls(supportedInteractions), [supportedInteractions]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const has = (id) => controls.some((control) => control.id === id);
+  const canMove = (part, side) => has(part) && hasVerifiedPartAnimations(supportedInteractions, interactionAnimationNames, part, side);
   const buttonClass = (active) => `configurator-interaction-button${active ? ' active' : ''}`;
   if (!controls.length) return null;
 
-  const doors = has('doors') ? [
+  const doors = [
     ['frontLeft', 'Front L'],
     ['frontRight', 'Front R'],
     ['rearLeft', 'Rear L'],
     ['rearRight', 'Rear R'],
-  ] : [];
+  ].filter(([side]) => canMove('doors', side));
   const lighting = controls.filter((control) => control.group === 'lighting');
 
   const lightState = (id) => Boolean(interaction.lighting[id]);
@@ -75,11 +100,11 @@ function InteractionControls({ supportedInteractions, interaction, onManualInter
     <div className="configurator-interaction-content">
       <div className="configurator-interaction-heading"><div><h3>3D interactions</h3><p>Verified capabilities only</p></div><span>{controls.length} available</span></div>
       {doors.length > 0 && <div className="configurator-interaction-group"><span className="configurator-interaction-label">Doors</span><div className="configurator-interaction-grid">{doors.map(([side, label]) => <button key={side} type="button" className={buttonClass(interaction.doors[side])} aria-pressed={interaction.doors[side]} onClick={() => { onManualInteraction(); store.toggleDoor(side); }}>{label}</button>)}</div></div>}
-      {(has('hood') || has('boot') || has('frunk') || has('sunroof')) && <div className="configurator-interaction-group"><span className="configurator-interaction-label">Body</span><div className="configurator-interaction-grid">
-        {has('hood') && <button type="button" className={buttonClass(interaction.hoodOpen)} aria-pressed={interaction.hoodOpen} onClick={() => { onManualInteraction(); store.toggleHood(); }}>Bonnet</button>}
-        {has('boot') && <button type="button" className={buttonClass(interaction.bootOpen)} aria-pressed={interaction.bootOpen} onClick={() => { onManualInteraction(); store.toggleBoot(); }}>Boot</button>}
-        {has('frunk') && <button type="button" className={buttonClass(interaction.frunkOpen)} aria-pressed={interaction.frunkOpen} onClick={() => { onManualInteraction(); store.toggleFrunk(); }}>Frunk</button>}
-        {has('sunroof') && <button type="button" className={buttonClass(interaction.sunroofOpen)} aria-pressed={interaction.sunroofOpen} onClick={() => { onManualInteraction(); store.toggleSunroof(); }}>Sunroof</button>}
+      {(canMove('hood') || canMove('boot') || canMove('frunk') || canMove('sunroof')) && <div className="configurator-interaction-group"><span className="configurator-interaction-label">Body</span><div className="configurator-interaction-grid">
+        {canMove('hood') && <button type="button" className={buttonClass(interaction.hoodOpen)} aria-pressed={interaction.hoodOpen} onClick={() => { onManualInteraction(); store.toggleHood(); }}>Bonnet</button>}
+        {canMove('boot') && <button type="button" className={buttonClass(interaction.bootOpen)} aria-pressed={interaction.bootOpen} onClick={() => { onManualInteraction(); store.toggleBoot(); }}>Boot</button>}
+        {canMove('frunk') && <button type="button" className={buttonClass(interaction.frunkOpen)} aria-pressed={interaction.frunkOpen} onClick={() => { onManualInteraction(); store.toggleFrunk(); }}>Frunk</button>}
+        {canMove('sunroof') && <button type="button" className={buttonClass(interaction.sunroofOpen)} aria-pressed={interaction.sunroofOpen} onClick={() => { onManualInteraction(); store.toggleSunroof(); }}>Sunroof</button>}
       </div></div>}
       {lighting.length > 0 && <div className="configurator-interaction-group"><span className="configurator-interaction-label">Lighting</span><div className="configurator-interaction-grid">{lighting.map((control) => <button key={control.id} type="button" className={buttonClass(lightState(control.id))} aria-pressed={lightState(control.id)} onClick={() => control.id === 'hazard' ? (onManualInteraction(), store.toggleHazard()) : toggleLight(control.id)}>{control.label}</button>)}</div></div>}
     </div>
@@ -110,6 +135,8 @@ export default function ConfiguratorViewer({ style, options, variant }) {
       reducedMotion,
     });
   }, []);
+
+  const paintColorHex = resolveSelectedPaintHex(options?.colors, purchasable.paintId);
 
   const cinematicSequence = useMemo(
     () => buildCinematicSequence(asset.supportedInteractions, asset.cameraPresetNames),
@@ -213,10 +240,11 @@ export default function ConfiguratorViewer({ style, options, variant }) {
     setCameraPreset(preset);
   };
 
-  return <div ref={canvasRef} style={style} className={`configurator-viewer${cinematic ? ' cinematic' : ''}`}>
+  return <div ref={canvasRef} style={style} className={`configurator-viewer relative h-[390px] w-full overflow-hidden rounded-2xl sm:h-[480px] lg:h-[min(77vh,750px)]${cinematic ? ' cinematic' : ''}`}>
     <Canvas dpr={renderProfile.dpr} gl={{ preserveDrawingBuffer: true, powerPreference: 'high-performance' }} camera={{ position: [5, 2.5, 5], fov: 35 }}>
-      <ConfiguratorScene asset={asset} purchasable={purchasable} interaction={interaction} sceneRef={sceneRef} onManualInteraction={takeManualControl} renderProfile={renderProfile} />
+      <ConfiguratorScene asset={asset} purchasable={purchasable} interaction={interaction} paintColorHex={paintColorHex} sceneRef={sceneRef} onManualInteraction={takeManualControl} renderProfile={renderProfile} />
     </Canvas>
+    <CameraViewTiles available={asset.available ? asset.cameraPresetNames : []} current={interaction.cameraPreset} onSelect={(preset) => { takeManualControl(); setCameraPreset(preset); }} />
     <div className="configurator-viewer-controls">
       <button type="button" onClick={toggleShowroom} disabled={!cinematicSequence.length} aria-label={!showroom.active || showroom.paused ? 'Play cinematic showroom' : 'Pause cinematic showroom'}>{showroom.active && !showroom.paused ? <Pause /> : <Play />}</button>
       <button type="button" onClick={toggleCinematic} aria-label={cinematic ? 'Exit cinematic mode' : 'Enter cinematic mode'}>{cinematic ? <Minimize2 /> : <Maximize2 />}</button>
@@ -224,7 +252,7 @@ export default function ConfiguratorViewer({ style, options, variant }) {
       <button type="button" onClick={capture} aria-label="Capture configuration"><Camera /></button>
       <button type="button" onClick={share} aria-label="Share configuration"><Share2 /></button>
     </div>
-    <InteractionControls supportedInteractions={asset.supportedInteractions} interaction={interaction} onManualInteraction={takeManualControl} />
+    <InteractionControls supportedInteractions={asset.supportedInteractions} interactionAnimationNames={asset.interactionAnimationNames} interaction={interaction} onManualInteraction={takeManualControl} />
     {showroom.active && <div className="configurator-showroom-status" role="status">{showroom.paused ? 'Manual control' : 'Cinematic showroom'} · {interaction.cameraPreset}</div>}
     {captureState?.status === 'error' && <div role="status">Unable to capture configuration.</div>}
     {hotspots.map((hotspot) => <button key={hotspot.id} type="button" className="configurator-hotspot" style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%` }} onClick={() => { takeManualControl(); setSelectedHotspot(hotspot); if (hotspot.cameraPreset) selectHotspotCamera(hotspot.cameraPreset); }} aria-label={hotspot.label}><Info /></button>)}

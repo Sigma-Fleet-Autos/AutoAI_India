@@ -14,13 +14,23 @@ import { applyRuntimeMeshVisibility, applyRuntimeInteriorMaterials, canRenderLoa
 import { projectVerifiedVisualConfiguration } from '../components/configurator/runtimeVisualConfiguration';
 
 function applyPaintColor(materialIndex, colorHex, paintMaterialNames) {
-  if (!(materialIndex instanceof Map) || !colorHex || !paintMaterialNames?.length) return;
-  let color;
-  try { color = new THREE.Color(colorHex); } catch { return; }
-  if (!Number.isFinite(color.r) || !Number.isFinite(color.g) || !Number.isFinite(color.b)) return;
+  if (!(materialIndex instanceof Map) || !paintMaterialNames?.length) return;
+  let color = null;
+  if (colorHex) {
+    try { color = new THREE.Color(colorHex); } catch { return; }
+    if (!Number.isFinite(color.r) || !Number.isFinite(color.g) || !Number.isFinite(color.b)) return;
+  }
   paintMaterialNames.forEach((name) => {
     const materials = materialIndex.get(name.trim().toLowerCase()) || [];
-    materials.forEach((material) => { material.color.copy(color); material.needsUpdate = true; });
+    materials.forEach((material) => {
+      if (!material.color) return;
+      if (!material.userData) material.userData = {};
+      if (!material.userData.__autoAiBasePaintColor) {
+        material.userData.__autoAiBasePaintColor = material.color.clone();
+      }
+      material.color.copy(color || material.userData.__autoAiBasePaintColor);
+      material.needsUpdate = true;
+    });
   });
 }
 
@@ -28,7 +38,7 @@ function normalizeWheelMappings(wheelMeshNames) {
   return Object.fromEntries(Object.entries(wheelMeshNames || {}).map(([optionId, meshName]) => [optionId, [meshName]]));
 }
 
-function LoadedVehicle({ asset, runtime, purchasable, interaction }) {
+function LoadedVehicle({ asset, runtime, purchasable, interaction, paintColorHex }) {
   const { scene, animations } = useGLTF(asset.url);
   const groupRef = useRef();
   const previousInteractionRef = useRef(null);
@@ -59,9 +69,11 @@ function LoadedVehicle({ asset, runtime, purchasable, interaction }) {
   const loadedRuntimeValid = useMemo(() => canRenderLoadedRuntime(runtime, clonedScene, animations), [runtime, clonedScene, animations]);
   const { play, verifiedAnimationMappings } = useVehicleAnimations(animations, groupRef, runtime.interactionAnimationNames);
 
-  useEffect(() => applyPaintColor(runtimeMaterialIndex, asset.paintColorHex, runtime.paintMaterialNames), [asset.paintColorHex, runtime.paintMaterialNames, runtimeMaterialIndex]);
+  useEffect(() => applyPaintColor(runtimeMaterialIndex, paintColorHex, runtime.paintMaterialNames), [paintColorHex, runtime.paintMaterialNames, runtimeMaterialIndex]);
   useEffect(() => {
-    applyRuntimeMeshVisibility(runtimeNodeIndex, [visualConfiguration.wheelId], normalizeWheelMappings(runtime.wheelMeshNames));
+    if (visualConfiguration.wheelId) {
+      applyRuntimeMeshVisibility(runtimeNodeIndex, [visualConfiguration.wheelId], normalizeWheelMappings(runtime.wheelMeshNames));
+    }
     applyRuntimeMeshVisibility(
       runtimeNodeIndex,
       [visualConfiguration.roofId, ...visualConfiguration.accessoryIds],
@@ -108,11 +120,11 @@ function LoadedVehicle({ asset, runtime, purchasable, interaction }) {
   return <primitive ref={groupRef} object={clonedScene} />;
 }
 
-export default function VehicleModel({ asset, purchasable, interaction }) {
+export default function VehicleModel({ asset, purchasable, interaction, paintColorHex }) {
   const runtimeAsset = useMemo(() => resolveRuntimeAsset(asset), [asset]);
   if (!runtimeAsset) {
     console.error('[VehicleModel] Rejected unavailable or invalid verified runtime asset.');
     return null;
   }
-  return <LoadedVehicle asset={runtimeAsset} runtime={runtimeAsset} purchasable={purchasable} interaction={interaction} />;
+  return <LoadedVehicle asset={runtimeAsset} runtime={runtimeAsset} purchasable={purchasable} interaction={interaction} paintColorHex={paintColorHex} />;
 }
