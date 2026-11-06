@@ -27,6 +27,7 @@ export default function Cars() {
  const [q,setQ]=useState("");
  const [segment,setSegment]=useState(()=>{const requested=params.get("segment")||"All";return BODY_STYLES.includes(requested)?requested:bodyStyle(requested);});
  const [fuel,setFuel]=useState("All");
+ useEffect(()=>{const requested=params.get("segment")||"All";setSegment(BODY_STYLES.includes(requested)?requested:bodyStyle(requested));},[params]);
  useEffect(()=>{let active=true;api.get("/cars",{timeout:15000}).then(({data})=>{if(!active)return;if(!Array.isArray(data)){setStatus("error");return;}setCars(data);setStatus("ready");}).catch(()=>{if(active)setStatus("error");});return()=>{active=false;};},[retry]);
  const segments=BODY_STYLES.filter(style=>style==="All"||cars.some(car=>bodyStyle(car.segment)===style));
  const fuels=useMemo(()=>["All",...new Set(cars.map(c=>c.fuel).filter(Boolean))],[cars]);
