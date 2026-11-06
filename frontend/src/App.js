@@ -38,7 +38,7 @@ function AppLayout() {
     <div className="App bg-[#050505] text-white">
             {!isCinematicHome && !isPublicCinematicRoute && <Navbar />}
             {isPublicCinematicRoute && <CinematicHeader />}
-            <main className={isPublicCinematicRoute ? "cin-route-shell" : ""}>
+            <div className={isPublicCinematicRoute ? "cin-route-shell" : ""}>
               <Routes>
                 <Route path="/" element={<ExperienceHome />} />
                 <Route path="/compare" element={<Compare />} />
@@ -61,7 +61,7 @@ function AppLayout() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/my-bookings" element={<MyBookings />} />
               </Routes>
-            </main>
+            </div>
             {!isCinematicHome && !isPublicCinematicRoute && <Footer />}
             {!isCinematicHome && !isPublicCinematicRoute && <ChatDrawer />}
             <InstallPWA />
