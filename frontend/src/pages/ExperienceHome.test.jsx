@@ -52,6 +52,15 @@ describe('isolated cinematic automotive experience', () => {
     expect(html).not.toContain('₹');
   });
 
+  it('offers three accessible campaign selections without duplicating hero images', () => {
+    const html = markup();
+    const buttons = [...html.matchAll(/aria-label="Show story [1-3]:/g)];
+    expect(buttons).toHaveLength(3);
+    expect((html.match(/aria-pressed="true"/g) || [])).toHaveLength(1);
+    expect(html).toContain('aria-label="Featured automotive stories"');
+    expect(html).toContain('Beyond the ordinary.');
+  });
+
   it('provides accessible navigation, linked chapters and a single main landmark', () => {
     const html = markup();
     expect(html).toContain('aria-label="Primary navigation"');
