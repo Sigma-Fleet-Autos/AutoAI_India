@@ -39,3 +39,17 @@ export function hasVerifiedPartAnimations(supportedInteractions, animationMappin
   if (!required) return false;
   return required.every((key) => typeof mapping[key] === 'string' && mapping[key].trim().length > 0);
 }
+
+
+/** Return only controls whose UI can actually perform the declared interaction. */
+export function getVerifiedInteractionControls(supportedInteractions = [], animationMappings = {}) {
+  return getSupportedInteractionControls(supportedInteractions).filter((control) => {
+    if (control.group === 'lighting') return true;
+    if (control.id === 'doors') {
+      return Object.keys(DOOR_ANIMATIONS).some((side) =>
+        hasVerifiedPartAnimations(supportedInteractions, animationMappings, 'doors', side)
+      );
+    }
+    return hasVerifiedPartAnimations(supportedInteractions, animationMappings, control.id);
+  });
+}
