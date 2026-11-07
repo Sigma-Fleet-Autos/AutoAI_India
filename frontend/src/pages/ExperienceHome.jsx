@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowDownRight, ArrowRight, ArrowUpRight, Menu, X } from 'lucide-react';
+import { ArrowDownRight, ArrowRight, ArrowUpRight, Menu, Pause, Play, X } from 'lucide-react';
 import '../styles/experience-home.css';
 
 // Preview-only editorial photography; rights and visible branding require clearance.
@@ -66,15 +66,21 @@ function useReveal(root) {
 
 function ExperienceNav() {
   const [open, setOpen] = useState(false);
+  const menuButton = useRef(null);
   useEffect(() => {
     if (!open) return undefined;
-    const onEscape = (event) => { if (event.key === 'Escape') setOpen(false); };
+    const onEscape = (event) => {
+      if (event.key !== 'Escape') return;
+      setOpen(false);
+      menuButton.current?.focus();
+    };
     window.addEventListener('keydown', onEscape);
     return () => window.removeEventListener('keydown', onEscape);
   }, [open]);
 
   return <header className="xp-nav">
     <Link to="/" className="xp-logo" aria-label="AutoAI India — home">AUTOAI<span>INDIA</span></Link>
+    <button ref={menuButton} className="xp-menu" type="button" aria-controls="xp-primary-menu" aria-expanded={open} aria-label={open ? 'Close navigation' : 'Open navigation'} onClick={() => setOpen((value) => !value)}>{open ? <X size={23} /> : <Menu size={23} />}</button>
     <nav id="xp-primary-menu" className={`xp-links${open ? ' xp-links-open' : ''}`} aria-label="Primary navigation">
       <Link to="/cars" onClick={() => setOpen(false)}>Discover</Link>
       <Link to="/compare" onClick={() => setOpen(false)}>Compare</Link>
@@ -82,7 +88,6 @@ function ExperienceNav() {
       <Link to="/about" onClick={() => setOpen(false)}>Our story</Link>
     </nav>
     <Link className="xp-nav-cta" to="/recommend">Find your drive <ArrowUpRight size={16} aria-hidden="true" /></Link>
-    <button className="xp-menu" type="button" aria-controls="xp-primary-menu" aria-expanded={open} aria-label={open ? 'Close navigation' : 'Open navigation'} onClick={() => setOpen((value) => !value)}>{open ? <X size={23} /> : <Menu size={23} />}</button>
   </header>;
 }
 
@@ -93,11 +98,11 @@ function Reveal({ children, className = '' }) {
 export default function ExperienceHome() {
   const root = useRef(null);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [playing, setPlaying] = useState(false);
   const slide = HERO_SLIDES[activeSlide];
 
   useEffect(() => {
-    if (typeof window === 'undefined' || typeof document === 'undefined') return undefined;
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return undefined;
+    if (!playing) return undefined;
     const onTick = () => {
       if (document.visibilityState !== 'hidden') {
         setActiveSlide((index) => (index + 1) % HERO_SLIDES.length);
@@ -105,15 +110,16 @@ export default function ExperienceHome() {
     };
     const timer = window.setInterval(onTick, 7000);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [playing]);
 
   useReveal(root);
   return <div className="xp-root" ref={root} data-testid="experience-home">
     <ExperienceNav />
+    <a className="xp-skip" href="#xp-title">Skip to main content</a>
     <main>
       <section className="xp-hero" aria-labelledby="xp-title" data-testid="hero-section">
         <div className="xp-hero-scene">
-          <img key={slide.image} className="xp-hero-car" src={slide.image} alt={slide.alt} fetchPriority={activeSlide === 0 ? 'high' : 'auto'} decoding="async" />
+          <img key={slide.image} className="xp-hero-car" src={slide.image} srcSet={`${slide.image.replace(/w=\d+/, 'w=960')} 960w, ${slide.image.replace(/w=\d+/, 'w=1600')} 1600w, ${slide.image.replace(/w=\d+/, 'w=2400')} 2400w`} sizes="100vw" alt={slide.alt} fetchPriority={activeSlide === 0 ? 'high' : 'auto'} decoding="async" />
           <div className="xp-hero-scene-caption"><span>INDEPENDENT AUTOMOTIVE INTELLIGENCE</span><span>INDIA / 2026</span></div>
           <div className="xp-hero-pagination" role="group" aria-label="Featured automotive stories">
             {HERO_SLIDES.map((item, index) => (
@@ -123,15 +129,18 @@ export default function ExperienceHome() {
                 className={`xp-hero-page${index === activeSlide ? ' xp-hero-page-active' : ''}`}
                 aria-label={`Show story ${index + 1}: ${item.kicker}`}
                 aria-pressed={index === activeSlide}
-                onClick={() => setActiveSlide(index)}
+                onClick={() => { setPlaying(false); setActiveSlide(index); }}
               >
                 <span aria-hidden="true" />
               </button>
             ))}
+            <button type="button" className="xp-hero-page xp-hero-playback" aria-label={playing ? 'Pause featured stories' : 'Play featured stories'} onClick={() => setPlaying((value) => !value)}>
+              {playing ? <Pause size={18} aria-hidden="true" /> : <Play size={18} aria-hidden="true" />}
+            </button>
           </div>
         </div>
         <div className="xp-hero-dock">
-          <div className="xp-hero-titles"><span className="xp-kicker"><span className="xp-kicker-mark" />{slide.kicker}</span><h1 id="xp-title">{slide.title}</h1></div>
+          <div className="xp-hero-titles"><span className="xp-kicker"><span className="xp-kicker-mark" />{slide.kicker}</span><h1 id="xp-title" tabIndex={-1}>{slide.title}</h1></div>
           <div className="xp-hero-side"><p>{slide.description}</p><Link to="/cars" className="xp-hero-explore">Explore cars <ArrowUpRight size={20} /></Link></div>
         </div>
         <a className="xp-scroll-cue" href="#xp-philosophy" aria-label="Continue to the next chapter"><span>SCROLL TO EXPLORE</span><ArrowDownRight size={21} /></a>

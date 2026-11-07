@@ -199,3 +199,8 @@
 .cin-category,.cin-editorial-grid,.cin-vehicle{animation:cin-reveal linear both;animation-timeline:view();animation-range:entry 0% cover 22%}
 @keyframes cin-reveal{from{opacity:.55;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 }
+
+/* Catalogue typography on its light editorial background. */
+.cin-catalogue .cin-catalogue-heading h1 span { color: #4d6669; }
+.cin-catalogue .cin-catalogue-heading p,
+.cin-catalogue .cin-catalogue-count { color: #46595d; }

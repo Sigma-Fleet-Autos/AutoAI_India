@@ -43,7 +43,7 @@ export function resolveCameraPreset(preset, allowedPresetNames) {
   return CAMERA_PRESETS[preset];
 }
 
-export function useCameraPreset(preset, controlsRef, allowedPresetNames) {
+export function useCameraPreset(preset, controlsRef, allowedPresetNames, revision = 0) {
   const { camera } = useThree();
 
   useEffect(() => {
@@ -82,12 +82,13 @@ export function useCameraPreset(preset, controlsRef, allowedPresetNames) {
 
     frameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frameId);
-  }, [allowedPresetNames, camera, controlsRef, preset]);
+  }, [allowedPresetNames, camera, controlsRef, preset, revision]);
 }
 
-export function ConfiguratorControls({ autoRotate, onInteract, controlsRef }) {
+export function ConfiguratorControls({ autoRotate, onInteract, controlsRef, cameraPreset }) {
   const internalRef = useRef();
   const resolvedRef = controlsRef || internalRef;
+  const closeUp = ['interior', 'cockpit', 'wheel'].includes(cameraPreset);
 
   return (
     <OrbitControls
@@ -96,9 +97,9 @@ export function ConfiguratorControls({ autoRotate, onInteract, controlsRef }) {
       enablePan={false}
       autoRotate={autoRotate}
       autoRotateSpeed={0.8}
-      minDistance={2.5}
-      maxDistance={10}
-      minPolarAngle={Math.PI / 6}
+      minDistance={closeUp ? 0.1 : 2.5}
+      maxDistance={closeUp ? 3 : 10}
+      minPolarAngle={0.01}
       maxPolarAngle={Math.PI / 1.9}
       rotateSpeed={0.7}
       enableDamping

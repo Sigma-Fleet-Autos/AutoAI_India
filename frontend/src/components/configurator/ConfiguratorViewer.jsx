@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Bounds, ContactShadows, Environment } from '@react-three/drei';
-import { Maximize2, Minimize2, Share2, Camera, Info, RotateCw, Play, Pause, ChevronUp, ChevronDown, CarFront, Armchair, ScanEye } from 'lucide-react';
+import { Maximize2, Minimize2, Share2, Camera, Info, RotateCw, Play, Pause, ChevronUp, ChevronDown } from 'lucide-react';
 
 import VehicleModel from '../../three/VehicleModel';
 import { AssetSuspense, AssetUnavailable } from '../../three/AssetLoader';
@@ -22,9 +22,9 @@ import { resolveSelectedPaintHex } from './selectedPaintColor';
 
 const CINEMATIC_INTERVAL_MS = 4200;
 
-function ConfiguratorScene({ asset, purchasable, interaction, paintColorHex, sceneRef, onManualInteraction, renderProfile }) {
+function ConfiguratorScene({ asset, purchasable, interaction, paintColorHex, sceneRef, onManualInteraction, renderProfile, cameraRevision }) {
   const controlsRef = useRef();
-  useCameraPreset(interaction.cameraPreset, controlsRef, asset.cameraPresetNames);
+  useCameraPreset(interaction.cameraPreset, controlsRef, asset.cameraPresetNames, cameraRevision);
   useLightingController(sceneRef, interaction.lighting, asset.supportedInteractions);
   return <>
     <color attach="background" args={['#060606']} />
@@ -40,28 +40,33 @@ function ConfiguratorScene({ asset, purchasable, interaction, paintColorHex, sce
       </AssetSuspense>
     </Bounds>
     {renderProfile.contactShadows && <ContactShadows position={[0, -1, 0]} opacity={0.5} scale={14} blur={2.5} far={5} />}
-    <ConfiguratorControls autoRotate={interaction.autoRotate} onInteract={onManualInteraction} controlsRef={controlsRef} />
+    <ConfiguratorControls cameraPreset={interaction.cameraPreset} autoRotate={interaction.autoRotate} onInteract={onManualInteraction} controlsRef={controlsRef} />
   </>;
 }
 
-const CAMERA_VIEWS = [
-  { preset: 'exterior', label: 'Exterior', icon: CarFront },
-  { preset: 'front', label: 'Front', icon: CarFront },
-  { preset: 'rear', label: 'Rear', icon: CarFront },
-  { preset: 'interior', label: 'Interior', icon: Armchair },
-  { preset: 'cockpit', label: 'Cockpit', icon: Armchair },
-  { preset: 'wheel', label: 'Wheels', icon: ScanEye },
-];
+const CAMERA_LABELS = {
+  exterior: 'Exterior',
+  front: 'Front',
+  rear: 'Rear',
+  left: 'Left side',
+  right: 'Right side',
+  top: 'Top',
+  wheel: 'Wheel detail',
+  interior: 'Interior',
+  cockpit: 'Cockpit',
+  boot: 'Boot',
+};
+
+const ORBIT_VIEWS = ['exterior', 'front', 'rear', 'left', 'right', 'top'];
 
 function CameraViewTiles({ available, current, onSelect }) {
-  const views = CAMERA_VIEWS.filter(({ preset }) => available.includes(preset));
+  const views = Object.entries(CAMERA_LABELS).filter(([preset]) => available.includes(preset));
   if (!views.length) return null;
-  return <nav className="absolute left-3 top-16 z-10 flex max-w-[calc(100%-24px)] gap-2 overflow-x-auto rounded-xl border border-white/10 bg-black/60 p-2 backdrop-blur-xl md:left-5 md:top-auto md:bottom-5" aria-label="Vehicle camera viewpoints">
-    {views.map(({ preset, label, icon: Icon }) => (
-      <button key={preset} type="button" aria-label={`View vehicle ${label.toLowerCase()}`} aria-pressed={current === preset} onClick={() => onSelect(preset)}
-        className={`group flex min-w-[64px] flex-col items-center gap-1.5 rounded-lg border px-2 py-2 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-400 ${current === preset ? 'border-amber-400 bg-amber-400/15 text-amber-200' : 'border-white/10 bg-white/5 text-white/70 hover:border-white/40'}`}>
-        <span className="flex h-10 w-12 items-center justify-center rounded-md bg-gradient-to-br from-white/15 to-transparent" aria-hidden="true"><Icon size={25} strokeWidth={1.2}/></span>
-        <span className="text-[9px] font-semibold uppercase tracking-wider">{label}</span>
+
+  return <nav className="configurator-viewpoints" aria-label="Vehicle camera viewpoints">
+    {views.map(([preset, label]) => (
+      <button key={preset} type="button" aria-pressed={current === preset} onClick={() => onSelect(preset)}>
+        {label}
       </button>
     ))}
   </nav>;
@@ -114,6 +119,7 @@ function InteractionControls({ supportedInteractions, interactionAnimationNames,
 export default function ConfiguratorViewer({ style, options, variant }) {
   const sceneRef = useRef();
   const canvasRef = useRef(null);
+  const [cameraRevision, setCameraRevision] = useState(0);
   const [cinematic, setCinematic] = useState(false);
   const [captureState, setCaptureState] = useState(null);
   const [hotspots, setHotspots] = useState([]);
@@ -126,6 +132,7 @@ export default function ConfiguratorViewer({ style, options, variant }) {
   const city = useConfiguratorStore((state) => state.city);
   const isInitialized = useConfiguratorStore((state) => state.isInitialized);
   const setCameraPreset = useConfiguratorStore((state) => state.setCameraPreset);
+  const setAutoRotate = useConfiguratorStore((state) => state.setAutoRotate);
   const setShowroomActive = useConfiguratorStore((state) => state.setShowroomActive);
   const setShowroomPaused = useConfiguratorStore((state) => state.setShowroomPaused);
   const renderProfile = useMemo(() => {
@@ -165,8 +172,15 @@ export default function ConfiguratorViewer({ style, options, variant }) {
 
   useEffect(() => {
     const handleFullscreenChange = () => setCinematic(document.fullscreenElement === canvasRef.current);
+    const exitOnEscape = (event) => {
+      if (event.key === 'Escape' && !document.fullscreenElement) setCinematic(false);
+    };
     document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('keydown', exitOnEscape);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('keydown', exitOnEscape);
+    };
   }, []);
 
   useEffect(() => {
@@ -183,13 +197,25 @@ export default function ConfiguratorViewer({ style, options, variant }) {
   }, [asset.available, isInitialized, purchasable.variantId]);
 
   const toggleCinematic = async () => {
-    if (document.fullscreenElement) { await document.exitFullscreen?.(); return; }
-    if (canvasRef.current?.requestFullscreen) { await canvasRef.current.requestFullscreen(); return; }
+    if (document.fullscreenElement === canvasRef.current) {
+      await document.exitFullscreen();
+      return;
+    }
+    if (!cinematic && canvasRef.current?.requestFullscreen) {
+      try {
+        await canvasRef.current.requestFullscreen();
+        return;
+      } catch {
+        setCinematic(true);
+        return;
+      }
+    }
     setCinematic((value) => !value);
   };
 
   const toggleShowroom = () => {
     if (!cinematicSequence.length) return;
+    setAutoRotate(false);
     if (!showroom.active) {
       const currentPreset = interaction.cameraPreset;
       const firstPreset = cinematicSequence.includes(currentPreset) ? currentPreset : cinematicSequence[0];
@@ -240,23 +266,45 @@ export default function ConfiguratorViewer({ style, options, variant }) {
     setCameraPreset(preset);
   };
 
-  return <div ref={canvasRef} style={style} className={`configurator-viewer relative h-[390px] w-full overflow-hidden rounded-2xl sm:h-[480px] lg:h-[min(77vh,750px)]${cinematic ? ' cinematic' : ''}`}>
-    <Canvas dpr={renderProfile.dpr} gl={{ preserveDrawingBuffer: true, powerPreference: 'high-performance' }} camera={{ position: [5, 2.5, 5], fov: 35 }}>
-      <ConfiguratorScene asset={asset} purchasable={purchasable} interaction={interaction} paintColorHex={paintColorHex} sceneRef={sceneRef} onManualInteraction={takeManualControl} renderProfile={renderProfile} />
-    </Canvas>
-    <CameraViewTiles available={asset.available ? asset.cameraPresetNames : []} current={interaction.cameraPreset} onSelect={(preset) => { takeManualControl(); setCameraPreset(preset); }} />
-    <div className="configurator-viewer-controls">
-      <button type="button" onClick={toggleShowroom} disabled={!cinematicSequence.length} aria-label={!showroom.active || showroom.paused ? 'Play cinematic showroom' : 'Pause cinematic showroom'}>{showroom.active && !showroom.paused ? <Pause /> : <Play />}</button>
-      <button type="button" onClick={toggleCinematic} aria-label={cinematic ? 'Exit cinematic mode' : 'Enter cinematic mode'}>{cinematic ? <Minimize2 /> : <Maximize2 />}</button>
-      <button type="button" onClick={() => { setShowroomPaused(true); if (asset.cameraPresetNames.includes('exterior')) setCameraPreset('exterior'); }} aria-label="Reset camera"><RotateCw /></button>
-      <button type="button" onClick={capture} aria-label="Capture configuration"><Camera /></button>
-      <button type="button" onClick={share} aria-label="Share configuration"><Share2 /></button>
+  if (!asset.available) {
+    return <AssetUnavailable status={asset.configuratorStatus} variantName={[variant?.brand, variant?.model].filter(Boolean).join(' ')} />;
+  }
+
+  const orbitAvailable = asset.cameraPresetNames.some((preset) => ORBIT_VIEWS.includes(preset));
+  const selectView = (preset) => {
+    takeManualControl();
+    setCameraPreset(preset);
+    setCameraRevision((revision) => revision + 1);
+  };
+
+  const toggleOrbit = () => {
+    setShowroomPaused(true);
+    if (!ORBIT_VIEWS.includes(interaction.cameraPreset)) {
+      setCameraPreset(ORBIT_VIEWS.find((preset) => asset.cameraPresetNames.includes(preset)));
+    }
+    setAutoRotate(!interaction.autoRotate);
+  };
+
+  return <section ref={canvasRef} style={style} aria-label="Vehicle visualisation" className={`configurator-viewer${cinematic ? ' cinematic' : ''}`}>
+    <div className="configurator-stage">
+      <Canvas dpr={renderProfile.dpr} gl={{ preserveDrawingBuffer: true, powerPreference: 'high-performance' }} camera={{ position: [5, 2.5, 5], fov: 35 }}
+        fallback={<p className="p-6" role="status">This browser cannot display the interactive 3D model.</p>}>
+        <ConfiguratorScene asset={asset} purchasable={purchasable} interaction={interaction} paintColorHex={paintColorHex} sceneRef={sceneRef} onManualInteraction={takeManualControl} renderProfile={renderProfile} cameraRevision={cameraRevision} />
+      </Canvas>
+      <InteractionControls supportedInteractions={asset.supportedInteractions} interactionAnimationNames={asset.interactionAnimationNames} interaction={interaction} onManualInteraction={takeManualControl} />
+      {showroom.active && <div className="configurator-showroom-status" role="status">{showroom.paused ? 'Manual control' : 'Cinematic showroom'} · {interaction.cameraPreset}</div>}
+      {captureState?.status === 'error' && <div role="status">Unable to capture configuration.</div>}
+      {hotspots.map((hotspot) => <button key={hotspot.id} type="button" className="configurator-hotspot" style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%` }} onClick={() => { takeManualControl(); setSelectedHotspot(hotspot); if (hotspot.cameraPreset) selectHotspotCamera(hotspot.cameraPreset); }} aria-label={hotspot.label}><Info /></button>)}
+      {selectedHotspot && <aside className="configurator-hotspot-panel"><strong>{selectedHotspot.label}</strong>{selectedHotspot.description && <p>{selectedHotspot.description}</p>}<button type="button" onClick={() => setSelectedHotspot(null)}>Close</button></aside>}
     </div>
-    <InteractionControls supportedInteractions={asset.supportedInteractions} interactionAnimationNames={asset.interactionAnimationNames} interaction={interaction} onManualInteraction={takeManualControl} />
-    {showroom.active && <div className="configurator-showroom-status" role="status">{showroom.paused ? 'Manual control' : 'Cinematic showroom'} · {interaction.cameraPreset}</div>}
-    {captureState?.status === 'error' && <div role="status">Unable to capture configuration.</div>}
-    {hotspots.map((hotspot) => <button key={hotspot.id} type="button" className="configurator-hotspot" style={{ left: `${hotspot.x}%`, top: `${hotspot.y}%` }} onClick={() => { takeManualControl(); setSelectedHotspot(hotspot); if (hotspot.cameraPreset) selectHotspotCamera(hotspot.cameraPreset); }} aria-label={hotspot.label}><Info /></button>)}
-    {selectedHotspot && <aside className="configurator-hotspot-panel"><strong>{selectedHotspot.label}</strong>{selectedHotspot.description && <p>{selectedHotspot.description}</p>}<button type="button" onClick={() => setSelectedHotspot(null)}>Close</button></aside>}
-    {!asset.available && <AssetUnavailable />}
-  </div>;
+    <div className="configurator-stage-tools" role="group" aria-label="Vehicle display controls">
+      {orbitAvailable && <button type="button" onClick={toggleOrbit} aria-pressed={interaction.autoRotate}><RotateCw size={16} aria-hidden="true" /> 360° rotation</button>}
+      {cinematicSequence.length > 1 && <button type="button" onClick={toggleShowroom} aria-label={!showroom.active || showroom.paused ? 'Play cinematic showroom' : 'Pause cinematic showroom'}>{showroom.active && !showroom.paused ? <Pause size={16} /> : <Play size={16} />}</button>}
+      <button type="button" onClick={() => selectView(asset.cameraPresetNames.includes('exterior') ? 'exterior' : interaction.cameraPreset)} disabled={!asset.cameraPresetNames.length} aria-label="Reset camera"><RotateCw size={16} /></button>
+      <button type="button" onClick={toggleCinematic} aria-label={cinematic ? 'Exit fullscreen' : 'Open fullscreen'}>{cinematic ? <Minimize2 size={16} /> : <Maximize2 size={16} />}</button>
+      <button type="button" onClick={capture} aria-label="Capture configuration"><Camera size={16} /></button>
+      {typeof navigator !== 'undefined' && navigator.share && <button type="button" onClick={share} aria-label="Share configuration"><Share2 size={16} /></button>}
+    </div>
+    <CameraViewTiles available={asset.cameraPresetNames} current={interaction.cameraPreset} onSelect={selectView} />
+  </section>;
 }

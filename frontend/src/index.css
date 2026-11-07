@@ -114,3 +114,76 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Manro
     .configurator-interaction-panel { transition: none; }
   }
 }
+
+.configurator-viewer {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 1rem;
+}
+.configurator-stage {
+  position: relative;
+  height: clamp(240px, 54svh, 620px);
+  background: #060606;
+  overflow: hidden;
+}
+.configurator-viewer.cinematic {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+.configurator-viewer.cinematic .configurator-stage {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+.configurator-stage-tools,
+.configurator-viewpoints {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #111;
+}
+.configurator-stage-tools { flex-wrap: wrap; }
+.configurator-viewpoints {
+  overflow-x: auto;
+  border-top: 1px solid #333;
+}
+.configurator-stage-tools button,
+.configurator-viewpoints button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 0.5rem;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border: 1px solid #555;
+  border-radius: 0.5rem;
+  color: #f4f4f4;
+  font-size: 0.8125rem;
+}
+.configurator-stage-tools button[aria-pressed="true"],
+.configurator-viewpoints button[aria-pressed="true"] {
+  border-color: #fcd34d;
+  background: #382a13;
+  color: #fde68a;
+}
+.configurator-stage-tools button:focus-visible,
+.configurator-viewpoints button:focus-visible {
+  outline: 2px solid #fcd34d;
+  outline-offset: 2px;
+}
+.configurator-stage-tools button:disabled { opacity: 0.4; }
+@media (max-width: 767px) {
+  .configurator-stage { height: clamp(235px, 42svh, 400px); }
+  .configurator-stage .configurator-interaction-panel {
+    bottom: 10px;
+    max-height: calc(100% - 20px);
+    transform: none;
+  }
+  .configurator-stage .configurator-interaction-content { max-height: 45svh; }
+  .configurator-stage .configurator-interaction-panel:not(.mobile-open) .configurator-interaction-content { display: none; }
+}

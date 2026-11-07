@@ -7,15 +7,14 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Check, RotateCw, Save, Share2, Sparkles } from 'lucide-react';
+import { ArrowLeft, Check, Save, Share2, Sparkles } from 'lucide-react';
 
 import ConfiguratorViewer from '../components/configurator/ConfiguratorViewer';
-import { hasVerifiedPartAnimations } from '../components/configurator/interactionControls';
 import PricingLocationPicker from '../components/configurator/PricingLocationPicker';
 import { useConfiguratorStore } from '../state/configuratorStore';
 import { configuratorApi } from '../services/configuratorApi';
-import { formatINR } from '../lib/api';
-import { buildPurchasablePayload, getValidationMessages, isInteractionSupported, getCameraPresets } from './configuratorPresentation';
+import { formatINR, PREVIEW_READ_ONLY } from '../lib/api';
+import { buildPurchasablePayload, getValidationMessages } from './configuratorPresentation';
 
 function getErrorMessage(error, fallback) {
   const detail = error?.response?.data?.detail;
@@ -32,6 +31,7 @@ function getOptionPriceDelta(option) { const value = Number(option?.price_delta 
 export default function CarConfigurator() {
   const { variantId } = useParams();
   const [loading, setLoading] = useState(true);
+  const [retry, setRetry] = useState(0);
   const [error, setError] = useState(null);
   const [variant, setVariant] = useState(null);
   const [options, setOptions] = useState(null);
@@ -55,7 +55,8 @@ export default function CarConfigurator() {
         setVariant(variantData); store.setVariant(variantId);
         if (configuratorStatus === 'AVAILABLE' && assetId) {
           const assetRes = await configuratorApi.getAsset(variantId);
-          if (!cancelled && assetRes.data.available) store.setAsset(assetRes.data.asset);
+          if (cancelled) return;
+          if (assetRes.data.available) store.setAsset(assetRes.data.asset);
           else store.setAssetUnavailable(configuratorStatus);
         } else store.setAssetUnavailable(configuratorStatus);
         const optsRes = await configuratorApi.getOptions(variantId);
@@ -80,7 +81,7 @@ export default function CarConfigurator() {
     }
     load();
     return () => { cancelled = true; };
-  }, [variantId]);
+  }, [variantId, retry]);
 
   const validateAndPrice = useCallback(async () => {
     const sequence = ++requestSequence.current;
@@ -108,12 +109,13 @@ export default function CarConfigurator() {
   }, []);
 
   useEffect(() => {
-    if (store.isInitialized) validateAndPrice();
+    if (store.isInitialized && !PREVIEW_READ_ONLY) validateAndPrice();
+    return () => { requestSequence.current += 1; };
   }, [store.isInitialized, store.city, store.purchasable.paintId, store.purchasable.wheelId, store.purchasable.interiorId, store.purchasable.roofId, store.purchasable.accessoryIds.join(','), validateAndPrice]);
 
   const saveConfiguration = async () => {
     const current = useConfiguratorStore.getState();
-    if (!current.validation.result?.valid || current.validation.loading) return;
+    if (PREVIEW_READ_ONLY || !current.validation.result?.valid || current.validation.loading) return;
     setSaveState({ loading: true, error: null, configId: null, shareToken: null });
     try {
       const payload = {
@@ -142,45 +144,74 @@ export default function CarConfigurator() {
     catch { setSaveState((state) => ({ ...state, error: 'Unable to copy share link' })); }
   };
 
-  if (loading) return <main className="min-h-screen bg-[#050505] pt-24 text-white"><div className="mx-auto max-w-7xl px-6 py-20 text-center text-xs uppercase tracking-widest text-white/40">Loading configurator…</div></main>;
-  if (error) return <main className="min-h-screen bg-[#050505] pt-24 text-white"><div className="mx-auto max-w-lg px-6 py-20 text-center"><p className="text-red-400 text-sm">{error}</p><Link to="/cars" className="mt-6 inline-flex items-center gap-2 text-xs uppercase tracking-widest text-white/40 hover:text-white"><ArrowLeft size={14} /> Back to cars</Link></div></main>;
+  if (loading || error) {
+    return <main className="min-h-screen bg-[#050505] pt-24 text-white">
+      <div className="mx-auto max-w-lg space-y-4 px-6 py-20">
+        <h1 className="text-3xl">Vehicle configurator</h1>
+        {loading ? <p role="status">Loading vehicle configuration…</p> : <>
+          <p role="alert" className="text-sm text-red-300">{error}</p>
+          <div className="flex flex-wrap items-center gap-4">
+            <button type="button" className="rounded-lg border border-white/30 px-4 py-3" onClick={() => { setLoading(true); setRetry((value) => value + 1); }}>Retry loading</button>
+            <Link to="/cars" className="inline-flex items-center gap-2 py-3"><ArrowLeft size={16} /> Back to cars</Link>
+          </div>
+        </>}
+      </div>
+    </main>;
+  }
 
   const price = store.price.data;
   const validation = store.validation.result;
-  const canCommit = Boolean(validation?.valid) && !store.validation.loading && !store.price.loading;
-  return <main className="min-h-screen bg-[#050505] pt-20 text-white"><div className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-10">
-    <div className="mb-5 flex flex-wrap items-center justify-between gap-4"><Link to="/cars" className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-white/40 hover:text-white"><ArrowLeft size={14} /> Exit configurator</Link><div className="inline-flex items-center gap-2 rounded-full border border-amber-400/20 bg-amber-400/5 px-4 py-2 text-[10px] uppercase tracking-widest text-amber-300"><Sparkles size={12} /> {store.asset.available ? 'Live 3D configurator' : '3D Coming Soon'}</div></div>
-    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,390px)]"><div className="min-w-0 overflow-hidden rounded-[24px] border border-white/10 bg-[#0a0a0a] lg:sticky lg:top-24"><div className="relative p-2"><ConfiguratorViewer options={options} variant={variant} /></div></div>
-    <aside className="space-y-4"><div className="rounded-2xl border border-white/10 bg-[#0d0d0d] p-5"><div className="text-[10px] uppercase tracking-widest text-amber-400">{variant?.brand || ''}</div><h1 className="mt-1 text-2xl font-light">{variant?.model || variantId}</h1>{variant?.variant && <p className="mt-0.5 text-xs text-white/40">{variant.variant}</p>}<div className="mt-3 flex items-end justify-between"><div className="font-mono text-3xl text-amber-400">{price ? formatINR(price.estimated_on_road) : '—'}</div>{store.price.loading && <span className="text-[9px] uppercase tracking-widest text-white/30">Updating</span>}</div>{price && <p className="mt-1 text-[10px] text-white/25">{price.price_is_estimate ? 'Estimated on-road' : 'Configured price'} · {price.city || store.city || 'base pricing'}</p>}{store.price.error && <p className="mt-2 text-[10px] text-red-400">{store.price.error}</p>}</div>
-      <OptionPanel title="Exterior colour" options={options?.colors} selectedId={store.purchasable.paintId} onSelect={store.setPaint} colorMode />
-      <OptionPanel title="Wheels" options={options?.wheels} selectedId={store.purchasable.wheelId} onSelect={store.setWheels} />
-      <OptionPanel title="Interior" options={options?.interiors} selectedId={store.purchasable.interiorId} onSelect={store.setInterior} />
-      <OptionPanel title="Roof" options={options?.roofs} selectedId={store.purchasable.roofId} onSelect={store.setRoof} />
-      <OptionPanel title="Accessories" options={options?.accessories} selectedIds={store.purchasable.accessoryIds} onToggle={store.toggleAccessory} multi />
-      <ValidationPanel validation={validation} error={store.validation.error} />
-      <PriceBreakdown price={price} />
-      <ConfigurationSummary variant={variant} options={options} purchasable={store.purchasable} />
-      <PricingLocationPicker variantId={variantId} city={store.city} setCity={store.setCity} />
-      <SaveSharePanel canCommit={canCommit} saveState={saveState} onSave={saveConfiguration} onShare={copyShareLink} shareCopied={shareCopied} />
-      {saveState.shareToken && <Link to={`/configurator/conversion?config=${encodeURIComponent(saveState.shareToken)}`} className="block w-full rounded-xl border border-amber-400/30 bg-amber-400/5 py-3 text-center text-xs font-bold uppercase tracking-widest text-amber-300 transition hover:bg-amber-400/10">Finance · Insurance · Dealer →</Link>}
-      <InteractionPanel supportedInteractions={store.asset.supportedInteractions} interactionAnimationNames={store.asset.interactionAnimationNames} /><CameraPanel supportedInteractions={store.asset.supportedInteractions} />
-      <Link aria-disabled={!canCommit} className={`block w-full rounded-xl py-3 text-center text-xs font-bold uppercase tracking-widest transition ${canCommit ? 'bg-amber-400 text-black hover:bg-amber-300' : 'pointer-events-none bg-white/10 text-white/20'}`} to={canCommit ? `/book/${variantId}` : '#'}>Book configured test drive →</Link>
-    </aside></div></div></main>;
+  const canCommit = !PREVIEW_READ_ONLY && Boolean(validation?.valid) && !store.validation.loading && !store.price.loading;
+  return <main className="min-h-screen bg-[#050505] pt-20 text-white">
+    <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-10">
+      <header className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <Link to="/cars" className="inline-flex min-h-11 items-center gap-2 text-sm text-white/80 hover:text-white"><ArrowLeft size={16} /> Back to cars</Link>
+        <a href="#configuration-summary" className="inline-flex min-h-11 items-center rounded-lg border border-white/20 px-4 text-sm hover:border-white/50">Configuration summary</a>
+      </header>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,34%)]">
+        <div className="min-w-0 rounded-2xl border border-white/10 bg-[#0a0a0a] lg:sticky lg:top-24">
+          <ConfiguratorViewer options={options} variant={variant} />
+        </div>
+        <aside className="min-w-0 space-y-4" aria-label="Vehicle configuration options">
+          <section className="rounded-2xl border border-white/10 bg-[#0d0d0d] p-5">
+            <p className="inline-flex items-center gap-2 text-xs text-amber-200"><Sparkles size={14} aria-hidden="true" /> {store.asset.available ? 'Interactive 3D' : '3D unavailable'}</p>
+            <h1 className="mt-2 text-3xl font-light">{[variant?.brand, variant?.model].filter(Boolean).join(' ') || variantId}</h1>
+            {variant?.variant && <p className="mt-1 text-sm text-white/70">{variant.variant}</p>}
+            {PREVIEW_READ_ONLY ? <p className="mt-3 text-sm text-white/70">Private preview. You can explore options and views here. Live pricing and saving require a connected staging service.</p> :
+              <div className="mt-3" role="status">
+                {price && <p className="text-2xl text-amber-300">{formatINR(price.estimated_on_road)}</p>}
+                {store.price.loading && <p className="text-sm text-white/70">Updating price…</p>}
+                {price && <p className="mt-1 text-xs text-white/70">{price.price_is_estimate ? 'Estimated on-road' : 'Configured price'} · {price.city || store.city || 'base pricing'}</p>}
+                {store.price.error && <p className="mt-2 text-sm text-red-300">{store.price.error}</p>}
+              </div>}
+          </section>
+          <OptionPanel title="Exterior colour" options={options?.colors} selectedId={store.purchasable.paintId} onSelect={store.setPaint} colorMode />
+          <OptionPanel title="Wheels" options={options?.wheels} selectedId={store.purchasable.wheelId} onSelect={store.setWheels} />
+          <OptionPanel title="Interior" options={options?.interiors} selectedId={store.purchasable.interiorId} onSelect={store.setInterior} />
+          <OptionPanel title="Roof" options={options?.roofs} selectedId={store.purchasable.roofId} onSelect={store.setRoof} />
+          <OptionPanel title="Accessories" options={options?.accessories} selectedIds={store.purchasable.accessoryIds} onToggle={store.toggleAccessory} multi />
+          <ValidationPanel validation={validation} error={store.validation.error} />
+          <PriceBreakdown price={price} />
+          <ConfigurationSummary variant={variant} options={options} purchasable={store.purchasable} />
+          <PricingLocationPicker variantId={variantId} city={store.city} setCity={store.setCity} />
+          {!PREVIEW_READ_ONLY && <SaveSharePanel canCommit={canCommit} saveState={saveState} onSave={saveConfiguration} onShare={copyShareLink} shareCopied={shareCopied} />}
+          {saveState.shareToken && <Link to={`/configurator/conversion?config=${encodeURIComponent(saveState.shareToken)}`} className="block w-full rounded-xl border border-amber-400/30 bg-amber-400/5 py-3 text-center text-xs font-bold uppercase tracking-widest text-amber-300 transition hover:bg-amber-400/10">Finance · Insurance · Dealer →</Link>}
+          {canCommit && <Link className="block w-full rounded-xl bg-amber-400 py-3 text-center text-xs font-bold uppercase tracking-widest text-black hover:bg-amber-300" to={`/book/${variantId}`}>Book configured test drive →</Link>}
+        </aside>
+      </div>
+    </div>
+  </main>;
 }
 
 function OptionPanel({ title, options = [], selectedId, selectedIds = [], onSelect, onToggle, multi = false, colorMode = false }) {
   if (!options.length) return null;
-  return <div className="rounded-2xl border border-white/10 bg-[#0d0d0d] p-5"><div className="mb-3 flex items-center justify-between"><h3 className="text-[10px] uppercase tracking-widest text-white/40">{title}</h3>{multi && <span className="text-[9px] text-white/20">Multiple</span>}</div><div className="grid grid-cols-2 gap-2">{options.map((option) => { const id = getOptionId(option); const selected = multi ? selectedIds.includes(id) : selectedId === id; const disabled = option.available === false; const delta = getOptionPriceDelta(option); return <button key={id} type="button" disabled={disabled} onClick={() => (multi ? onToggle(id) : onSelect(id))} aria-pressed={selected} className={`rounded-xl border p-2 text-left transition ${selected ? 'border-amber-400 bg-amber-400/10' : 'border-white/10 hover:border-white/30'} ${disabled ? 'cursor-not-allowed opacity-30' : ''}`}>{colorMode && (option.primary_hex || option.preview_color_hex) ? <span className="mb-2 block h-8 rounded-lg border border-white/20" style={{ backgroundColor: option.primary_hex || option.preview_color_hex }} /> : option.preview_image_url ? <img src={option.preview_image_url} alt="" className="mb-2 h-16 w-full rounded-lg object-cover" loading="lazy" /> : null}<span className="flex items-center justify-between gap-2"><span className="truncate text-[10px] text-white/70">{getOptionLabel(option)}</span>{selected && <Check size={12} className="shrink-0 text-amber-300" />}</span>{delta > 0 && <span className="mt-1 block font-mono text-[9px] text-amber-300">+{formatINR(delta)}</span>}</button>; })}</div></div>;
+  return <div className="rounded-2xl border border-white/10 bg-[#0d0d0d] p-5"><div className="mb-3 flex items-center justify-between"><h3 className="text-[10px] uppercase tracking-widest text-white/40">{title}</h3>{multi && <span className="text-[9px] text-white/20">Multiple</span>}</div><div className="grid grid-cols-2 gap-2">{options.map((option) => { const id = getOptionId(option); const selected = multi ? selectedIds.includes(id) : selectedId === id; const disabled = option.available === false; const delta = getOptionPriceDelta(option); return <button key={id} type="button" disabled={disabled} onClick={() => (multi ? onToggle(id) : onSelect(id))} aria-pressed={selected} className={`rounded-xl border p-2 text-left transition ${selected ? 'border-amber-400 bg-amber-400/10' : 'border-white/10 hover:border-white/30'} ${disabled ? 'cursor-not-allowed opacity-30' : ''}`}>{colorMode && (option.primary_hex || option.preview_color_hex) ? <span className="mb-2 block h-8 rounded-lg border border-white/20" style={{ backgroundColor: option.primary_hex || option.preview_color_hex }} /> : option.preview_image_url ? <img src={option.preview_image_url} alt="" className="mb-2 h-16 w-full rounded-lg object-cover" loading="lazy" /> : null}<span className="flex items-center justify-between gap-2"><span className="min-w-0 break-words text-xs text-white/80">{getOptionLabel(option)}</span>{selected && <Check size={12} className="shrink-0 text-amber-300" />}</span>{delta > 0 && <span className="mt-1 block font-mono text-[9px] text-amber-300">+{formatINR(delta)}</span>}</button>; })}</div></div>;
 }
 
 function ValidationPanel({ validation, error }) { if (!validation && !error) return null; const messages = getValidationMessages(validation); const errors = error ? [error] : messages.errors; return <div className="rounded-2xl border border-white/10 bg-[#0d0d0d] p-5"><h3 className="mb-3 text-[10px] uppercase tracking-widest text-white/40">Compatibility</h3>{validation?.valid && !errors.length && <p className="text-xs text-emerald-300">Configuration validated by Auto AI India.</p>}{errors.map((message) => <p key={message} className="mb-1 text-[10px] text-red-400">{message}</p>)}{messages.warnings.map((message) => <p key={message} className="mb-1 text-[10px] text-amber-300">{message}</p>)}</div>; }
 
 function PriceBreakdown({ price }) { if (!price) return null; const rows = [['Base ex-showroom', price.base_ex_showroom], ...(price.option_deltas || []).map((item) => [item.name, item.amount]), price.rto != null ? ['RTO', price.rto] : null, price.insurance_approx != null ? ['Insurance approx.', price.insurance_approx] : null, price.tcs != null ? ['TCS', price.tcs] : null, price.other_charges != null ? ['Other charges', price.other_charges] : null].filter(Boolean); return <div className="rounded-2xl border border-white/10 bg-[#0d0d0d] p-5"><div className="mb-3 flex items-center justify-between"><h3 className="text-[10px] uppercase tracking-widest text-white/40">Price breakdown</h3><span className="text-[9px] text-white/20">Backend</span></div><div className="space-y-2">{rows.map(([label, amount]) => <div key={label} className="flex justify-between gap-4 text-[10px]"><span className="text-white/40">{label}</span><span className="font-mono text-white/70">{formatINR(amount)}</span></div>)}{price.total_discount > 0 && <div className="flex justify-between border-t border-white/5 pt-2 text-[10px]"><span className="text-emerald-300/70">Offers/discount</span><span className="font-mono text-emerald-300">−{formatINR(price.total_discount)}</span></div>}</div><div className="mt-4 flex justify-between border-t border-white/10 pt-3"><span className="text-[10px] uppercase tracking-widest text-white/40">Estimated on-road</span><span className="font-mono text-lg text-amber-400">{formatINR(price.estimated_on_road)}</span></div>{price.source && <p className="mt-2 text-[9px] text-white/20">Source: {price.source} · Effective {price.effective_date}</p>}</div>; }
 
-function ConfigurationSummary({ variant, options, purchasable }) { const find = (collection, id) => collection?.find((item) => getOptionId(item) === id); const values = [['Vehicle', [variant?.brand, variant?.model, variant?.variant].filter(Boolean).join(' ')], ['Colour', getOptionLabel(find(options?.colors, purchasable.paintId))], ['Wheels', getOptionLabel(find(options?.wheels, purchasable.wheelId))], ['Interior', getOptionLabel(find(options?.interiors, purchasable.interiorId))], ['Roof', getOptionLabel(find(options?.roofs, purchasable.roofId))], ['Accessories', (purchasable.accessoryIds || []).map((id) => getOptionLabel(find(options?.accessories, id))).filter(Boolean).join(', ') || 'None']]; return <div className="rounded-2xl border border-white/10 bg-[#0d0d0d] p-5"><h3 className="mb-3 text-[10px] uppercase tracking-widest text-white/40">Your configuration</h3><div className="space-y-2">{values.map(([label, value]) => <div key={label} className="flex gap-3 text-[10px]"><span className="w-20 shrink-0 text-white/25">{label}</span><span className="text-white/65">{value || 'Not selected'}</span></div>)}</div></div>; }
+function ConfigurationSummary({ variant, options, purchasable }) { const find = (collection, id) => collection?.find((item) => getOptionId(item) === id); const values = [['Vehicle', [variant?.brand, variant?.model, variant?.variant].filter(Boolean).join(' ')], ['Colour', getOptionLabel(find(options?.colors, purchasable.paintId))], ['Wheels', getOptionLabel(find(options?.wheels, purchasable.wheelId))], ['Interior', getOptionLabel(find(options?.interiors, purchasable.interiorId))], ['Roof', getOptionLabel(find(options?.roofs, purchasable.roofId))], ['Accessories', (purchasable.accessoryIds || []).map((id) => getOptionLabel(find(options?.accessories, id))).filter(Boolean).join(', ') || 'None']]; return <div id="configuration-summary" tabIndex={-1} className="scroll-mt-28 rounded-2xl border border-white/10 bg-[#0d0d0d] p-5"><h3 className="mb-3 text-[10px] uppercase tracking-widest text-white/40">Your configuration</h3><div className="space-y-2">{values.map(([label, value]) => <div key={label} className="flex gap-3 text-[10px]"><span className="w-20 shrink-0 text-white/25">{label}</span><span className="text-white/65">{value || 'Not selected'}</span></div>)}</div></div>; }
 
 function SaveSharePanel({ canCommit, saveState, onSave, onShare, shareCopied }) { return <div className="rounded-2xl border border-white/10 bg-[#0d0d0d] p-5"><h3 className="mb-3 text-[10px] uppercase tracking-widest text-white/40">Save & share</h3><div className="grid grid-cols-2 gap-2"><button type="button" disabled={!canCommit || saveState.loading} onClick={onSave} className="flex items-center justify-center gap-2 rounded-xl border border-white/10 py-2 text-[10px] uppercase tracking-wider text-white/60 hover:border-white/30 disabled:opacity-25"><Save size={12} /> {saveState.loading ? 'Saving' : 'Save'}</button><button type="button" disabled={!saveState.shareToken} onClick={onShare} className="flex items-center justify-center gap-2 rounded-xl border border-white/10 py-2 text-[10px] uppercase tracking-wider text-white/60 hover:border-white/30 disabled:opacity-25">{shareCopied ? <Check size={12} /> : <Share2 size={12} />} {shareCopied ? 'Copied' : 'Share'}</button></div>{saveState.configId && <p className="mt-2 flex items-center gap-1 text-[9px] text-emerald-300"><Check size={10} /> Saved configuration {saveState.configId.slice(0, 8)}</p>}{saveState.error && <p className="mt-2 text-[9px] text-red-400">{saveState.error}</p>}</div>; }
-
-function InteractionPanel({ supportedInteractions = [], interactionAnimationNames = {} }) { const store = useConfiguratorStore(); const controls = [['Hood', 'Hood_Open', store.interaction.hoodOpen, store.toggleHood], ['Boot', 'Boot_Open', store.interaction.bootOpen, store.toggleBoot], ['Sunroof', 'Sunroof_Open', store.interaction.sunroofOpen, store.toggleSunroof], ['Headlights', 'Headlights', store.interaction.lighting.headlights, () => store.toggleLight('headlights')], ['DRL', 'DRL', store.interaction.lighting.drl, () => store.toggleLight('drl')], ['Hazard', 'Hazard', store.interaction.lighting.hazard, store.toggleHazard], ['Door FL', 'Door_FL_Open', store.interaction.doors.frontLeft, () => store.toggleDoor('frontLeft')], ['Door FR', 'Door_FR_Open', store.interaction.doors.frontRight, () => store.toggleDoor('frontRight')], ['Door RL', 'Door_RL_Open', store.interaction.doors.rearLeft, () => store.toggleDoor('rearLeft')], ['Door RR', 'Door_RR_Open', store.interaction.doors.rearRight, () => store.toggleDoor('rearRight')]]; return <div className="rounded-2xl border border-white/10 bg-[#0d0d0d] p-5"><h3 className="mb-3 text-[10px] uppercase tracking-widest text-white/40">3D interactions</h3><div className="grid grid-cols-3 gap-2">{controls.map(([label, capability, active, action]) => { const part = { Hood_Open: 'hood', Boot_Open: 'boot', Sunroof_Open: 'sunroof', Door_FL_Open: 'doors', Door_FR_Open: 'doors', Door_RL_Open: 'doors', Door_RR_Open: 'doors' }[capability]; const side = { Door_FL_Open: 'frontLeft', Door_FR_Open: 'frontRight', Door_RL_Open: 'rearLeft', Door_RR_Open: 'rearRight' }[capability]; const supported = part ? hasVerifiedPartAnimations(supportedInteractions, interactionAnimationNames, part, side) : isInteractionSupported(supportedInteractions, capability); return <button key={label} type="button" disabled={!supported} onClick={action} title={supported ? label : 'Not supported by this verified asset'} aria-pressed={active} className={`rounded-lg border py-2 text-[9px] uppercase tracking-wider transition ${active ? 'border-amber-400 bg-amber-400/10 text-amber-300' : 'border-white/10 text-white/40 hover:border-white/30'} ${!supported ? 'cursor-not-allowed opacity-20' : ''}`}>{label}</button>; })}</div><p className="mt-3 text-[9px] text-white/20">Only interactions declared by the verified 3D asset are enabled.</p></div>; }
-
-function CameraPanel({ supportedInteractions = [] }) { const setCameraPreset = useConfiguratorStore((state) => state.setCameraPreset); const cameraPreset = useConfiguratorStore((state) => state.interaction.cameraPreset); const setAutoRotate = useConfiguratorStore((state) => state.setAutoRotate); const autoRotate = useConfiguratorStore((state) => state.interaction.autoRotate); const presets = getCameraPresets(supportedInteractions); return <div className="rounded-2xl border border-white/10 bg-[#0d0d0d] p-5"><div className="mb-3 flex items-center justify-between"><h3 className="text-[10px] uppercase tracking-widest text-white/40">Camera</h3><button type="button" disabled={!presets.length} onClick={() => setAutoRotate(!autoRotate)} aria-pressed={autoRotate} className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-[9px] uppercase tracking-wider transition ${autoRotate ? 'border-amber-400 text-amber-300' : 'border-white/10 text-white/30'} disabled:cursor-not-allowed disabled:opacity-20`}><RotateCw size={10} /> Auto</button></div>{presets.length ? <div className="flex flex-wrap gap-1.5">{presets.map((preset) => <button type="button" key={preset} onClick={() => setCameraPreset(preset)} className={`rounded-lg border px-2.5 py-1 text-[9px] uppercase tracking-wider transition ${cameraPreset === preset ? 'border-amber-400 text-amber-300' : 'border-white/10 text-white/30 hover:border-white/30'}`}>{preset}</button>)}</div> : <p className="text-[9px] text-white/25">No verified camera capabilities are available for this asset.</p>}</div>; }
