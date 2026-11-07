@@ -47,7 +47,7 @@ describe('isolated cinematic automotive experience', () => {
       'photo-1623994518372-2211dc3afb29',
       'photo-1650029380425-7fbfbd9b2b68',
     ];
-    const ids = [...html.matchAll(/images\.unsplash\.com\/(photo-\d{13}-[a-f0-9]+)/g)].map((match) => match[1]);
+    const ids = [...html.matchAll(/<img\b[^>]*\bsrc="https:\/\/images\.unsplash\.com\/(photo-\d{13}-[a-f0-9]+)/g)].map((match) => match[1]);
     expect(ids).toEqual(expected);
     expect(html).not.toContain('₹');
   });
@@ -58,6 +58,7 @@ describe('isolated cinematic automotive experience', () => {
     expect(buttons).toHaveLength(3);
     expect((html.match(/aria-pressed="true"/g) || [])).toHaveLength(1);
     expect(html).toContain('aria-label="Featured automotive stories"');
+    expect(html).toContain('aria-label="Play featured stories"');
     expect(html).toContain('Beyond the ordinary.');
   });
 
