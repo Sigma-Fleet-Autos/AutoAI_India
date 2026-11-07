@@ -16,7 +16,7 @@ import { configuratorApi } from '../../services/configuratorApi';
 import { normalizeHotspots } from './premiumShowroom';
 import { buildConfiguratorShareCard } from './shareCard';
 import { buildCinematicSequence, getNextCinematicPreset } from './cinematicShowroom';
-import { getSupportedInteractionControls, hasVerifiedPartAnimations } from './interactionControls';
+import { getVerifiedInteractionControls, hasVerifiedPartAnimations } from './interactionControls';
 import { getConfiguratorRenderProfile } from '../../three/configuratorPerformance';
 import { resolveSelectedPaintHex } from './selectedPaintColor';
 
@@ -79,7 +79,7 @@ function optionLabel(options, id) {
 
 function InteractionControls({ supportedInteractions, interactionAnimationNames, interaction, onManualInteraction }) {
   const store = useConfiguratorStore();
-  const controls = useMemo(() => getSupportedInteractionControls(supportedInteractions), [supportedInteractions]);
+  const controls = useMemo(() => getVerifiedInteractionControls(supportedInteractions, interactionAnimationNames), [supportedInteractions, interactionAnimationNames]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const has = (id) => controls.some((control) => control.id === id);
   const canMove = (part, side) => has(part) && hasVerifiedPartAnimations(supportedInteractions, interactionAnimationNames, part, side);
