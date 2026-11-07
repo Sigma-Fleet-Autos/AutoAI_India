@@ -13,6 +13,30 @@ const PHOTOS = Object.freeze({
   hatchback: 'https://images.unsplash.com/photo-1650029380425-7fbfbd9b2b68?auto=format&fit=crop&w=1100&q=82',
 });
 
+const HERO_SLIDES = Object.freeze([
+  {
+    image: PHOTOS.hero,
+    alt: 'Luxury electric sedan photographed at an automotive event',
+    kicker: 'THE ART OF THE DRIVE',
+    title: 'Beyond the ordinary.',
+    description: 'Explore extraordinary cars. Understand every detail. Find the one that moves you.',
+  },
+  {
+    image: PHOTOS.detail,
+    alt: 'Premium sedan photographed in an atmospheric street scene',
+    kicker: 'THE POWER OF CLARITY',
+    title: 'Every detail. Considered.',
+    description: 'Compare design, performance, safety and the true cost of ownership.',
+  },
+  {
+    image: PHOTOS.suv,
+    alt: 'Premium SUV in a distinct editorial photograph',
+    kicker: 'FIND YOUR DIRECTION',
+    title: 'Discover your drive.',
+    description: 'Explore the shapes that define Indian roads and find your next car.',
+  },
+]);
+
 const COLLECTION = Object.freeze([
   { title: 'SUV', number: '01', image: PHOTOS.suv, caption: 'Explore a different perspective.', segment: 'SUV', alt: 'Premium SUV in a distinct editorial photograph' },
   { title: 'Sedan', number: '02', image: PHOTOS.sedan, caption: 'The art of arriving.', segment: 'Sedan', alt: 'Premium sedan in a distinct editorial photograph' },
@@ -68,18 +92,47 @@ function Reveal({ children, className = '' }) {
 
 export default function ExperienceHome() {
   const root = useRef(null);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const slide = HERO_SLIDES[activeSlide];
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return undefined;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return undefined;
+    const onTick = () => {
+      if (document.visibilityState !== 'hidden') {
+        setActiveSlide((index) => (index + 1) % HERO_SLIDES.length);
+      }
+    };
+    const timer = window.setInterval(onTick, 7000);
+    return () => window.clearInterval(timer);
+  }, []);
+
   useReveal(root);
   return <div className="xp-root" ref={root} data-testid="experience-home">
     <ExperienceNav />
     <main>
       <section className="xp-hero" aria-labelledby="xp-title" data-testid="hero-section">
         <div className="xp-hero-scene">
-          <img className="xp-hero-car" src={PHOTOS.hero} alt="Luxury electric sedan photographed at an automotive event" fetchPriority="high" decoding="async" />
+          <img key={slide.image} className="xp-hero-car" src={slide.image} alt={slide.alt} fetchPriority={activeSlide === 0 ? 'high' : 'auto'} decoding="async" />
           <div className="xp-hero-scene-caption"><span>INDEPENDENT AUTOMOTIVE INTELLIGENCE</span><span>INDIA / 2026</span></div>
+          <div className="xp-hero-pagination" role="group" aria-label="Featured automotive stories">
+            {HERO_SLIDES.map((item, index) => (
+              <button
+                type="button"
+                key={item.kicker}
+                className={`xp-hero-page${index === activeSlide ? ' xp-hero-page-active' : ''}`}
+                aria-label={`Show story ${index + 1}: ${item.kicker}`}
+                aria-pressed={index === activeSlide}
+                onClick={() => setActiveSlide(index)}
+              >
+                <span aria-hidden="true" />
+              </button>
+            ))}
+          </div>
         </div>
         <div className="xp-hero-dock">
-          <div className="xp-hero-titles"><span className="xp-kicker"><span className="xp-kicker-mark" />THE ART OF THE DRIVE</span><h1 id="xp-title">Beyond the <em>ordinary.</em></h1></div>
-          <div className="xp-hero-side"><p>Explore extraordinary cars. Understand every detail. Find the one that moves you.</p><Link to="/cars" className="xp-hero-explore">Explore cars <ArrowUpRight size={20} /></Link></div>
+          <div className="xp-hero-titles"><span className="xp-kicker"><span className="xp-kicker-mark" />{slide.kicker}</span><h1 id="xp-title">{slide.title}</h1></div>
+          <div className="xp-hero-side"><p>{slide.description}</p><Link to="/cars" className="xp-hero-explore">Explore cars <ArrowUpRight size={20} /></Link></div>
         </div>
         <a className="xp-scroll-cue" href="#xp-philosophy" aria-label="Continue to the next chapter"><span>SCROLL TO EXPLORE</span><ArrowDownRight size={21} /></a>
       </section>
