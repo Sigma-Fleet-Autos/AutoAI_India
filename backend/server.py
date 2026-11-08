@@ -17,6 +17,7 @@ from datetime import datetime, timezone
 from llm_provider import LlmChat, UserMessage
 from stripe_provider import StripeCheckout, CheckoutSessionRequest
 from cars_data import CARS_SEED, NEWS_SEED
+from startup_seed import seed_collection_if_empty
 import security
 from security import RateLimiter
 
@@ -276,13 +277,9 @@ class EMIRequest(BaseModel):
 # ---------- Startup: seed data ----------
 @app.on_event("startup")
 async def seed_db():
-    # Re-seed cars & news every startup so expansions pick up
-    await db.cars.delete_many({})
-    await db.news.delete_many({})
-    if CARS_SEED:
-        await db.cars.insert_many([dict(c) for c in CARS_SEED])
-    if NEWS_SEED:
-        await db.news.insert_many([dict(n) for n in NEWS_SEED])
+    # Bootstrap only empty collections. Existing catalogue data must survive restarts.
+    await seed_collection_if_empty(db.cars, CARS_SEED)
+    await seed_collection_if_empty(db.news, NEWS_SEED)
 
     await db.otps.create_index("phone")
     await db.user_sessions.create_index("token_hash")

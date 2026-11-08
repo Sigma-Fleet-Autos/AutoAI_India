@@ -1,0 +1,31 @@
+name: Staging Startup Safety
+
+on:
+  push:
+    branches:
+      - fix/staging-nondestructive-startup-20261108
+  pull_request:
+    branches:
+      - refactor/remove-emergent
+
+permissions:
+  contents: read
+
+jobs:
+  non-destructive-seed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install test dependencies
+        run: python -m pip install pytest
+      - name: Compile startup module and tests
+        run: python -m compileall -q startup_seed.py test_startup_seed.py
+      - name: Verify catalogue bootstrap never deletes existing data
+        run: python -m pytest -q test_startup_seed.py
