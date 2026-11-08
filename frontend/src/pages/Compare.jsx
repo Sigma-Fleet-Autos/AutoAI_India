@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { api, formatINR } from "../lib/api";
+import { api, formatINR, PREVIEW_READ_ONLY } from "../lib/api";
 import { Scale, Check, X, Loader2, Trophy, Zap } from "lucide-react";
 import CarVisual from "../components/CarVisual";
 
@@ -14,7 +14,7 @@ export default function Compare() {
 
   const run = async (e) => {
     e?.preventDefault();
-    if (!carA.trim() || !carB.trim()) return;
+    if (PREVIEW_READ_ONLY || !carA.trim() || !carB.trim()) return;
     setLoading(true);
     setError("");
     setResult(null);
@@ -45,10 +45,10 @@ export default function Compare() {
           </span>
         </div>
         <h1 className="font-display text-5xl lg:text-6xl tracking-tighter font-light max-w-3xl">
-          Every detail.<br /><span className="text-[#c1d4d6]">Side by side.</span>.
+          Every detail.<br /><span className="text-[#c1d4d6]">Side by side.</span>
         </h1>
         <p className="text-slate-400 mt-4 max-w-2xl">
-          Our Claude-powered AI analyses real specs, waiting periods, safety ratings & total cost. No promotions. No hidden sponsorship.
+          Compare vehicles by their specifications, ownership costs and suitability for your needs. AI verdicts require verified vehicle data and an available analysis service.
         </p>
 
         <form onSubmit={run} className="mt-10 grid md:grid-cols-12 gap-3">
@@ -69,7 +69,7 @@ export default function Compare() {
           />
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || PREVIEW_READ_ONLY}
             data-testid="compare-submit-btn"
             className="md:col-span-3 bg-[#e9efed] text-black font-semibold text-xs uppercase tracking-[0.2em] disabled:opacity-50 hover:bg-[#c8d6d5] flex items-center justify-center gap-2"
           >
@@ -83,6 +83,8 @@ export default function Compare() {
             className="md:col-span-12 ai-input px-4 py-3 text-sm"
           />
         </form>
+
+        {PREVIEW_READ_ONLY && <p role="status" className="mt-4 border border-[#364247] bg-[#12191d] px-4 py-3 text-sm text-slate-300">AI comparisons are unavailable in this read-only preview. Vehicle selection is available for interface review, but no analysis request will be sent.</p>}
 
         <div className="mt-4 flex flex-wrap gap-2">
           {samples.map((s, i) => (
