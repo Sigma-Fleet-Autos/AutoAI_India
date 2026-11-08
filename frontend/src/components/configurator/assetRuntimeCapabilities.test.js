@@ -74,3 +74,13 @@ test('does not treat an empty verified camera declaration as all presets', async
   const { resolveCameraPreset } = await import('../../three/CameraPresets');
   expect(resolveCameraPreset('exterior', [])).toBeNull();
 });
+
+
+test('rejects unsafe and non-HTTPS 3D asset URLs even when their pathname ends in GLB', () => {
+  const usable = (url) => isRuntimeAssetUsable({ available: true, url, version: 'v1' });
+  expect(usable('javascript:alert(1).glb')).toBe(false);
+  expect(usable('data:application/octet-stream,model.glb')).toBe(false);
+  expect(usable('file:///private/model.glb')).toBe(false);
+  expect(usable('http://cdn.example.com/car.glb')).toBe(false);
+  expect(usable('https://cdn.example.com/car.glb?signature=ok')).toBe(true);
+});
