@@ -15,7 +15,7 @@ import { useConfiguratorStore } from '../../state/configuratorStore';
 import { configuratorApi } from '../../services/configuratorApi';
 import { normalizeHotspots } from './premiumShowroom';
 import { buildConfiguratorShareCard } from './shareCard';
-import { buildCinematicSequence, getNextCinematicPreset } from './cinematicShowroom';
+import { buildCinematicSequence, getNextCinematicPreset, shouldAdvanceCinematicShowroom } from './cinematicShowroom';
 import { getVerifiedInteractionControls, hasVerifiedPartAnimations } from './interactionControls';
 import { getConfiguratorRenderProfile } from '../../three/configuratorPerformance';
 import { resolveSelectedPaintHex } from './selectedPaintColor';
@@ -151,8 +151,14 @@ export default function ConfiguratorViewer({ style, options, variant }) {
   );
 
   useEffect(() => {
-    if (!showroom.active || !cinematicSequence.length || showroom.paused) return undefined;
+    if (!showroom.active || cinematicSequence.length < 2 || showroom.paused) return undefined;
     const timer = window.setInterval(() => {
+      if (!shouldAdvanceCinematicShowroom({
+        active: showroom.active,
+        paused: showroom.paused,
+        visibilityState: document.visibilityState,
+        sequenceLength: cinematicSequence.length,
+      })) return;
       const currentPreset = useConfiguratorStore.getState().interaction.cameraPreset;
       const nextPreset = getNextCinematicPreset(cinematicSequence, currentPreset);
       if (nextPreset) useConfiguratorStore.getState().setCameraPreset(nextPreset, { pauseShowroom: false });
