@@ -72,6 +72,8 @@ Do not imply an unverified concept or sample GLB is a production model. The exis
 
 Vercel project `auto-ai` now reports `ssoProtection: { enabled: true, deploymentType: "preview" }`. Access to previews requires Vercel team authentication. Do not disable this setting while reviewing the feature.
 
+The preview branch `feat/private-cinematic-home-configurator-20261104` has a branch-scoped Vercel `REACT_APP_BACKEND_URL` pointing at the designated staging backend, plus an explicit branch-scoped `REACT_APP_PREVIEW_READ_ONLY=true` safeguard. Both are preview-only settings; no production environment variable was changed. Client-side write blocking is defense-in-depth, **not** proof of database isolation or a server-side authorization boundary. Render workspace ownership, backend environment and MongoDB separation still require independent verification before enabling writes.
+
 Public domains must remain attached to the existing production revision; do not promote the preview branch, merge into `main`, or modify production data. A production-independent backend/database configuration is a prerequisite before enabling preview interactions that can save data, make bookings or process payments.
 
 ## Acceptance (not yet signed off)
