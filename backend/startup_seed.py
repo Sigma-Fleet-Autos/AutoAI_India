@@ -5,17 +5,22 @@ catalogue requires a separately reviewed migration, not a service restart.
 """
 
 from collections.abc import Mapping, Sequence
-from typing import Any
+from typing import Protocol
+
+
+class SeedCollection(Protocol):
+    async def count_documents(self, filter: Mapping[str, object], *, limit: int) -> int: ...
+
+    async def insert_many(self, documents: list[dict[str, object]]) -> object: ...
 
 
 async def seed_collection_if_empty(
-    collection: Any,
-    documents: Sequence[Mapping[str, Any]],
+    collection: SeedCollection,
+    documents: Sequence[Mapping[str, object]],
 ) -> bool:
-    """Insert seed documents only into an empty collection.
+    """Insert a non-empty seed batch only when the collection is empty.
 
-    Returns True when a non-empty seed batch was inserted.
-    No write occurs when the collection already contains any document.
+    Existing data is never deleted or overwritten.
     """
     if not documents:
         return False
