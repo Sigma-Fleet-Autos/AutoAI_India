@@ -4,8 +4,7 @@
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
-if (!process.argv.includes("--fixtures"))
-  throw new Error("Explicit --fixtures flag required");
+
 const portFlag = process.argv.indexOf("--port");
 const port = Number(portFlag < 0 ? 4173 : process.argv[portFlag + 1]);
 const root = path.resolve(__dirname, "../build");
@@ -63,31 +62,26 @@ function json(res, data, status = 200) {
   });
   res.end(JSON.stringify(data));
 }
-http
-  .createServer((req, res) => {
-    const url = new URL(req.url, "http://localhost");
+function createPreviewServer({ staticRoot = root } = {}) {
+  const files = new Map();
+  const mime = {".html":"text/html; charset=utf-8",".js":"text/javascript",".css":"text/css",".json":"application/json",".jpg":"image/jpeg",".png":"image/png",".svg":"image/svg+xml"};
+  function collect(directory, prefix = "") {
+    if (!fs.existsSync(directory)) return;
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const file = path.join(directory, entry.name);
+      const key = prefix + "/" + entry.name;
+      if (entry.isDirectory()) collect(file, key);
+      else if (entry.isFile()) files.set(key, { body: fs.readFileSync(file), type: mime[path.extname(entry.name)] || "application/octet-stream" });
+    }
+  }
+  collect(staticRoot);
+  const viewportHtml = fs.readFileSync(path.join(__dirname, "ui-viewport.html"));
+  return http.createServer((req, res) => {
+    let url;
+    try { url = new URL(req.url, "http://localhost"); } catch { res.writeHead(400); return res.end("Invalid URL"); }
     if (url.pathname === "/__qa__/viewport") {
-      const width = Math.max(
-        320,
-        Math.min(1920, Number(url.searchParams.get("width")) || 390),
-      );
-      const height = Math.max(
-        600,
-        Math.min(1200, Number(url.searchParams.get("height")) || 844),
-      );
-      const target = [
-        "/",
-        "/cars",
-        "/showroom/ui-suv",
-        "/configurator/ui-suv",
-        "/emi",
-      ].includes(url.searchParams.get("path"))
-        ? url.searchParams.get("path")
-        : "/";
-      res.writeHead(200, { "Content-Type": "text/html" });
-      return res.end(
-        `<!doctype html><html><head><meta charset="utf-8"><title>AutoAI responsive QA</title><style>body{margin:0;background:#d9dadd;font:12px Arial}p{margin:10px}iframe{border:0;display:block;transform-origin:top left;margin:20px}</style></head><body><p>LOCAL UI FIXTURE · ${width} × ${height} CSS px · ${target}</p><iframe title="Responsive AutoAI preview" src="${target}" width="${width}" height="${height}"></iframe><script>const f=document.querySelector('iframe');f.style.transform='scale('+Math.min(1,(innerWidth-40)/${width})+')';</script></body></html>`,
-      );
+      res.writeHead(200, { "Content-Type": "text/html; charset=utf-8", "X-Content-Type-Options": "nosniff" });
+      return res.end(viewportHtml);
     }
     if (url.pathname.startsWith("/api/")) {
       if (req.method !== "GET")
@@ -113,37 +107,17 @@ http
       }
       return json(res, { detail: "Not provided by UI fixture" }, 404);
     }
-    const requested = path.resolve(
-      root,
-      "." + decodeURIComponent(url.pathname),
-    );
-    if (!requested.startsWith(root + path.sep) && requested !== root) {
-      res.writeHead(403);
-      return res.end();
-    }
-    let file =
-      fs.existsSync(requested) && fs.statSync(requested).isFile()
-        ? requested
-        : path.join(root, "index.html");
-    if (!fs.existsSync(file)) {
-      res.writeHead(503);
-      return res.end("Build frontend before starting UI preview");
-    }
-    const mime = {
-      ".html": "text/html",
-      ".js": "text/javascript",
-      ".css": "text/css",
-      ".json": "application/json",
-      ".jpg": "image/jpeg",
-      ".png": "image/png",
-      ".svg": "image/svg+xml",
-    };
-    res.writeHead(200, {
-      "Content-Type": mime[path.extname(file)] || "application/octet-stream",
-      "Cache-Control": "no-store",
-    });
-    fs.createReadStream(file).pipe(res);
-  })
-  .listen(port, "127.0.0.1", () =>
-    console.log(`Read-only UI fixture preview at http://127.0.0.1:${port}`),
-  );
+    let key;
+    try { key = decodeURIComponent(url.pathname); } catch { res.writeHead(400); return res.end("Invalid URL encoding"); }
+    const file = files.get(key) || (!path.extname(key) ? files.get("/index.html") : null);
+    if (!file) { res.writeHead(404); return res.end("Not found"); }
+    res.writeHead(200, { "Content-Type": file.type, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
+    res.end(file.body);
+  });
+}
+module.exports = { createPreviewServer };
+if (require.main === module) {
+  if (!process.argv.includes("--fixtures")) throw new Error("Explicit --fixtures flag required");
+  const server = createPreviewServer();
+  server.listen(port, "127.0.0.1", () => console.log(`Read-only UI fixture preview at http://127.0.0.1:${server.address().port}`));
+}
