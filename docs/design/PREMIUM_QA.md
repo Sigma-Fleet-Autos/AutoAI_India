@@ -5,7 +5,7 @@ This is an isolated implementation review, not production acceptance. No product
 ## Passed
 
 - Optimized CRA production build with existing React architecture.
-- 33 frontend suites, 123 tests including media-evidence and body-style regression tests.
+- 36 frontend suites, 137 tests including media-evidence and body-style regression tests.
 - `git diff --check` and fixture server syntax check.
 - Browser homepage hero switching and category links.
 - Native modal navigation, initial close-button focus, Escape dismissal and return focus.
@@ -27,9 +27,9 @@ Before route splitting: initial JS ~511.3 kB gzip. After: ~145.45 kB gzip, with 
 - Main's catalogue does not expose the new licensed `media` metadata contract. Populate/map approved photography before catalogue visual acceptance. Legacy CDN images are not silently treated as licensed.
 - No verified model-specific GLB was available for browser exercise of orbit, wheels, interiors, doors, bonnet, boot or save/share against a live backend. Existing capability guards and backend authority are preserved. Selected paint is now passed into the renderer's declared paint materials, but needs an approved runtime asset for visual acceptance.
 - All non-UI operations are refused by the fixture API. Price validation, persistence, bookings, partner integrations and payment flows are not integration-tested here.
-- Supporting routes retain their existing application behavior with a shared visual skin; their full editorial redesign and individual end-to-end journeys are not complete.
+- Editorial redesign now covers comparison, advisor, EMI, journal, about, dealer application, sign-in, booking, my bookings and Premium. Internal dealer/admin portals remain outside this redesign. Live authenticated and transactional journeys still require isolated integration testing.
 - Exact Porsche font metrics/easing, all carousel interactions, reduced-motion state, and matching-dimension screenshot comparisons are not exhaustively measured. No similarity percentage or pixel-perfect claim.
-- No full accessibility audit, real Android device profile, Lighthouse run, or full production regression suite was performed.
+- Axe WCAG A/AA scans on the 390px advisor and EMI screens reported no violations; color contrast and ARIA checks included incomplete results requiring manual review. This is not a full accessibility audit. No real Android device profile, Lighthouse run, or full production regression suite was performed.
 - Local runtime Node 24/npm 11 is newer than repository's Node 20–22/npm 10 engines. Install required `--engine-strict=false`; runtime build/tests pass. CI on the supported Node 22 remains the acceptance authority.
 
 ## Reproduce locally
@@ -44,3 +44,11 @@ npm run preview:ui
 ```
 
 Open `http://127.0.0.1:4173/`. Responsive harness: `/__qa__/viewport?width=390&height=844&path=/configurator/ui-suv`. The fixture service is local-only and read-only. For a real integration review, use an isolated approved backend and preserve its pricing/asset authority.
+
+## Supporting-page verification
+
+- Production build and 36 suites / 137 frontend tests pass. New tests cover EMI mathematics (including zero interest), request error normalization, cancellation and stale response protection.
+- Five local preview-server security tests pass: reflected-query absence, encoded traversal refusal, malformed URL handling, transactional POST refusal and SPA routing. CodeQL on the security-fix commit reported no new alerts.
+- Browser: comparison sample populates and returns clearly labeled fixture results; simulated unavailable service displays an inline error. Mobile EMI at zero percent produces ₹13,333 monthly, ₹0 interest and ₹8,00,000 repayment for ₹8,00,000 over 60 months.
+- Optional local axe harness serves a fixed installed script and writes scan results to its visible status area. Synthetic comparison/recommendation calculations are stateless preview responses; booking/auth/payment/dealer writes remain refused.
+- Query-string payment returns do not establish payment entitlement. Existing checkout and verification endpoints remain authoritative; no payment was executed.

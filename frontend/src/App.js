@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import "@/App.css";
 import "./styles/premium-experience.css";
+import "./styles/service-experience.css";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -43,7 +44,19 @@ function PageSurface({ children }) {
   const modern =
     pathname === "/" ||
     pathname === "/cars" ||
+    [
+      "/compare",
+      "/recommend",
+      "/emi",
+      "/news",
+      "/about",
+      "/dealers/apply",
+      "/login",
+      "/premium",
+      "/my-bookings",
+    ].includes(pathname) ||
     pathname.startsWith("/showroom/") ||
+    pathname.startsWith("/book/") ||
     pathname.startsWith("/configurator/");
   return (
     <main

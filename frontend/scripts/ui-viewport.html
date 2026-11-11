@@ -1,14 +1,112 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AutoAI responsive QA</title><style>body{margin:0;background:#d9dadd;font:12px Arial}p{margin:10px}iframe{border:0;display:block;transform-origin:top left;margin:20px}</style></head><body><p id="context">Local UI fixture</p><iframe title="Responsive AutoAI preview"></iframe><script>
-'use strict';
-const params = new URLSearchParams(location.search);
-const routes = new Map([['/','/'],['/cars','/cars'],['/showroom/ui-suv','/showroom/ui-suv'],['/configurator/ui-suv','/configurator/ui-suv'],['/emi','/emi'],['/compare','/compare'],['/recommend','/recommend'],['/news','/news'],['/about','/about'],['/dealers/apply','/dealers/apply'],['/login','/login'],['/premium','/premium']]);
-const width = Math.max(320,Math.min(1920,Number(params.get('width'))||390));
-const height = Math.max(600,Math.min(1200,Number(params.get('height'))||844));
-const target = routes.get(params.get('path')) || '/';
-const frame = document.querySelector('iframe');
-frame.width = String(width); frame.height = String(height); frame.src = target;
-document.querySelector('#context').textContent = `LOCAL UI FIXTURE · ${width} × ${height} CSS px · ${target}`;
-function fit(){frame.style.transform = `scale(${Math.min(1,(innerWidth-40)/width)})`;}
-fit(); addEventListener('resize',fit);
-</script></body></html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>AutoAI responsive QA</title>
+    <style>
+      body {
+        margin: 0;
+        background: #d9dadd;
+        font: 12px Arial;
+      }
+      p {
+        margin: 10px;
+      }
+      iframe {
+        border: 0;
+        display: block;
+        transform-origin: top left;
+        margin: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <p id="context">Local UI fixture</p>
+    <button id="audit" type="button">Run accessibility audit</button>
+    <pre id="audit-result" role="status"></pre>
+    <iframe title="Responsive AutoAI preview"></iframe>
+    <script>
+      "use strict";
+      const params = new URLSearchParams(location.search);
+      const routes = new Map([
+        ["/", "/"],
+        ["/cars", "/cars"],
+        ["/showroom/ui-suv", "/showroom/ui-suv"],
+        ["/configurator/ui-suv", "/configurator/ui-suv"],
+        ["/emi", "/emi"],
+        ["/compare", "/compare"],
+        ["/recommend", "/recommend"],
+        ["/news", "/news"],
+        ["/about", "/about"],
+        ["/dealers/apply", "/dealers/apply"],
+        ["/login", "/login"],
+        ["/premium", "/premium"],
+      ]);
+      const width = Math.max(
+        320,
+        Math.min(1920, Number(params.get("width")) || 390),
+      );
+      const height = Math.max(
+        600,
+        Math.min(1200, Number(params.get("height")) || 844),
+      );
+      const target = routes.get(params.get("path")) || "/";
+      const frame = document.querySelector("iframe");
+      frame.width = String(width);
+      frame.height = String(height);
+      frame.src = target;
+      document.querySelector("#context").textContent =
+        `LOCAL UI FIXTURE · ${width} × ${height} CSS px · ${target}`;
+      function fit() {
+        frame.style.transform = `scale(${Math.min(1, (innerWidth - 40) / width)})`;
+      }
+      fit();
+      addEventListener("resize", fit);
+      document.querySelector("#audit").addEventListener("click", async () => {
+        const output = document.querySelector("#audit-result");
+        output.textContent = "Auditing current page state…";
+        try {
+          if (!frame.contentWindow.axe) {
+            await new Promise((resolve, reject) => {
+              const script = frame.contentDocument.createElement("script");
+              script.src = "/__qa__/axe.js";
+              script.onload = resolve;
+              script.onerror = reject;
+              frame.contentDocument.head.appendChild(script);
+            });
+          }
+          const result = await frame.contentWindow.axe.run(
+            frame.contentDocument,
+            {
+              runOnly: {
+                type: "tag",
+                values: ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"],
+              },
+            },
+          );
+          output.textContent = JSON.stringify(
+            {
+              url: frame.contentWindow.location.pathname,
+              violations: result.violations.map((v) => ({
+                id: v.id,
+                impact: v.impact,
+                description: v.description,
+                nodes: v.nodes.map((n) => ({
+                  target: n.target,
+                  summary: n.failureSummary,
+                })),
+              })),
+              incomplete: result.incomplete.map((v) => v.id),
+              passes: result.passes.length,
+            },
+            null,
+            2,
+          );
+        } catch {
+          output.textContent = "Audit unavailable. Install axe-core and retry.";
+        }
+      });
+    </script>
+  </body>
+</html>

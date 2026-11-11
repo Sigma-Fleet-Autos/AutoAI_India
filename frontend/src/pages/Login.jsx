@@ -1,124 +1,158 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { api, USER_TOKEN_KEY } from "../lib/api";
-import { Phone, Loader2, Shield, ArrowRight } from "lucide-react";
-
+import { Link, useNavigate } from "react-router-dom";
+import { USER_TOKEN_KEY } from "../lib/api";
+import useApiAction from "../hooks/useApiAction";
+import PageIntro, { FormMessage } from "../components/experience/PageIntro";
 export default function Login() {
-  const [step, setStep] = useState(1);
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [demoOtp, setDemoOtp] = useState("");
-  const nav = useNavigate();
-
-  const sendOtp = async (e) => {
-    e?.preventDefault();
-    if (phone.length < 10) { setError("Enter a valid 10-digit phone"); return; }
-    setLoading(true); setError("");
-    try {
-      const { data } = await api.post("/auth/send-otp", { phone });
+  const [step, setStep] = useState(1),
+    [phone, setPhone] = useState(""),
+    [otp, setOtp] = useState(""),
+    [demoOtp, setDemoOtp] = useState("");
+  const action = useApiAction(),
+    navigate = useNavigate();
+  const send = async (e) => {
+    e.preventDefault();
+    if (!/^\d{10}$/.test(phone)) return;
+    const data = await action.submit("/auth/send-otp", { phone });
+    if (data) {
       setDemoOtp(data.demo_otp || "");
       setStep(2);
-    } catch (e) {
-      setError(e?.response?.status === 429 ? "Too many OTP requests. Try again later." : "Could not send OTP, please try again");
     }
-    finally { setLoading(false); }
   };
-
   const verify = async (e) => {
-    e?.preventDefault();
-    setLoading(true); setError("");
-    try {
-      const { data } = await api.post("/auth/verify-otp", { phone, otp });
+    e.preventDefault();
+    if (!/^\d{6}$/.test(otp)) return;
+    const data = await action.submit("/auth/verify-otp", { phone, otp });
+    if (data?.token) {
       localStorage.setItem(USER_TOKEN_KEY, data.token);
-      localStorage.setItem("autoai_phone", data.phone);
-      nav("/my-bookings");
-    } catch (e) {
-      setError(e?.response?.status === 429 ? "Too many attempts. Request a new OTP later." : "Invalid or expired OTP");
+      localStorage.setItem("autoai_phone", data.phone || phone);
+      navigate("/my-bookings");
     }
-    finally { setLoading(false); }
   };
-
   return (
-    <div className="bg-[#050505] min-h-screen flex items-center justify-center px-6" data-testid="login-page">
-      <div className="w-full max-w-md">
-        <div className="flex items-center gap-3 mb-6">
-          <Shield size={16} className="text-[#F59E0B]" />
-          <span className="text-[10px] uppercase tracking-[0.35em] text-[#F59E0B] font-bold font-mono">/// secure login</span>
-        </div>
-        <h1 className="font-display text-4xl lg:text-5xl tracking-tighter font-light uppercase">
-          Track your <span className="text-[#F59E0B]">bookings.</span>
-        </h1>
-        <p className="text-slate-400 mt-3">Phone OTP. No passwords. No spam.</p>
-
-        <div className="mt-10 border border-[#262626] bg-[#0A0A0A] p-8">
+    <div
+      className="aai-service-page aai-container aai-section"
+      data-testid="login-page"
+    >
+      <div className="aai-login-layout">
+        <PageIntro
+          eyebrow="My AutoAI"
+          title={
+            <>
+              Your next chapter.
+              <br />
+              All in one place.
+            </>
+          }
+          description="Sign in to follow your bookings and pick up where you left off."
+          image="/media/editorial-sedan.jpg"
+        />
+        <section className="aai-workbench">
+          <span className="aai-kicker">
+            {step === 1 ? "Welcome to My AutoAI" : "Verify your number"}
+          </span>
+          <h2>
+            {step === 1 ? "Let’s get you started." : "A small step closer."}
+          </h2>
+          <p>
+            {step === 1
+              ? "We’ll send a one-time code to your phone."
+              : `Enter the six-digit code sent to +91 ${phone}.`}
+          </p>
           {step === 1 ? (
-            <form onSubmit={sendOtp} className="space-y-5" data-testid="otp-phone-form">
-              <label className="block">
-                <div className="text-[10px] uppercase tracking-[0.25em] text-slate-400 font-bold mb-2">Your Phone</div>
-                <div className="flex items-center gap-2 ai-input px-3 py-3">
-                  <Phone size={14} className="text-slate-500" />
-                  <span className="text-slate-400">+91</span>
+            <form
+              className="aai-form"
+              onSubmit={send}
+              data-testid="otp-phone-form"
+            >
+              <label>
+                Mobile number
+                <span className="aai-phone-input">
+                  <span>+91</span>
                   <input
                     type="tel"
+                    inputMode="numeric"
+                    required
+                    pattern="[0-9]{10}"
                     maxLength={10}
+                    autoComplete="tel-national"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ""))}
-                    placeholder="9XXXX XXXXX"
+                    onChange={(e) =>
+                      setPhone(e.target.value.replace(/[^0-9]/g, ""))
+                    }
                     data-testid="login-phone-input"
-                    className="flex-1 bg-transparent outline-none text-white"
                   />
-                </div>
+                </span>
               </label>
-              {error && <div className="text-xs text-[#EF4444]" data-testid="login-error">{error}</div>}
               <button
-                disabled={loading}
+                className="aai-button"
+                disabled={action.pending || phone.length !== 10}
                 data-testid="login-send-otp-btn"
-                className="w-full bg-[#F59E0B] text-black font-bold text-xs uppercase tracking-[0.25em] py-3.5 disabled:opacity-50 hover:bg-[#D97706] flex items-center justify-center gap-2"
               >
-                {loading ? <><Loader2 size={14} className="animate-spin" />Sending</> : <>Send OTP <ArrowRight size={14} /></>}
+                {action.pending ? "Sending code…" : "Send verification code"}
               </button>
             </form>
           ) : (
-            <form onSubmit={verify} className="space-y-5" data-testid="otp-verify-form">
-              <label className="block">
-                <div className="text-[10px] uppercase tracking-[0.25em] text-slate-400 font-bold mb-2">Enter 6-digit OTP</div>
+            <form
+              className="aai-form"
+              onSubmit={verify}
+              data-testid="otp-verify-form"
+            >
+              <label>
+                Verification code
                 <input
-                  type="text"
+                  className="aai-otp-input"
+                  required
+                  autoFocus
                   inputMode="numeric"
+                  autoComplete="one-time-code"
+                  pattern="[0-9]{6}"
                   maxLength={6}
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ""))}
+                  onChange={(e) =>
+                    setOtp(e.target.value.replace(/[^0-9]/g, ""))
+                  }
                   data-testid="login-otp-input"
-                  className="w-full ai-input px-3 py-3 tracking-[0.3em] text-lg text-center font-mono"
                 />
               </label>
               {demoOtp && (
-                <div className="text-[10px] uppercase tracking-[0.25em] text-[#F59E0B] font-mono bg-[#F59E0B]/5 border border-[#F59E0B]/30 px-3 py-2">
-                  Demo OTP (dev mode): <strong>{demoOtp}</strong>
-                </div>
+                <p className="aai-caption">Development mode code: {demoOtp}</p>
               )}
-              {error && <div className="text-xs text-[#EF4444]">{error}</div>}
               <button
-                disabled={loading || otp.length !== 6}
+                className="aai-button"
+                disabled={action.pending || otp.length !== 6}
                 data-testid="login-verify-btn"
-                className="w-full bg-[#F59E0B] text-black font-bold text-xs uppercase tracking-[0.25em] py-3.5 disabled:opacity-50 hover:bg-[#D97706]"
               >
-                {loading ? "Verifying" : "Verify & Continue →"}
+                {action.pending ? "Verifying…" : "Verify and continue"}
               </button>
-              <button type="button" onClick={() => setStep(1)} className="w-full text-xs text-slate-400 hover:text-[#F59E0B] uppercase tracking-[0.2em]">
-                ← Use a different phone
+              <button
+                className="aai-text-button"
+                type="button"
+                disabled={action.pending}
+                onClick={() => {
+                  setStep(1);
+                  setOtp("");
+                }}
+              >
+                Use a different number
               </button>
             </form>
           )}
-        </div>
-
-        <div className="mt-6 text-center text-xs text-slate-500">
-          <Link to="/dealer" className="hover:text-[#F59E0B] uppercase tracking-[0.2em]" data-testid="dealer-login-link">
-            Dealer? Access command center →
+          <FormMessage
+            error={action.error}
+            pending={action.pending}
+            pendingText={
+              step === 1 ? "Requesting your code…" : "Verifying your code…"
+            }
+          />
+          <Link
+            className="aai-text-link"
+            to="/dealer"
+            data-testid="dealer-login-link"
+          >
+            Dealer portal →
           </Link>
-        </div>
+        </section>
       </div>
     </div>
   );
