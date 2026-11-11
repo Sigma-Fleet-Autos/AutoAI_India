@@ -1,6 +1,7 @@
 # Auto AI India — Staging Isolation and Release Gate Audit
 
 **Audit date:** 2026-11-08  
+**Status checked:** 2026-11-11  
 **Scope:** GitHub draft PR #91, Vercel preview, Render services, MongoDB Atlas metadata.  
 **Mode:** Read-only infrastructure inspection; no Render deploy, database write, access-list edit, or production change.
 
@@ -9,7 +10,7 @@
 | Area | Observation | Release implication |
 | --- | --- | --- |
 | GitHub | PR #91 is open, draft, unmerged and mergeable. | Keep in draft until the gates below pass. |
-| Vercel | The private preview is READY; the branch-scoped `REACT_APP_BACKEND_URL` points to `https://auto-ai-staging-backend.onrender.com`, and `REACT_APP_PREVIEW_READ_ONLY=true`. | The frontend Axios clients reject non-GET/HEAD/OPTIONS requests in preview. This is not a backend security boundary. |
+| Vercel | The private preview for PR commit `c6fd866` is READY; the branch-scoped `REACT_APP_BACKEND_URL` points to `https://auto-ai-staging-backend.onrender.com`, and `REACT_APP_PREVIEW_READ_ONLY=true`. | The frontend Axios clients reject non-GET/HEAD/OPTIONS requests in preview. This is not a backend security boundary. |
 | Render staging | `auto-ai-staging-backend` runs the legacy staging branch, not the PR branch. The latest recorded deployment attempts failed. | Preview API functionality cannot be declared healthy. |
 | Render staging deployment | The 2026-08-31 build succeeded, then deployment failed with process exit code 3. Historical startup logs were not available in the accessible log window. | Root cause is unknown; do not guess or trigger a retry until data isolation is verified. |
 | Render staging health | The staging service has no configured Render health-check path. | Configure a non-destructive readiness endpoint after fixing the service. |
@@ -19,7 +20,7 @@
 | MongoDB Atlas network | The Atlas project contains ten network-access entries, including individual IPs and Render CIDRs. | Audit each entry against active needs; do not remove without identifying its owner. |
 | Staging startup source | `backend/server.py` on the legacy staging branch calls `db.cars.delete_many({})` and `db.news.delete_many({})` during application startup, then reseeds both collections. | **Destructive startup path: do not deploy or restart staging until the actual `MONGO_URL` and `DB_NAME` are verified and startup code is made safe.** |
 | Production startup source | `backend/server.py` on `main` inserts seed cars/news only when the respective collection is empty. | This differs materially from the old staging branch and is not a reason to assume the old branch is safe. |
-| CI | Frontend tests/build, backend tests and independence checks passed for commit `9acb9b2`; the production-smoke job was still checking live API health when inspected. | CI status must be read back for the latest PR head before any release. |
+| CI | Frontend tests/build, backend tests, independence validation, CodeQL and production smoke passed for PR commit `c6fd866`. The successful smoke run checked `/health`, `/health/live` and `/health/ready`; readiness reported MongoDB and Redis OK. An earlier smoke attempt timed out, so the successful run does not establish continuous availability. | CI status must be read back for the latest PR head before any release. |
 
 ## Not yet verified
 
