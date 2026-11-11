@@ -37,6 +37,7 @@ function validAssetUrl(url) {
   if (!nonEmptyString(url)) return false;
   try {
     const parsed = new URL(url.trim());
+    if (parsed.protocol !== 'https:' || !parsed.hostname) return false;
     const path = parsed.pathname.toLowerCase();
     return path.endsWith('.glb') || path.endsWith('.gltf');
   } catch {

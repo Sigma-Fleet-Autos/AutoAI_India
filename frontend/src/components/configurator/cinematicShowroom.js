@@ -26,3 +26,9 @@ export function getNextCinematicPreset(sequence, currentPreset) {
   const currentIndex = sequence.indexOf(currentPreset);
   return sequence[(currentIndex + 1) % sequence.length];
 }
+
+
+export function shouldAdvanceCinematicShowroom({ active, paused, visibilityState, sequenceLength }) {
+  return active === true && paused !== true && visibilityState === 'visible'
+    && Number.isInteger(sequenceLength) && sequenceLength > 1;
+}

@@ -24,7 +24,7 @@ export default function Showroom() {
   const { carId } = useParams();
   const [car, setCar] = useState(null);
   const [angle, setAngle] = useState(0);
-  const [autoSpin, setAutoSpin] = useState(true);
+  const [autoSpin, setAutoSpin] = useState(false);
   const [color, setColor] = useState(COLORS[0]);
   const [doors, setDoors] = useState(false);
   const [hood, setHood] = useState(false);
@@ -40,7 +40,7 @@ export default function Showroom() {
   }, [carId]);
 
   useEffect(() => {
-    if (!autoSpin || locked) return;
+    if (!autoSpin || locked || !hasInteractiveModel) return;
     const id = setInterval(() => setAngle((a) => (a + 0.8) % 360), 40);
     return () => clearInterval(id);
   }, [autoSpin, locked]);
@@ -56,12 +56,12 @@ export default function Showroom() {
   }, []);
 
   const onMouseDown = (e) => {
-    if (locked) return;
+    if (locked || !hasInteractiveModel) return;
     dragRef.current = { active: true, startX: e.clientX, startAngle: angle };
     setAutoSpin(false);
   };
   const onMouseMove = (e) => {
-    if (!dragRef.current.active) return;
+    if (!dragRef.current.active || !hasInteractiveModel) return;
     const dx = e.clientX - dragRef.current.startX;
     setAngle((dragRef.current.startAngle + dx * 0.8 + 3600) % 360);
   };
@@ -69,7 +69,7 @@ export default function Showroom() {
 
   // touch
   const onTouchStart = (e) => {
-    if (locked) return;
+    if (locked || !hasInteractiveModel) return;
     dragRef.current = { active: true, startX: e.touches[0].clientX, startAngle: angle };
     setAutoSpin(false);
   };
@@ -90,12 +90,9 @@ export default function Showroom() {
   const realUrl = getCarImage(car.id);
   const proxiedUrl = realUrl ? `${API}/image-proxy?url=${encodeURIComponent(realUrl)}` : null;
 
-  // 3D sway effect based on angle — creates the illusion of rotation
-  // Angle 0-180 = normal; 180-360 = mirrored (as if we rotated to back, showing reverse)
-  const normAngle = angle % 360;
-  const isBack = normAngle > 90 && normAngle < 270;
-  const swayDeg = Math.sin((angle * Math.PI) / 180) * 18; // ±18deg rotation
-  const swayX = Math.sin((angle * Math.PI) / 180) * 30; // ±30px translate
+  // A single photograph is not a 3D asset. Do not mirror or tilt it as if
+  // it depicted real rear, top, or interior views.
+  const hasInteractiveModel = false;
 
   return (
     <div className="min-h-screen bg-[#050505]" data-testid="showroom-page">
@@ -147,57 +144,12 @@ export default function Showroom() {
               <div className="w-full h-full rounded-[50%] bg-[radial-gradient(ellipse_at_center,rgba(245,158,11,0.25),rgba(0,0,0,0.8)_70%)] blur-xl opacity-70" />
             </div>
 
-            {/* THE ACTUAL CAR IMAGE — 3D sway */}
-            <div className="absolute inset-0 flex items-center justify-center p-8" style={{ perspective: "1400px" }}>
-              {view === "interior" ? (
-                <InteriorView accent={color.ring} locked={locked} />
-              ) : (
-                <motion.div
-                  className="relative w-[92%] h-[80%] transition-filter duration-300"
-                  animate={{
-                    rotateY: swayDeg,
-                    x: swayX,
-                    scale: view === "top" ? 0.85 : 1,
-                    rotateX: view === "top" ? 55 : 0,
-                  }}
-                  transition={{ type: "tween", duration: 0.05, ease: "linear" }}
-                  style={{
-                    transformStyle: "preserve-3d",
-                    filter: locked ? "blur(18px) brightness(0.5)" : `drop-shadow(0 30px 40px ${color.ring}70)`,
-                  }}
-                >
-                  {proxiedUrl ? (
-                    <>
-                      <img
-                        src={proxiedUrl}
-                        alt={`${car.brand} ${car.model}`}
-                        className="w-full h-full object-contain"
-                        style={{
-                          transform: isBack ? "scaleX(-1)" : "scaleX(1)",
-                          transition: "transform 0.3s ease",
-                        }}
-                        draggable={false}
-                      />
-                      {/* Color tint overlay — paint customization */}
-                      <div
-                        className="absolute inset-0 pointer-events-none mix-blend-overlay transition-opacity duration-500"
-                        style={{ backgroundColor: color.tint, opacity: color.name === "Obsidian" ? 0 : 0.75 }}
-                      />
-                      {/* Additional color wash for stronger paint feel on non-default */}
-                      {color.name !== "Obsidian" && (
-                        <div
-                          className="absolute inset-0 pointer-events-none mix-blend-soft-light transition-opacity duration-500"
-                          style={{ backgroundColor: color.hex, opacity: 0.55 }}
-                        />
-                      )}
-                    </>
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-500 font-mono text-xs">
-                      No photo available
-                    </div>
-                  )}
-                </motion.div>
-              )}
+            {/* Accurate photographic preview until a licensed interactive model is available. */}
+            <div className="absolute inset-0 flex items-center justify-center p-8">
+              {proxiedUrl ? <img src={proxiedUrl} alt={`${car.brand} ${car.model} photographic preview`} className="w-full h-full object-contain" draggable={false} /> : <div className="text-slate-400">Verified vehicle photography unavailable</div>}
+            </div>
+            <div className="absolute bottom-14 left-4 right-4 text-center text-xs text-slate-200 bg-black/75 px-4 py-3 z-[5]" role="status">
+              Photographic preview only. Interactive 3D, paint changes and opening panels require a verified vehicle-specific model.
             </div>
 
             {/* State overlay chips (top-left) */}
@@ -215,7 +167,7 @@ export default function Showroom() {
               <RotateCw size={11} className="text-[#F59E0B]" />
               {Math.round(angle)}°
               <span className="text-slate-600">·</span>
-              <span className="text-[#F59E0B]">{isBack ? "REAR" : "FRONT"}</span>
+              <span className="text-[#F59E0B]">PHOTO</span>
             </div>
 
             {/* Paint readout */}
@@ -233,7 +185,7 @@ export default function Showroom() {
               ].map((v) => (
                 <button
                   key={v.k}
-                  disabled={locked}
+                  disabled={locked || !hasInteractiveModel}
                   data-testid={`view-${v.k}-btn`}
                   onClick={() => setView(v.k)}
                   className={`flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] px-3 py-1.5 border transition-all ${
@@ -252,7 +204,7 @@ export default function Showroom() {
                   <Lock size={48} className="text-[#F59E0B] mx-auto mb-4" />
                   <div className="font-display text-3xl font-light">Preview Expired</div>
                   <p className="text-slate-400 mt-2 text-sm">
-                    Unlock unlimited 360° showroom access for every car, full customization, and exclusive AI insights.
+                    Interactive vehicle features are available only for models with verified 3D assets.
                   </p>
                   <Link to="/premium" className="mt-6 inline-block btn-shine bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black px-6 py-3 text-xs uppercase tracking-[0.25em] font-bold" data-testid="upgrade-cta-lock">
                     Unlock Premium →
@@ -265,7 +217,7 @@ export default function Showroom() {
           {/* Drag hint + angle slider */}
           <div className="mt-3 flex flex-col gap-2">
             <div className="text-center text-[10px] uppercase tracking-[0.3em] text-slate-500 font-mono">
-              {locked ? "· preview ended ·" : "· drag image to rotate · swipe on mobile ·"}
+              {locked ? "· preview ended ·" : "· verified 3D asset required for rotation ·"}
             </div>
             <input
               type="range"
@@ -273,7 +225,7 @@ export default function Showroom() {
               max="359"
               value={Math.round(angle)}
               onChange={(e) => { setAutoSpin(false); setAngle(Number(e.target.value)); }}
-              disabled={locked}
+              disabled={locked || !hasInteractiveModel}
               data-testid="angle-slider"
               className="w-full accent-[#F59E0B]"
             />
@@ -295,12 +247,12 @@ export default function Showroom() {
             )}
           </div>
 
-          <Panel icon={<Palette size={14} />} title="Paint" disabled={locked}>
+          <Panel icon={<Palette size={14} />} title="Paint — 3D asset required" disabled={locked || !hasInteractiveModel}>
             <div className="grid grid-cols-7 gap-2">
               {COLORS.map((c) => (
                 <button
                   key={c.name}
-                  disabled={locked}
+                  disabled={locked || !hasInteractiveModel}
                   onClick={() => setColor(c)}
                   data-testid={`color-${c.name.toLowerCase().replace(" ", "-")}`}
                   title={c.name}
@@ -312,7 +264,7 @@ export default function Showroom() {
             <div className="text-xs text-slate-400 mt-3">{color.name}</div>
           </Panel>
 
-          <Panel icon={<Zap size={14} />} title="Live States" disabled={locked}>
+          <Panel icon={<Zap size={14} />} title="Live States — 3D asset required" disabled={locked || !hasInteractiveModel}>
             <div className="grid grid-cols-2 gap-2">
               <Toggle active={doors} onClick={() => setDoors(!doors)} icon={<DoorOpen size={12} />} label="Doors" tid="toggle-doors" disabled={locked} />
               <Toggle active={hood} onClick={() => setHood(!hood)} icon={<Package size={12} />} label="Hood" tid="toggle-hood" disabled={locked} />
@@ -321,10 +273,10 @@ export default function Showroom() {
             </div>
           </Panel>
 
-          <Panel icon={<Gauge size={14} />} title="Rotation" disabled={locked}>
+          <Panel icon={<Gauge size={14} />} title="Rotation — 3D asset required" disabled={locked || !hasInteractiveModel}>
             <div className="flex items-center gap-2">
               <button
-                disabled={locked}
+                disabled={locked || !hasInteractiveModel}
                 onClick={() => setAutoSpin((s) => !s)}
                 data-testid="toggle-autospin"
                 className={`flex-1 py-2 text-[10px] uppercase tracking-[0.2em] font-bold border transition-colors ${
@@ -334,7 +286,7 @@ export default function Showroom() {
                 {autoSpin ? "Auto-spin ON" : "Paused"}
               </button>
               <button
-                disabled={locked}
+                disabled={locked || !hasInteractiveModel}
                 onClick={() => setAngle(0)}
                 data-testid="reset-angle"
                 className="py-2 px-3 border border-white/15 text-slate-300 hover:border-[#F59E0B]"
@@ -350,7 +302,7 @@ export default function Showroom() {
               <div className="text-[10px] uppercase tracking-[0.3em] text-[#F59E0B] font-bold font-mono">Loving it?</div>
             </div>
             <div className="text-sm text-slate-300 leading-relaxed mb-4">
-              Unlock unlimited showroom time, all 106 cars, and exclusive AI perks.
+              Explore available vehicle information and premium features. Interactive 3D requires compatible model assets.
             </div>
             <Link to="/premium" data-testid="upgrade-cta-panel" className="block btn-shine bg-gradient-to-r from-[#F59E0B] to-[#D97706] text-black text-center text-xs uppercase tracking-[0.25em] font-bold py-3">
               Go Premium →

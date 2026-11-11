@@ -22,3 +22,34 @@ export function getSupportedInteractionControls(supportedInteractions = []) {
 export function getDoorControls(supportedInteractions = []) {
   return getSupportedInteractionControls(supportedInteractions).filter((control) => control.id === 'doors');
 }
+
+const DOOR_ANIMATIONS = {
+  frontLeft: ['front_left_open', 'front_left_close'],
+  frontRight: ['front_right_open', 'front_right_close'],
+  rearLeft: ['rear_left_open', 'rear_left_close'],
+  rearRight: ['rear_right_open', 'rear_right_close'],
+};
+
+export function hasVerifiedPartAnimations(supportedInteractions, animationMappings, part, doorSide = null) {
+  if (!Array.isArray(supportedInteractions) || !supportedInteractions.includes(part)) return false;
+  if (!animationMappings || typeof animationMappings !== 'object' || Array.isArray(animationMappings)) return false;
+  const mapping = animationMappings[part];
+  if (!mapping || typeof mapping !== 'object' || Array.isArray(mapping)) return false;
+  const required = part === 'doors' ? DOOR_ANIMATIONS[doorSide] : ['open', 'close'];
+  if (!required) return false;
+  return required.every((key) => typeof mapping[key] === 'string' && mapping[key].trim().length > 0);
+}
+
+
+/** Return only controls whose UI can actually perform the declared interaction. */
+export function getVerifiedInteractionControls(supportedInteractions = [], animationMappings = {}) {
+  return getSupportedInteractionControls(supportedInteractions).filter((control) => {
+    if (control.group === 'lighting') return true;
+    if (control.id === 'doors') {
+      return Object.keys(DOOR_ANIMATIONS).some((side) =>
+        hasVerifiedPartAnimations(supportedInteractions, animationMappings, 'doors', side)
+      );
+    }
+    return hasVerifiedPartAnimations(supportedInteractions, animationMappings, control.id);
+  });
+}
