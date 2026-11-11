@@ -1,0 +1,1145 @@
+.aai-service-page {
+  background: var(--aai-paper);
+  color: var(--aai-ink);
+  min-height: 60vh;
+}
+.aai-service-page h1 {
+  font-size: clamp(42px, 5.8vw, 84px);
+  line-height: 1.06;
+  letter-spacing: -0.055em;
+  font-weight: 400;
+  margin: 18px 0 25px;
+}
+.aai-service-page h2 {
+  font-size: clamp(28px, 3vw, 44px);
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+  font-weight: 400;
+  margin: 15px 0 24px;
+}
+.aai-service-page h3 {
+  font-size: clamp(22px, 2vw, 28px);
+  font-weight: 400;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+  margin: 12px 0 18px;
+}
+.aai-service-page p {
+  font-size: 14px;
+  line-height: 1.85;
+}
+.aai-page-intro {
+  margin-bottom: 64px;
+  display: grid;
+  gap: 40px;
+  align-items: center;
+}
+.aai-page-intro.with-image {
+  grid-template-columns: 1.1fr 1fr;
+  gap: clamp(30px, 6vw, 90px);
+}
+.aai-page-intro-copy > p {
+  color: var(--aai-muted);
+  max-width: 560px;
+  font-size: 15px;
+  line-height: 1.9;
+  margin: 0;
+}
+.aai-page-intro-image {
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1.15;
+  background: #e8e9eb;
+}
+.aai-page-intro-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.aai-workbench {
+  border: 1px solid var(--aai-line);
+  border-radius: 12px;
+  background: #fff;
+  padding: clamp(24px, 3.5vw, 48px);
+  min-width: 0;
+}
+.aai-workbench-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.aai-workbench-heading p {
+  color: var(--aai-muted);
+  margin: 0;
+  font-size: 12px;
+}
+.aai-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.aai-form label {
+  display: block;
+  font-size: 12px;
+  color: #41464d;
+  line-height: 1.5;
+}
+.aai-form input:not([type="checkbox"]):not([type="range"]),
+.aai-form select,
+.aai-form textarea,
+.aai-journal-search input {
+  display: block;
+  width: 100%;
+  border: 1px solid #bfc2c8;
+  border-radius: 5px;
+  padding: 14px 15px;
+  min-height: 50px;
+  margin-top: 10px;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  color: var(--aai-ink);
+  outline-offset: 3px;
+  transition: border-color 0.2s;
+}
+.aai-form textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+.aai-form input:hover,
+.aai-form textarea:hover,
+.aai-form select:hover {
+  border-color: #5e636b;
+}
+.aai-form input::placeholder,
+.aai-form textarea::placeholder {
+  color: #777d85;
+}
+.aai-form button {
+  align-self: flex-start;
+}
+.aai-form .aai-button {
+  min-width: 190px;
+}
+.aai-form fieldset {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 0;
+}
+.aai-form fieldset + fieldset {
+  border-top: 1px solid var(--aai-line);
+  padding-top: 28px;
+}
+.aai-form legend {
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  margin-bottom: 12px;
+  padding: 0;
+}
+.aai-form fieldset > p {
+  font-size: 12px;
+  color: var(--aai-muted);
+  margin: 0;
+}
+.aai-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.aai-optional {
+  font-size: 10px;
+  color: var(--aai-muted);
+  float: right;
+}
+.aai-compare-inputs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 36px minmax(0, 1fr);
+  gap: 20px;
+  align-items: end;
+}
+.aai-field-number {
+  color: #8a8f96;
+  font-size: 11px;
+  display: block;
+  margin-bottom: 9px;
+}
+.aai-versus {
+  align-self: end;
+  padding-bottom: 10px;
+  font-size: 32px;
+  font-family: Georgia, serif;
+  color: #8a8f96;
+  text-align: center;
+}
+.aai-form-submit {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 28px;
+  border-top: 1px solid var(--aai-line);
+  padding-top: 24px;
+}
+.aai-form-submit p {
+  font-size: 11px;
+  color: var(--aai-muted);
+  max-width: 400px;
+  margin: 0;
+}
+.aai-form-submit .aai-button {
+  flex-shrink: 0;
+}
+.aai-form-message {
+  min-height: 16px;
+  color: var(--aai-muted);
+  margin-top: 10px;
+}
+.aai-form-message p {
+  font-size: 12px;
+  margin: 0;
+}
+.aai-error {
+  color: #aa2c31 !important;
+}
+.aai-suggestions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 22px 0;
+}
+.aai-suggestions > span {
+  font-size: 11px;
+  color: var(--aai-muted);
+  margin-right: 10px;
+}
+.aai-suggestions button {
+  background: transparent;
+  border: 1px solid var(--aai-line);
+  padding: 10px 13px;
+  border-radius: 25px;
+  font-size: 11px;
+  min-height: 40px;
+}
+.aai-suggestions button:hover {
+  background: var(--aai-soft);
+}
+.aai-comparison-results {
+  margin-top: 60px;
+}
+.aai-verdict {
+  padding: clamp(28px, 5vw, 68px);
+  background: #16191d;
+  color: white;
+  border-radius: 12px;
+  margin-bottom: 30px;
+}
+.aai-verdict h2 {
+  max-width: 850px;
+}
+.aai-verdict > p {
+  color: #c9cdd2;
+  max-width: 900px;
+  font-size: 14px;
+}
+.aai-verdict .aai-verdict-pick {
+  color: white;
+  font-size: 16px;
+}
+.aai-compare-cars {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+}
+.aai-comparison-car {
+  border: 1px solid var(--aai-line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.aai-comparison-car-copy {
+  padding: 30px;
+}
+.aai-comparison-car-copy > p {
+  color: var(--aai-muted);
+  font-size: 12px;
+}
+.aai-comparison-car h4 {
+  font-size: 12px;
+  font-weight: 600;
+  margin: 26px 0 12px;
+}
+.aai-comparison-car ul {
+  padding-left: 18px;
+  margin: 0;
+}
+.aai-comparison-car li {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--aai-muted);
+  padding-bottom: 6px;
+}
+.aai-comparison-car .aai-actions {
+  margin-top: 28px;
+}
+.aai-table-scroll {
+  overflow-x: auto;
+  margin-top: 40px;
+}
+.aai-comparison-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+  text-align: left;
+  min-width: 520px;
+}
+.aai-comparison-table caption {
+  text-align: left;
+  padding-bottom: 18px;
+  color: var(--aai-muted);
+  font-size: 11px;
+}
+.aai-comparison-table th,
+.aai-comparison-table td {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--aai-line);
+  vertical-align: top;
+  line-height: 1.6;
+}
+.aai-comparison-table th {
+  font-weight: 500;
+}
+.aai-comparison-table thead {
+  background: var(--aai-soft);
+}
+.aai-advisor-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
+  gap: clamp(35px, 6vw, 90px);
+  align-items: start;
+}
+.aai-advisor-note {
+  position: sticky;
+  top: 120px;
+}
+.aai-advisor-note h2 {
+  font-size: clamp(27px, 3vw, 40px);
+}
+.aai-advisor-note ol {
+  list-style: none;
+  margin: 30px 0;
+  padding: 0;
+}
+.aai-advisor-note li {
+  border-top: 1px solid var(--aai-line);
+  padding: 20px 0;
+  font-size: 13px;
+  display: flex;
+  gap: 22px;
+  align-items: center;
+}
+.aai-advisor-note li > span {
+  font-size: 10px;
+  color: var(--aai-muted);
+}
+.aai-advisor-note > p {
+  font-size: 12px;
+  color: var(--aai-muted);
+}
+.aai-budget-range {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.aai-form input[type="range"] {
+  display: block;
+  accent-color: #292f36;
+  width: 100%;
+  min-height: 36px;
+  margin-top: 7px;
+  cursor: pointer;
+}
+.aai-budget-range label {
+  font-size: 10px;
+  color: var(--aai-muted);
+}
+.aai-budget-display {
+  font-size: 24px;
+  letter-spacing: -0.035em;
+}
+.aai-advisor-results {
+  margin-top: 70px;
+}
+.aai-advisor-results > .aai-lead {
+  max-width: 900px;
+}
+.aai-recommendation-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 34px;
+}
+.aai-recommendation {
+  border: 1px solid var(--aai-line);
+  border-radius: 12px;
+  overflow: hidden;
+  min-width: 0;
+}
+.aai-recommendation > div:last-child {
+  padding: 26px;
+}
+.aai-recommendation p {
+  color: var(--aai-muted);
+  font-size: 12px;
+}
+.aai-recommendation .aai-actions {
+  margin-top: 24px;
+}
+.aai-watchout {
+  border-left: 2px solid #9c714e;
+  padding-left: 15px;
+}
+.aai-watchout strong {
+  display: block;
+  color: var(--aai-ink);
+  margin-bottom: 7px;
+}
+.aai-finance-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+.aai-loan-field {
+  padding: 25px 0 5px;
+}
+.aai-loan-field > label {
+  font-size: 14px;
+}
+.aai-number-unit {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.aai-number-unit input {
+  max-width: 240px;
+  font-size: 22px !important;
+  letter-spacing: -0.03em;
+}
+.aai-number-unit > span {
+  font-size: 11px;
+  white-space: nowrap;
+  color: var(--aai-muted);
+  margin-top: 10px;
+}
+.aai-range-limits {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--aai-muted);
+}
+.aai-finance-result {
+  position: sticky;
+  top: 110px;
+  background: #171a1e;
+  color: white;
+  border-radius: 12px;
+  padding: clamp(28px, 4vw, 52px);
+  min-width: 0;
+}
+.aai-monthly-payment {
+  display: block;
+  font-size: clamp(45px, 4.7vw, 68px);
+  font-weight: 400;
+  letter-spacing: -0.055em;
+  margin: 26px 0 10px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.aai-finance-source {
+  font-size: 11px;
+  color: #bdc2ca;
+}
+.aai-finance-result dl {
+  margin: 38px 0 30px;
+}
+.aai-finance-result dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 17px 0;
+  border-top: 1px solid #ffffff25;
+  align-items: baseline;
+}
+.aai-finance-result dt {
+  color: #c0c5cb;
+  font-size: 12px;
+}
+.aai-finance-result dd {
+  font-size: 18px;
+  margin: 0;
+}
+.aai-repayment-bar {
+  height: 6px;
+  background: #9c714e;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.aai-repayment-bar > span {
+  display: block;
+  height: 100%;
+  background: #e8ebdf;
+  transition: width 0.2s;
+}
+.aai-repayment-label {
+  display: flex;
+  justify-content: space-between;
+  color: #d5d9df;
+  font-size: 10px !important;
+}
+.aai-finance-result .aai-caption {
+  color: #b7bdc5;
+  font-size: 11px;
+}
+.aai-finance-next {
+  margin-top: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  border-top: 1px solid var(--aai-line);
+  padding-top: 40px;
+}
+.aai-journal-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 30px;
+  margin-bottom: 40px;
+}
+.aai-journal-toolbar .aai-category-tabs {
+  margin: 0;
+  max-width: 75%;
+}
+.aai-journal-search {
+  font-size: 11px;
+  color: var(--aai-muted);
+  min-width: 220px;
+}
+.aai-journal-search input {
+  font-size: 12px;
+}
+.aai-journal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px 50px;
+}
+.aai-journal-feature {
+  grid-column: 1/-1;
+}
+.aai-journal-story {
+  border-top: 1px solid var(--aai-line);
+  padding-top: 26px;
+  min-width: 0;
+}
+.aai-journal-story > img {
+  width: 100%;
+  height: clamp(250px, 30vw, 480px);
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 24px;
+}
+.aai-journal-meta {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--aai-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.aai-journal-story h2 {
+  font-size: clamp(25px, 2.8vw, 38px);
+  max-width: 980px;
+  margin-top: 22px;
+}
+.aai-journal-feature h2 {
+  font-size: clamp(32px, 4vw, 56px);
+}
+.aai-journal-story > p {
+  color: var(--aai-muted);
+  max-width: 900px;
+}
+.aai-journal-source {
+  font-size: 11px;
+  margin-top: 22px;
+}
+.aai-journal-source > a {
+  font-size: 11px;
+}
+.aai-about-statement {
+  max-width: 830px;
+  margin: 100px auto 30px;
+  text-align: center;
+}
+.aai-about-statement p {
+  font-size: 16px;
+  color: var(--aai-muted);
+  max-width: 700px;
+  margin: 30px auto 0;
+}
+.aai-about-image {
+  height: clamp(430px, 65vw, 850px);
+  position: relative;
+  isolation: isolate;
+  background: #25282b;
+  color: white;
+  overflow: hidden;
+}
+.aai-about-image:after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, #000a, transparent);
+  z-index: -1;
+}
+.aai-about-image > img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+.aai-about-image > div {
+  position: absolute;
+  bottom: 12%;
+  left: var(--aai-gutter);
+  right: var(--aai-gutter);
+}
+.aai-about-image h2 {
+  font-size: clamp(36px, 5vw, 74px);
+  max-width: 1000px;
+}
+.aai-principles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px;
+  margin-top: 34px;
+}
+.aai-principles > div {
+  border-top: 1px solid var(--aai-line);
+  padding-top: 24px;
+}
+.aai-principles h3 {
+  margin-top: 24px;
+}
+.aai-principles p {
+  color: var(--aai-muted);
+  font-size: 13px;
+}
+.aai-about-next {
+  border-top: 1px solid var(--aai-line);
+  padding-top: 40px;
+  margin-top: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+}
+.aai-brand-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.aai-brand-options label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--aai-line);
+  border-radius: 6px;
+  min-height: 42px;
+  padding: 9px 12px;
+  cursor: pointer;
+  font-size: 11px;
+}
+.aai-brand-options label:has(:checked) {
+  border-color: #17191c;
+  background: #f1f3f4;
+}
+.aai-brand-options input {
+  accent-color: #17191c;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+.aai-confirmation {
+  border: 1px solid var(--aai-line);
+  padding: clamp(25px, 5vw, 60px);
+  border-radius: 12px;
+  max-width: 900px;
+}
+.aai-confirmation dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin: 35px 0;
+}
+.aai-confirmation dt {
+  font-size: 11px;
+  color: var(--aai-muted);
+  margin-bottom: 8px;
+}
+.aai-confirmation dd {
+  margin: 0;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.aai-login-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: clamp(35px, 7vw, 100px);
+  align-items: center;
+}
+.aai-login-layout .aai-page-intro {
+  display: block;
+  margin: 0;
+}
+.aai-login-layout .aai-page-intro-image {
+  margin-top: 34px;
+  aspect-ratio: 16/9;
+}
+.aai-login-layout .aai-workbench > p {
+  font-size: 13px;
+  color: var(--aai-muted);
+  margin-bottom: 30px;
+}
+.aai-login-layout .aai-workbench h2 {
+  font-size: 30px;
+}
+.aai-form .aai-phone-input {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #bfc2c8;
+  border-radius: 5px;
+  padding: 0 15px;
+  margin-top: 10px;
+}
+.aai-form .aai-phone-input input {
+  border: 0 !important;
+  margin: 0 !important;
+  min-width: 0;
+  padding-left: 0 !important;
+}
+.aai-phone-input > span {
+  font-size: 13px;
+}
+.aai-otp-input {
+  letter-spacing: 0.4em;
+  font-variant-numeric: tabular-nums;
+  font-size: 24px !important;
+}
+.aai-text-button {
+  border: 0;
+  background: none;
+  padding: 10px 0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  font-size: 12px;
+  min-height: 44px;
+}
+.aai-booking-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  gap: 40px;
+  align-items: start;
+}
+.aai-booking-model {
+  position: sticky;
+  top: 110px;
+  border: 1px solid var(--aai-line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.aai-booking-model > div:last-child {
+  padding: 28px;
+}
+.aai-booking-model dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  border-top: 1px solid var(--aai-line);
+  padding-top: 20px;
+  margin-top: 24px;
+}
+.aai-booking-model dt {
+  font-size: 10px;
+  color: var(--aai-muted);
+}
+.aai-booking-model dd {
+  margin: 7px 0 0;
+  font-size: 16px;
+}
+.aai-checkbox-options {
+  display: grid;
+  gap: 12px;
+}
+.aai-form .aai-checkbox-options label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 42px;
+  cursor: pointer;
+}
+.aai-checkbox-options input {
+  width: 18px;
+  height: 18px;
+  accent-color: #17191c;
+}
+.aai-account-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  align-items: center;
+  margin-bottom: 50px;
+}
+.aai-account-heading .aai-page-intro {
+  margin: 0;
+}
+.aai-booking-list {
+  display: grid;
+  gap: 24px;
+}
+.aai-booking-item {
+  border: 1px solid var(--aai-line);
+  border-radius: 12px;
+  padding: 30px;
+  min-width: 0;
+}
+.aai-booking-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 20px;
+}
+.aai-booking-item h2 {
+  font-size: 28px;
+}
+.aai-booking-status {
+  padding: 9px 13px;
+  background: #eef1ec;
+  color: #3f5541;
+  font-size: 11px;
+  border-radius: 4px;
+}
+.aai-booking-item dl {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  border-top: 1px solid var(--aai-line);
+  padding-top: 24px;
+}
+.aai-booking-item dt {
+  font-size: 10px;
+  color: var(--aai-muted);
+}
+.aai-booking-item dd {
+  font-size: 13px;
+  margin: 9px 0 0;
+  overflow-wrap: anywhere;
+}
+.aai-membership-plans {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.aai-membership-plan {
+  border: 1px solid var(--aai-line);
+  border-radius: 12px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.aai-membership-plan.featured {
+  background: #171a1e;
+  color: white;
+  border-color: #171a1e;
+}
+.aai-plan-price {
+  font-size: 48px;
+  letter-spacing: -0.05em;
+  line-height: 1.1;
+  margin: 24px 0 8px;
+}
+.aai-plan-price + small {
+  font-size: 11px;
+  color: var(--aai-muted);
+}
+.aai-membership-plan.featured small {
+  color: #bfc6ce;
+}
+.aai-membership-plan ul {
+  list-style: none;
+  padding: 24px 0;
+  margin: 20px 0 0;
+  border-top: 1px solid #a0a5ad55;
+  flex: 1;
+}
+.aai-membership-plan li {
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 9px 0;
+}
+.aai-membership-plan .aai-button {
+  margin-top: 25px;
+}
+.aai-membership-note {
+  border-top: 1px solid var(--aai-line);
+  margin-top: 50px;
+  padding-top: 30px;
+  max-width: 850px;
+}
+.aai-membership-note p {
+  font-size: 12px;
+  color: var(--aai-muted);
+}
+@media (max-width: 1023px) {
+  .aai-page-intro.with-image {
+    gap: 30px;
+  }
+  .aai-advisor-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .aai-advisor-note {
+    position: static;
+  }
+  .aai-advisor-note ol {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .aai-advisor-note li {
+    display: block;
+    font-size: 12px;
+  }
+  .aai-advisor-note li > span {
+    display: block;
+    margin-bottom: 12px;
+  }
+  .aai-recommendation-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .aai-journal-toolbar {
+    display: block;
+  }
+  .aai-journal-toolbar .aai-category-tabs {
+    max-width: none;
+    margin-bottom: 25px;
+  }
+  .aai-journal-search {
+    display: block;
+    max-width: 400px;
+  }
+  .aai-login-layout {
+    gap: 30px;
+  }
+  .aai-booking-layout {
+    gap: 24px;
+  }
+  .aai-membership-plans {
+    gap: 15px;
+  }
+  .aai-membership-plan {
+    padding: 24px;
+  }
+  .aai-booking-item dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 700px) {
+  .aai-service-page h1 {
+    font-size: 46px;
+  }
+  .aai-page-intro {
+    margin-bottom: 36px;
+  }
+  .aai-page-intro.with-image {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .aai-page-intro-image {
+    aspect-ratio: 16/10;
+  }
+  .aai-page-intro-copy > p {
+    font-size: 14px;
+  }
+  .aai-workbench {
+    padding: 24px 20px;
+  }
+  .aai-workbench-heading {
+    display: block;
+  }
+  .aai-workbench-heading p {
+    margin-top: 12px;
+  }
+  .aai-compare-inputs {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .aai-versus {
+    display: none;
+  }
+  .aai-form-submit {
+    display: block;
+  }
+  .aai-form-submit .aai-button {
+    margin-top: 20px;
+    width: 100%;
+  }
+  .aai-suggestions {
+    padding-top: 20px;
+  }
+  .aai-suggestions > span {
+    width: 100%;
+  }
+  .aai-compare-cars {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .aai-comparison-car-copy {
+    padding: 24px;
+  }
+  .aai-verdict {
+    padding: 28px 23px;
+  }
+  .aai-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .aai-form {
+    gap: 22px;
+  }
+  .aai-form > .aai-button {
+    width: 100%;
+  }
+  .aai-advisor-note ol {
+    gap: 15px;
+  }
+  .aai-advisor-note h2 br {
+    display: none;
+  }
+  .aai-recommendation-grid {
+    grid-template-columns: 1fr;
+  }
+  .aai-advisor-results {
+    margin-top: 45px;
+  }
+  .aai-finance-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .aai-finance-result {
+    position: static;
+    padding: 30px 24px;
+  }
+  .aai-monthly-payment {
+    font-size: 54px;
+  }
+  .aai-finance-next {
+    display: block;
+    margin-top: 44px;
+  }
+  .aai-finance-next .aai-button {
+    margin-top: 12px;
+  }
+  .aai-journal-grid {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+  .aai-journal-feature {
+    grid-column: auto;
+  }
+  .aai-journal-story h2 {
+    font-size: 30px;
+  }
+  .aai-journal-feature h2 {
+    font-size: 36px;
+  }
+  .aai-about-statement {
+    margin: 50px 0 0;
+    text-align: left;
+  }
+  .aai-about-statement p {
+    font-size: 14px;
+  }
+  .aai-principles {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  .aai-principles h3 {
+    margin-top: 15px;
+  }
+  .aai-about-next {
+    display: block;
+    margin-top: 45px;
+  }
+  .aai-about-next .aai-actions {
+    margin-top: 25px;
+  }
+  .aai-confirmation dl {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .aai-login-layout {
+    grid-template-columns: 1fr;
+  }
+  .aai-login-layout .aai-page-intro-image {
+    display: none;
+  }
+  .aai-login-layout .aai-workbench {
+    margin-top: 8px;
+  }
+  .aai-booking-layout {
+    grid-template-columns: 1fr;
+  }
+  .aai-booking-model {
+    position: static;
+  }
+  .aai-account-heading {
+    align-items: start;
+    flex-wrap: wrap;
+  }
+  .aai-booking-item {
+    padding: 24px;
+  }
+  .aai-booking-item-header {
+    display: block;
+  }
+  .aai-booking-status {
+    display: inline-block;
+    margin-bottom: 18px;
+  }
+  .aai-membership-plans {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .aai-membership-plan {
+    padding: 30px;
+  }
+  .aai-number-unit input {
+    max-width: 210px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aai-service-page * {
+    transition: none !important;
+  }
+}
